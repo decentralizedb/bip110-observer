@@ -456,7 +456,7 @@ footer p+p{margin-top:8px}
       <ul class="str-assume">
         <li data-k="strAssume1"></li>
         <li data-k="strAssume2"></li>
-        <li data-k="strAssume3"></li>
+        <li id="strassume3"></li>
       </ul>
       <div class="caveat-b" style="max-width:70ch;margin-top:10px" data-k="strNote"></div>
     </div>
@@ -697,7 +697,7 @@ en: {
  simNote:"Difficulty only readjusts every {periodSize} blocks, and a soft fork like this one does not touch that mechanism, so the smaller chain inherits the difficulty of the whole network and has to live with it until its own retarget arrives. The calculation assumes that difficulty and that the hashrate stays stable: it is an order-of-magnitude estimate, not a prediction. When Bitcoin Cash split in 2017 it survived this because it was a hard fork and could add an emergency difficulty adjustment. BIP-110, by design, has none.",
  strTitle:"The different moments of BIP-110",
  strMethod:"They are block heights, and every node measures them on the chain it considers valid, not on the chain with the most work. That changes everything that comes after.",
- strLead:"At the {share}% signalling right now, the BIP-110 chain would produce one block every {interval} instead of one every ten minutes. Its milestones are heights, not dates, so each one takes however long that chain needs to reach it. From block {splitHeight} on, this is how it would look.",
+ strLead:"At the {share}% signalling right now, the BIP-110 chain would produce one block every {interval} instead of one every {normal}. Its milestones are heights, not dates, so each one takes however long that chain needs to reach it. From block {splitHeight} on, this is how it would look.",
  strNoData:"This server is not sending the projection yet. It is an older version of the panel.",
  tlIfSplit:"if they split: {v} (estimate)",
  tlSameBoth:"the same on both chains: up to here there is only one",
@@ -719,7 +719,7 @@ en: {
  strAssumeKicker:"What this calculation is taking for granted",
  strAssume1:"That today's signalling share holds. This is the shakiest of the three.",
  strAssume2:"That whoever signals ends up mining that chain. Signalling states an intention, it is not a commitment: you can signal and then follow the other chain.",
- strAssume3:"That difficulty retargets every {periodSize} blocks and drops to at most a quarter each time, which is Bitcoin's own cap. Without that cap the waits would be far longer.",
+ strAssume3:"That difficulty retargets every {periodSize} blocks and can be divided by at most {cap} each time, which is Bitcoin's own cap. Without that cap the waits would be far longer.",
  strNote:"A soft fork does not touch the difficulty mechanism, so the small chain starts out with the difficulty of the whole network. That is why the first leg is the slow one and the rest get shorter: once difficulty has finished falling, the chain goes back to its normal pace. What stretches is the beginning.",
  simViable:"At this share the chain would be the majority: there would be no split, the whole network would follow those rules.",
  poolsTitle:"Who could change this?",
@@ -903,7 +903,7 @@ es: {
  simNote:"La dificultad solo se reajusta cada {periodSize} bloques, y un soft fork como este no toca ese mecanismo, así que la cadena pequeña hereda la dificultad de toda la red y tiene que aguantarla hasta que le llegue su propio reajuste. El cálculo asume esa dificultad y que la potencia de minado se mantiene estable: es una estimación del orden de magnitud, no una predicción. Cuando Bitcoin Cash se separó en 2017 sobrevivió a esto porque era un hard fork y pudo añadir un ajuste de emergencia de dificultad. El BIP-110, por diseño, no lo tiene.",
  strTitle:"Los diferentes momentos del BIP-110",
  strMethod:"Son alturas de bloque, y cada nodo las mide sobre la cadena que él da por válida, no sobre la que más trabajo acumula. Eso cambia todo lo que viene después.",
- strLead:"Con el {share}% que señaliza ahora mismo, la cadena con BIP-110 haría un bloque cada {interval} en vez de uno cada diez minutos. Sus hitos son alturas, no fechas, así que cada uno tarda lo que esa cadena tarde en llegar a él. A partir del bloque {splitHeight}, esto es lo que saldría.",
+ strLead:"Con el {share}% que señaliza ahora mismo, la cadena con BIP-110 haría un bloque cada {interval} en vez de uno cada {normal}. Sus hitos son alturas, no fechas, así que cada uno tarda lo que esa cadena tarde en llegar a él. A partir del bloque {splitHeight}, esto es lo que saldría.",
  strNoData:"Este servidor todavía no envía la proyección. Es una versión anterior del panel.",
  tlIfSplit:"si se separan: {v} (estimación)",
  tlSameBoth:"igual en las dos cadenas: hasta aquí solo hay una",
@@ -925,7 +925,7 @@ es: {
  strAssumeKicker:"Qué está dando por supuesto este cálculo",
  strAssume1:"Que la cuota que señaliza hoy se mantiene. Es lo más frágil de los tres.",
  strAssume2:"Que quien señaliza acaba minando esa cadena. Señalizar es declarar una intención, no comprometerse: se puede señalizar y luego seguir la otra.",
- strAssume3:"Que la dificultad se reajusta cada {periodSize} bloques y en cada reajuste baja como mucho a la cuarta parte, que es el tope del propio Bitcoin. Sin ese tope las esperas serían mucho mayores.",
+ strAssume3:"Que la dificultad se reajusta cada {periodSize} bloques y en cada reajuste puede dividirse como mucho entre {cap}, que es el tope del propio Bitcoin. Sin ese tope las esperas serían mucho mayores.",
  strNote:"Un soft fork no toca el mecanismo de dificultad, así que la cadena pequeña arranca con la dificultad de toda la red. Por eso el primer tramo es el lento y los siguientes se van acortando: cuando la dificultad termina de bajar, la cadena vuelve a su ritmo. Lo que se estira es el principio.",
  simViable:"Con esta cuota la cadena sería mayoritaria: no habría separación, la red entera seguiría esas reglas.",
  poolsTitle:"¿Quién podría cambiarlo?",
@@ -1724,6 +1724,13 @@ function strDur(dias){
    inalcanzable NO imprime un plazo. Atarlo a la palabra "nunca" no valia:
    esa palabra sale en otros textos de la pagina, asi que la comprobacion
    daba positivo siempre y no comprobaba nada. */
+/* El ritmo nominal de la cadena no se escribe: sale de /api/params. Decir
+   "diez minutos" en el texto lo convierte en mentira el dia que se toque, y
+   nadie relee los textos buscando cantidades escritas con letras. */
+function normalSpacing(){
+  const sp = (DATA.params && DATA.params.target_spacing) || 600;
+  return sp < 3600 ? num(sp/60, 0) + " " + t("minutes") : num(sp/3600, 1) + " " + t("hours");
+}
 function strNeverCls(dias){ return (dias === null || dias === undefined) ? " is-never" : ""; }
 function renderStretch(){
   const d = DATA.miners, lead = $("strlead"), rails = $("strrails"), rows = $("strrows");
@@ -1741,7 +1748,10 @@ function renderStretch(){
   const p = d.milestone_projection;
   const ms = p.milestones || [];
   const share = p.share_pct || 0;
-  const thr = (d.threshold_pct || 55);
+  // Sin umbral conocido no se afirma que no habria separacion: con 100 la
+  // rama "no hay split" no se dispara nunca. Escribir 55 aqui seria clavar
+  // el parametro justo donde nadie lo releeria.
+  const thr = d.threshold_pct || (DATA.params && DATA.params.threshold_pct) || 100;
   const nombres = {forced_lockin:"strMs2", rules_active:"strMs3", rules_expire:"strMs4"};
 
   const mc = d.minority_chain || {};
@@ -1749,7 +1759,8 @@ function renderStretch(){
   lead.textContent = share <= 0 ? t("strNever")
                    : share >= thr ? t("strNoSplit")
                    : t("strLead", {splitHeight: num(p.fork_height, 0), share: num(share, 2),
-                                   interval: iv ? num(iv, 1) + " " + t("hours") : "…"});
+                                   interval: iv ? num(iv, 1) + " " + t("hours") : "…",
+                                   normal: normalSpacing()});
 
   // Escala del eje: el hito lento mas lejano. Con cuota 0 no hay escala y
   // el rail se dibuja abierto, sin punto final ni eje.
@@ -1789,6 +1800,9 @@ function renderStretch(){
       <div class="str-rail-k">${esc(t("strRailSlow", {share: num(share, 2)}))}</div>
       <div class="str-line${finito ? "" : " is-open"}"><span class="str-fill" style="width:${finito ? 100 : 100}%"></span>${finito ? puntos("minority_days") : ""}</div>
     </div>${ejeHtml}`;
+
+  $("strassume3").textContent = t("strAssume3", Object.assign(constVars(),
+    {cap: num(p.max_retarget_drop || 4, 0)}));
 
   rows.innerHTML = ms.map(m => {
     const lento = m.minority_days;
