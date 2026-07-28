@@ -51,7 +51,9 @@
 #
 #    Notas de trabajo y borradores tampoco se publican con el codigo.
 CLAUDE.md
+CUADERNO.md
 *.notes.md
+*.borrador.md
 .env
 .env.*
 !.env.example
