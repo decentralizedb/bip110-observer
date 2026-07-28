@@ -38,6 +38,17 @@ def dict_keys(blob, lang):
     return set(re.findall(r'(?:^|[,{])\s*([A-Za-z_][A-Za-z0-9_]*)\s*:', body, re.M))
 
 
+def bloque_de(blob, lang):
+    """El trozo del diccionario de un idioma, con sus valores."""
+    ini = blob.find("\n%s:{" % lang)
+    if ini < 0:
+        ini = blob.find("\n%s: {" % lang)
+    if ini < 0:
+        return None
+    fin = blob.find("\n},", ini)
+    return blob[ini:fin if fin > 0 else len(blob)]
+
+
 def check(path):
     src = open(path, encoding="utf-8").read()
     fails = []
@@ -57,6 +68,27 @@ def check(path):
             missing = sorted(u for u in used if u not in en)
             if missing:
                 fails.append("usadas y no definidas: %s" % missing)
+            # Mismos marcadores en los dos idiomas.
+            #
+            # La paridad de CLAVES no basta y el hueco es facil de caer:
+            # basta con retocar un texto en un idioma y olvidar el otro. Las
+            # claves siguen cuadrando, asi que todo pasa, y en pantalla queda
+            # o un texto viejo o un "{cap}" sin rellenar. Los marcadores son
+            # lo unico comprobable de forma automatica: si una version dice
+            # {normal} y la otra no, una de las dos esta sin actualizar.
+            vals = {}
+            for lang in ("en", "es"):
+                vals[lang] = dict(re.findall(
+                    r'\n\s*([A-Za-z][A-Za-z0-9_]*)\s*:\s*"((?:[^"\\]|\\.)*)"',
+                    bloque_de(blob, lang) or ""))
+            for k in sorted(en & es):
+                m_en = set(re.findall(r"\{([a-zA-Z][a-zA-Z0-9_]*)\}", vals["en"].get(k, "")))
+                m_es = set(re.findall(r"\{([a-zA-Z][a-zA-Z0-9_]*)\}", vals["es"].get(k, "")))
+                if m_en != m_es:
+                    fails.append(
+                        "la clave %r no lleva los mismos marcadores en los dos "
+                        "idiomas: en=%s es=%s (un idioma se quedo sin actualizar)"
+                        % (k, sorted(m_en), sorted(m_es)))
             print("  %s: %d claves en cada idioma" % (os.path.basename(path), len(en)))
 
     # Cifras clavadas en los textos. Son las que envejecen sin que nadie se
