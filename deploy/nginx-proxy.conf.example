@@ -1,0 +1,72 @@
+# Reverse proxy example for BIP-110 Observer.
+#
+# The container listens on 127.0.0.1:8110 and nothing else. Whatever sits
+# in front of it only needs to do three things right:
+#
+#   1. Forward everything to 127.0.0.1:8110
+#   2. Allow long responses, within reason. Note that a CDN in front will
+#      have its own limit that you do not control: Cloudflare cuts at about
+#      100 seconds and returns its own HTML error page, which the browser
+#      then tries to read as JSON. The application answers immediately for
+#      this reason and computes the slow parts in the background, so no
+#      request should ever get close to any of these limits.
+#   3. Never cache /api/*. A live data dashboard serving cached figures
+#      does not fail, it lies, and gives no signal that it is doing so.
+#
+# The application already sends Cache-Control: no-store on /api/*, so this
+# is a second layer. If there is a CDN in front, add a third rule there.
+#
+# Placeholders to replace: SERVER_NAME, CERT_PATH, CERT_KEY_PATH.
+
+server {
+    listen      443 ssl;
+    server_name SERVER_NAME;
+
+    ssl_certificate     CERT_PATH;
+    ssl_certificate_key CERT_KEY_PATH;
+
+    location / {
+        proxy_pass         http://127.0.0.1:8110;
+        proxy_http_version 1.1;
+        proxy_set_header   Host            $host;
+        proxy_set_header   X-Real-IP       $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto https;
+
+        proxy_connect_timeout 30s;
+        proxy_send_timeout    900s;
+        proxy_read_timeout    900s;
+    }
+
+    location /api/ {
+        proxy_pass         http://127.0.0.1:8110;
+        proxy_http_version 1.1;
+        proxy_set_header   Host            $host;
+        proxy_set_header   X-Real-IP       $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto https;
+
+        proxy_connect_timeout 30s;
+        proxy_send_timeout    900s;
+        proxy_read_timeout    900s;
+
+        proxy_cache off;
+        proxy_buffering off;
+        add_header Cache-Control "no-store, no-cache, must-revalidate, max-age=0" always;
+        add_header CDN-Cache-Control "no-store" always;
+
+        # Deliberate, not inherited.
+        #
+        # The data here is public and read only, and letting anyone fetch
+        # it is the point: this dashboard exists so its figures can be
+        # checked, and that is easier if a browser somewhere else can read
+        # them. There is nothing to protect: no sessions, no cookies, no
+        # write endpoints.
+        #
+        # It is spelled out because in Nginx an add_header inside a
+        # location REPLACES the inherited ones. Any header set higher up
+        # silently disappears here, so a header that matters has to be
+        # repeated where it is wanted rather than assumed.
+        add_header Access-Control-Allow-Origin "*" always;
+    }
+}

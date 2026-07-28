@@ -1,0 +1,1896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BIP-110 Observer</title>
+<meta name="description" content="BIP-110 signalling, measured against own Bitcoin nodes. Every number labelled by how much it can be trusted.">
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAKbElEQVRYw32XSYxdx3WGv1N17333zd3sfj2QzUGcNZCSIpOiHFmUIsWWDMRynCCCHQRQNtY6cABvEnhjZJEBWSQI4JUdBwEyIEGQRLACSBBlRbYomrJkULRIii1SzR7I7n795nenqpPFYxAgilOrQm3+v875q/7/CP/HerIMO6mQq9KwhrcLMSeMPxYIzxh40sIJIyyEUE1UAIYlYT1VvaTwek3ktQuFv/L1uvXLqccr9LzhDec+hSX/++CEgZYVul656JDT1pyOhBcdPBvDXmPUGmCXEQKBzEOm4AGDMlJcLKxUhFfmI/O9Qe7euZob7TqYKRnOpcUvJvBwIAy8MmeEVHVxNjC/Z+F3UZ2tGKFpoGHBqVI3QtMCCkMHCQoKDsGr0nHCGLY2Cr47Uv68BOv7IkvbKS9nxacJPBYaOs6zL7BsO38qFP5sl5XPzRooiTIdQFWEhYgJMFCPwBpICxgXYBW6DtoOljNYzpSehwJ5Mxb9xm3Hhb2B0PfKO07/h8DnS8JtJ+y2MPI8peh3aiJH6gbmAmgFsBjDfCS0ylC2irl7e+dBRNgYKisjWMuF9VzJVOg7RYGBh4Hn2kh56WTVvF5pCr8SW37zWoL8emDJrZIpFHAqgL+tGo7MWJiyMBfCvqqwO4aZGOIY7LShs+0ZDpSRE9rJpA29AnYyJTXCMFe6BaQKQ4XICp1cr82X+O33B/6CBw6GBvlSHJLhSL0uzkfyD8cb5vHuwLMUCU6V+RK0mhavilWlXyi9QkhSiCzkTnEqiJkIUphUJnNKOTZsjxQj0C2ErUwRy5urmb4Qw/rBwGBPhJZ/Tbx8pWH/cDbgq1JAoXKXvdDxcDuFrRScUaZnA0bJRANqoVU1zNUNU0aZiYWlqmG+BLMlYT6AeWuYsoL30PMwKHR/U/AvVquvXi8K5IQxiPBo3fBvR+umtZ16Bjk0A6FuwXploQJLDeHxL8xw8MGYztUhvvCUpi1hBEE9Jt9Wti6Nef+9Lv1MECNoDoWDXqYYD9MVS+I8Nwe6uen5NfV63p4J1Iwwf5DCE+10Ur6aFRCoBnCoZfnyF5ucvC9m9/0xcSumtsvTOFDGjpXVi33ayynlmrDrsb3ceG+H61sF/cLQzWGgwnahWCvsieDxYyXqUA0dRT62P7BzQXA8Er4Vi0y1Qrn7liE2Sgvly5+r8dAzTao1xTYtPq4zXOkzuDHEVKtEjRrXz7WxScHcI9O0ugMWUk9khV6ujHOlFAjWTjSVItzqeHYyZgeq/2FPVsKv5p7fEjCZ95REWIzgeN3w3MMx9x6zbF1P+Mm/d9n4OCdKE17/5zZvnU/IuhkHT++i0u7TerRBOKcEoWH6nhLzp+u0piy6nmMT2FLh6hAu7yhbXljJtb6S+2v23tB+0zm9v2SUirWUA7DA2QcqnH1+Cu053vjhmJeXHVfXHbsQqvWA7sBx5JEpbOr58GIPmznGyyM+Oj9mvFag3rNwtML8bIUrV4Z8lHo2chijGCvkiIkiO7ZnY/PtQ1UzM2uFxVioB0IVWIyUpQMlMgNBOeSDTzIyLxy08OAjZR780gK7lyzSSdh1pMLU3jLhTIXNlYILVxJ+8kGCbGbc8+gMyUd9hs4wyGDkoFs4vIAVCeyZcvBHgZUoVRgXihEhsMLOQFlbyzl3fkhQKEdaIXfaBXcST1k8+/ZH2JJh1C9Yu5FyZzWjfqzJns+0WP2gzUbPcd/JBrNLZX76nzt8PFSGgFHYXw5QD4lqZL+2K/h25lXUQzUyjAvoe2WzUG7teNqZcGOz4L5WwEP7Soy7ntLAYRNPeXeD1/5lk5ffHvHz5QxdHXP4/ilKN3dYmo048ZUFdt7vcOPymFQNuQiC0M09Gcp8JQztH5+pfWs+MKLZxFgckHswCMaAejAiJLnj4VN1bOZY2XHEfUc1KyjvrbD2yYhddcupp+eJRwnDTsrhX51m52bKuz9oc3UMN3Kllyl7mpadAq6ljpupV9n8Wq0/7FDbuKN0nOH91ZS1HIYevCiFwlQoeOc5umA5e6bJD3/UYX2r4J6q8NwLLWTfAkEpp7kkuJ9vYfbU2bw44B///g7vbSs2sPQKZTvzGBFChMDATqED015z69WG58hxOLoIhxuGhbJQCyafkhihkykZwodrOcvLI574bJPZmjDOPOnGiLmHykwvpMh4SNA02GqZ2x8nZD2lag23U8+gUPY0QoYeVp2y4RQH6/YZ7JP5QO9t1JXqjCcWwWWCzzxhSWiPPZkq5cDQNMrBaeHEFxc42lKO7rPMnWpgGKIuZvuVVcKlafLU8bMfdXh3paBSMhTAZuonTqlKosrAwwjeCPbt0nPqeL6/IbZVEfY+AGmm4C1Xuo7dMYSBpZ94yiEcODlF5WCZSqlCntQgDpDpKr4P1685/O1Ntm+lXFot6IpwYzDJgfsbAWtDTxwKVYS1VJ3CuaA38q9aa1bKuR4Y3VYaFeHwaSh/qITLhnYu7Iw9GiguNLz6RhsvOaO1MbdXMupNy9Fn51j/oMe7ywUr3YyBF0qxJcEz8Eoogt5NXu18sqsIK2PVV+1ffL3Z/unPiuPtoX6mGCuBQnUKZo7A/JJQy8GkSoRhWCibfc/N5ZQLyzk7ieHD9YIbl4acv5xxtaeYyJILrA48oQiLNcN2omwknsRD2QqK4JS/21L9vl38qNBOopvdQp/fSqQ66Ammo0RjpbbHMHcI5kLFDpU0h2EhbCWKIuTA5hh6ubCdQzefmM1OofQKRQWwExEnKqTASMEpmyXDN2es3LKHEC6P/FrZSitTfrmXK72hwBhKA8WUDJWGMBsLiwHMh0IZiIBRMUlBowIGhRKbiZtWBU62Aoap0k6USiDkCooSixAIf7Vj5K8rgH2ibKhYIVUuDR2nR073K0KvMKR9yNY9kkI0LdSnhHoIdZ14RgOoCUSqzIaCU4hFsAaKAnInOCZ5sSIQIATCm0uh+UYN+ltOsWdKSqKGUSGDsedSofJkZJjpZ8p2pmyOIB1Btq0YoD4rNKcNsRciwPu74VpAdeIjfQ8bmbLlJqFUBHIgNFwbqr4EXJm3gtEI++MUnq6GXMsCDpWytaE3l1Kvn62WzMyogG4B3VzYHEF3C1wfgggqdahXhKkAZgIhAAIg0QmYFUPdQkmESISakWs1Iy9dzPxb33kg4rtrjrddjgV4K3H8UmhIvGGs3MhV395XNcc/SXS/CDgRBh5SDxt9Zf2OsHEHfD5pSbOkzFVgMTQcKMGeUGgKVMykSgJvetWXAuGtz88GdLzyNzuT/8H+92R0uXA8FCqu8ESBWfNeX1nP1I29HOsVVLwKQw9rGXRypZ0qNzrKrQ50xtAeC3dGSu5AFAoF73UrFvlLr/z+SLmyEASsJp4/3Sx+8XD6QlkoGQGE7w+dnA3NaUVeDIVnI5G9RrBVA4erwtrIIwpVA4EIjQA2c1zJyIpHX0kc3/udBu/8U181F6Hi4U+Gxf8/HQP8RkW4XUwUHAMfZ2pmLcciY54OkKdAT1gxC1591akCMgyF9WYgl3KV1weO1247c+Wx2PnFYOKoT81HPPfR+FNY/wUPvX1h2bLqCgAAAABJRU5ErkJggg==">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="canonical" href="https://bip110.dinerosinreglas.com/">
+<style>
+/* ------------------------------------------------------------------
+   Dos temas.
+   El panel nacio oscuro y el oscuro sigue siendo el de casa, pero mucha
+   gente lee de dia y con el movil al sol. Los colores del modo claro no
+   son los mismos aclarados: el naranja y el verde se oscurecen, porque
+   los tonos que contrastan sobre negro se vuelven ilegibles sobre blanco,
+   y aqui el color no es decoracion: distingue un dato verificable de una
+   muestra sesgada. Si el naranja se pierde, el aviso se pierde.
+   ------------------------------------------------------------------ */
+:root{
+  --bg:#0d0f12;      --bg-rgb:13,15,18;
+  --panel:#161a20;   --panel2:#1e232b;  --panel3:#12151a;
+  --line:#2b323d;    --line2:#3a424f;
+  --txt:#eceef1;     --txt2:#d6dae0;    --dim:#a8b0bd;   --dim2:#9aa4b2;
+  --orange:#E7640F;  --orange-t:#FF8A3D; --orange-2:#ff8534; --orange-rgb:231,100,15;
+  --green:#4CC96A;   --green-rgb:76,201,106;
+  --blue:#5AA9E6;    --blue-rgb:90,169,230;
+  --red:#FF6B61;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#f5f7fa;      --bg-rgb:245,247,250;
+  --panel:#ffffff;   --panel2:#eef1f6;  --panel3:#e7ebf1;
+  --line:#d8dee7;    --line2:#b9c2ce;
+  --txt:#11151c;     --txt2:#2b3340;    --dim:#4a5462;   --dim2:#545d6b;
+  --orange:#C4520C;  --orange-t:#A8440A; --orange-2:#D4691A; --orange-rgb:196,82,12;
+  --green:#0D5F2D;   --green-rgb:13,95,45;
+  --blue:#175FA8;    --blue-rgb:23,95,168;
+  --red:#B3271A;
+  color-scheme:light;
+}
+</style>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Helvetica,sans-serif;font-size:17px;line-height:1.6;font-weight:350;letter-spacing:-.003em}
+a{color:var(--orange-t);text-decoration:underline;text-underline-offset:2px}
+a:hover{color:var(--txt)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+
+.wrap{max-width:70rem;margin:0 auto;padding:24px 16px 64px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--orange);padding-bottom:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{border-radius:50%;flex-shrink:0;display:block}
+h1{font-size:30px;font-weight:650;line-height:1.15;letter-spacing:-.02em}
+h1 span{color:var(--orange-t)}
+.tagline{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:var(--dim2);margin-top:6px}
+nav{display:flex;gap:4px;flex-shrink:0}
+.lang{min-height:44px;min-width:44px;padding:0 14px;background:var(--panel);color:var(--dim);border:1px solid var(--line);border-radius:8px;cursor:pointer;font:inherit;font-size:14px}
+.lang[aria-pressed="true"]{background:rgba(var(--orange-rgb), .14);border-color:var(--orange);color:var(--orange-t);font-weight:600}
+
+header{position:sticky;top:0;z-index:20;background:rgba(var(--bg-rgb), .92);backdrop-filter:blur(8px);padding-top:14px}
+@media (max-width:36rem){.logo{width:34px;height:34px}h1{font-size:24px}.tagline{display:none}}
+
+.brand{text-decoration:none;color:inherit}
+.brand:hover h1 span{color:var(--txt)}
+.fresh{display:flex;align-items:center;gap:7px;margin-top:6px;font-size:12px;color:var(--dim2);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line2);flex-shrink:0;transition:background .3s}
+.dot.live{background:var(--green);box-shadow:0 0 0 3px rgba(var(--green-rgb), .18)}
+.dot.old{background:var(--orange)}
+.totop{position:fixed;right:16px;bottom:16px;z-index:30;width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;background:var(--panel);border:1px solid var(--line);
+  color:var(--dim);text-decoration:none;font-size:20px;line-height:1}
+.totop:hover{border-color:var(--orange);color:var(--orange-t)}
+@media (prefers-reduced-motion:reduce){.dot{transition:none}}
+.donate-nav{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;
+  border:1px solid var(--line);border-radius:8px;color:var(--dim);font-size:14px;text-decoration:none}
+.donate-nav:hover{border-color:var(--orange);color:var(--orange-t)}
+
+.donate{margin-top:56px;background:linear-gradient(180deg,rgba(var(--orange-rgb), .08),rgba(var(--orange-rgb), .02));
+  border:1px solid rgba(var(--orange-rgb), .28);border-radius:12px;padding:24px;scroll-margin-top:96px}
+.donate-k{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--orange-t)}
+.donate h2{font-size:22px;margin-top:8px}
+.donate-body{font-size:16px;color:var(--txt2);max-width:62ch;margin-top:8px}
+.donate-priv{font-size:14px;color:var(--dim);max-width:66ch;margin-top:16px}
+.pay{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.pay-row{background:var(--panel3);border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+  display:grid;grid-template-columns:1fr auto;gap:8px 14px;align-items:center}
+.pay-lbl{grid-column:1/-1;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim2)}
+.pay-val{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;color:var(--txt);
+  word-break:break-all;line-height:1.45}
+.pay-val.sp{font-size:12.5px;color:var(--dim)}
+.pay-btns{display:flex;gap:8px;flex-shrink:0}
+.paybtn{min-height:40px;padding:0 14px;background:var(--panel2);color:var(--dim);border:1px solid var(--line);
+  border-radius:8px;cursor:pointer;font:inherit;font-size:14px;text-decoration:none;
+  display:inline-flex;align-items:center}
+.paybtn:hover{border-color:var(--orange);color:var(--orange-t)}
+.paybtn.primary{background:rgba(var(--orange-rgb), .14);border-color:var(--orange);color:var(--orange-t)}
+@media (max-width:34rem){.pay-row{grid-template-columns:1fr}.pay-btns{margin-top:4px}}
+
+section{margin-top:48px}
+h2{font-size:24px;font-weight:650;letter-spacing:-.015em}
+h3{font-size:20px;font-weight:550}
+.shead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.method{color:var(--dim);font-size:15px;max-width:70ch}
+
+.pill{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px}
+.p-data{background:rgba(var(--green-rgb), .14);color:var(--green);border:1px solid rgba(var(--green-rgb), .35)}
+.p-est{background:rgba(var(--blue-rgb), .14);color:var(--blue);border:1px solid rgba(var(--blue-rgb), .35)}
+.p-sample{background:rgba(var(--orange-rgb), .14);color:var(--orange-t);border:1px solid rgba(var(--orange-rgb), .35)}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px}
+.t-data{border-top:3px solid var(--green);border-radius:0 0 12px 12px}
+.t-est{border-top:3px solid var(--blue);border-radius:0 0 12px 12px}
+.t-sample{border-top:3px solid var(--orange);border-radius:0 0 12px 12px}
+
+.grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))}
+.grid-15{grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))}
+.grid-14{grid-template-columns:repeat(auto-fit,minmax(14rem,1fr))}
+.grid-17{grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))}
+.grid-11{grid-template-columns:repeat(auto-fit,minmax(11rem,1fr))}
+
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.lbl{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim2)}
+.val{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:26px;font-weight:700;margin-top:6px}
+.note{font-size:13px;color:var(--dim2);margin-top:4px}
+.o{color:var(--orange-t)}.g{color:var(--green)}.b{color:var(--blue)}
+
+/* Aviso anclado. Nunca se colapsa, nunca se esconde. */
+.caveat{border-left:2px solid var(--line2);padding-left:14px;margin-top:16px}
+.caveat--sample{border-left-color:var(--orange)}
+.caveat--est{border-left-color:var(--blue)}
+.caveat--ok{border-left-color:var(--green)}
+.caveat-k{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim2)}
+.caveat--sample .caveat-k{color:var(--orange-t)}
+.caveat--est .caveat-k{color:var(--blue)}
+.caveat--ok .caveat-k{color:var(--green)}
+.caveat-b{font-size:14px;color:var(--dim);margin-top:4px;max-width:68ch}
+
+.answer{background:linear-gradient(180deg,rgba(var(--green-rgb), .09),rgba(var(--green-rgb), .02));border:1px solid rgba(var(--green-rgb), .3);border-radius:12px;padding:24px;margin-top:24px}
+.answer .q{font-size:20px;color:var(--dim);font-weight:300}
+.answer .a{font-size:40px;font-weight:700;color:var(--green);line-height:1.05;margin:8px 0 14px}
+.answer p{max-width:66ch}
+.answer p+p{margin-top:12px}
+.gfa{font-size:24px;font-weight:600;color:var(--green);margin:2px 0 10px}
+.answer .lead{font-size:18px;color:var(--txt2);max-width:64ch}
+.more.small{margin-top:10px;min-height:36px;padding:0 10px;font-size:14px}
+.qabox{margin-top:10px;border-left:2px solid var(--line);padding-left:14px}
+.qa+.qa{margin-top:10px}
+.qa .q{font-size:14px;font-weight:600;color:var(--txt)}
+.qa .a{font-size:14px;color:var(--dim);margin-top:2px;max-width:64ch}
+.more{margin-top:16px;min-height:44px;padding:0 14px;background:transparent;color:var(--orange-t);border:1px solid var(--line2);border-radius:8px;cursor:pointer;font:inherit;font-size:15px}
+.more:hover{border-color:var(--orange)}
+.more[aria-expanded="true"]{color:var(--dim)}
+#answer-more{margin-top:4px}
+
+.states{margin-top:20px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.stbtn{min-height:40px;padding:0 12px;background:var(--panel2);color:var(--dim);border:1px solid var(--line);border-radius:8px;cursor:pointer;font:inherit;font-size:14px}
+.stbtn[aria-current="true"]{background:rgba(var(--orange-rgb), .14);border-color:var(--orange);color:var(--orange-t);font-weight:600}
+.previewnote{font-size:14px;color:var(--dim);max-width:66ch;margin:0 0 14px}
+.preview{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bg);background:var(--orange-t);padding:2px 8px;border-radius:4px;margin-bottom:12px}
+
+.hashnote{font-size:15px;margin-top:12px;font-weight:550}
+.hashnote.ok{color:var(--green)}
+.hashnote.no{color:var(--orange-t)}
+/* --- recorrido de estados --- */
+.track-wrap{margin-top:22px;background:var(--panel);border:1px solid var(--line);
+  border-left:3px solid var(--orange);border-radius:0 12px 12px 0;padding:18px 20px}
+.track-eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--orange-t)}
+.track-lead{font-size:17px;color:var(--txt);max-width:56ch;margin-top:6px;font-weight:450}
+.track-note{font-size:13px;color:var(--dim);max-width:70ch;margin-top:14px}
+
+.track{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px}
+.stop{position:relative;background:none;border:0;padding:26px 6px 0;cursor:pointer;
+  font:inherit;text-align:center;color:var(--dim);display:flex;flex-direction:column;
+  align-items:center;gap:2px;min-height:44px}
+/* el tramo hasta la siguiente parada */
+.stop:not(:last-child)::after{content:"";position:absolute;top:9px;left:50%;width:100%;
+  height:0;border-top:2px solid var(--line2)}
+.stop.future::after{border-top-style:dashed}
+.stop-dot{position:absolute;top:3px;left:50%;transform:translateX(-50%);
+  width:14px;height:14px;border-radius:50%;background:var(--bg);
+  border:2px solid var(--line2);z-index:1}
+.stop-name{font-size:15px;color:var(--dim)}
+.stop-when{font-size:12px;color:var(--dim2);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.stop.done .stop-dot{border-color:var(--orange)}
+/* Dos cosas distintas, dos canales distintos.
+   El RELLENO dice que parada estas mirando. El CONTORNO dice donde
+   estamos de verdad. Antes las dos usaban el color del punto y la
+   seleccion tapaba a la realidad, asi que el verde de "ahora" no se veia
+   nunca al cargar la pagina. Y por si el color no llega (daltonismo,
+   pantalla al sol), la parada real lleva ademas la palabra escrita. */
+.stop.now .stop-dot{border-color:var(--green);
+  outline:2px solid var(--green);outline-offset:3px}
+.stop[aria-selected="true"] .stop-name{color:var(--txt);font-weight:600}
+.stop[aria-selected="true"] .stop-dot{background:var(--orange);border-color:var(--orange)}
+.stop-now{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--green);border:1px solid var(--green);border-radius:999px;padding:1px 7px}
+.stop:hover .stop-name{color:var(--txt)}
+@media (max-width:34rem){
+  .track{grid-template-columns:1fr;gap:0}
+  .stop{flex-direction:row;text-align:left;align-items:baseline;gap:10px;
+    padding:8px 0 8px 30px;min-height:0}
+  .stop:not(:last-child)::after{top:22px;left:9px;width:0;height:100%;
+    border-top:0;border-left:2px solid var(--line2)}
+  .stop.future::after{border-left-style:dashed;border-top-style:solid}
+  .stop-dot{top:14px;left:2px;transform:none}
+  .stop-when{margin-left:auto}
+}
+
+.bigtip{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:44px;font-weight:700;line-height:1.05;margin-top:10px}
+.chains{margin-top:18px;display:grid;gap:12px;grid-template-columns:minmax(0,3fr) minmax(0,2fr)}
+@media (max-width:46rem){.chains{grid-template-columns:1fr}}
+.chain-min{background:var(--panel3)}
+.pair{display:flex;gap:20px;flex-wrap:wrap;margin-top:18px}
+
+.tlrow{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:0 10px 10px 0;padding:16px}
+.tlrow .h{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;min-width:6.5rem}
+.tlrow .m{flex:1;min-width:14rem}
+.tlrow .m strong{font-weight:550;display:block}
+.tlrow .m span{display:block;color:var(--dim);font-size:15px;margin-top:4px}
+.tlrow .r{text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;color:var(--dim2);min-width:7.5rem}
+.tlrow .r b{display:block;color:var(--txt);font-size:17px}
+
+.gapnum{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-top:8px}
+.gapnum .n{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:64px;font-weight:700;line-height:1;color:var(--orange-t)}
+.gapnum .u{font-size:20px;color:var(--dim)}
+.bar{position:relative;height:34px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:20px 0 8px}
+.bar>div{height:100%;background:linear-gradient(90deg,var(--orange),var(--orange-2));transition:width .6s cubic-bezier(.4,0,.2,1)}
+.barlg{display:flex;justify-content:space-between;gap:12px;color:var(--dim2);font-size:13px;flex-wrap:wrap}
+.spark{display:flex;align-items:flex-end;gap:5px;height:34px;margin-top:8px}
+.spark i{width:14px;background:var(--orange);border-radius:2px;display:block}
+.histlist{margin-top:10px;border-top:1px solid var(--line)}
+.histrow{display:grid;grid-template-columns:minmax(6rem,1.3fr) 6rem 4.5rem 6.5rem;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
+.histrow .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.histrow .blk{color:var(--txt);text-align:right}
+.histrow .pc{color:var(--orange-t);text-align:right}
+.histrow .sh{color:var(--dim2);text-align:right;font-size:13px}
+@media (max-width:38rem){.histrow{grid-template-columns:1fr auto;row-gap:2px}.histrow .pc,.histrow .sh{text-align:right}}
+.whobox{margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--orange);border-radius:0 10px 10px 0;padding:16px}
+.whohead{margin-bottom:12px}
+.whorow{display:grid;grid-template-columns:minmax(7rem,1.2fr) minmax(0,2fr) 6rem 4.5rem;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.whorow .nm{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.whorow .track{height:8px;background:var(--panel3);border-radius:999px;overflow:hidden;display:block}
+.whorow .track>span{display:block;height:100%;background:var(--orange);border-radius:999px}
+.whorow .blk{font-size:13px;color:var(--dim2);text-align:right}
+.whorow .pc{font-size:14px;color:var(--orange-t);text-align:right}
+@media (max-width:34rem){.whorow{grid-template-columns:1fr 4.5rem;}.whorow .track{display:none}.whorow .blk{text-align:left;grid-column:1}}
+
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:44px;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:8px;background:var(--panel2);border:1px solid var(--line);border-radius:999px}
+input[type=range]::-moz-range-track{height:8px;background:var(--panel2);border:1px solid var(--line);border-radius:999px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--orange);border:3px solid var(--bg);margin-top:-10px;box-shadow:0 0 0 1px var(--orange)}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--orange);border:3px solid var(--bg);box-shadow:0 0 0 1px var(--orange)}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.pbtn{min-height:40px;padding:0 12px;background:var(--panel2);color:var(--dim);border:1px solid var(--line);border-radius:8px;cursor:pointer;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+.pbtn:hover{border-color:var(--blue);color:var(--blue)}
+.viable{margin-top:12px;background:rgba(var(--green-rgb), .08);border:1px solid rgba(var(--green-rgb), .35);border-radius:10px;padding:14px 16px;font-size:15px}
+
+/* El plazo alternativo dentro del recorrido. Azul y con la palabra "si se
+   separan" delante: el color no es lo unico que dice que es un supuesto. */
+.tl-est{display:block;margin-top:4px;font-size:12px;color:var(--blue);line-height:1.35}
+.tl-est.same{color:var(--dim2)}
+
+/* --- el tiempo se estira: dos railes y una fila por hito --- */
+.str-lead{font-size:17px;color:var(--txt);max-width:58ch}
+.str-rail{margin-top:20px}
+.str-rail-k{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim2)}
+.str-rail.is-slow .str-rail-k{color:var(--blue)}
+.str-rail.is-fast .str-rail-k{color:var(--green)}
+.str-line{position:relative;height:26px;margin-top:8px;background:var(--panel3);border:1px solid var(--line);border-radius:6px}
+.str-fill{position:absolute;top:0;bottom:0;left:0;border-radius:5px 0 0 5px;background:rgba(var(--blue-rgb), .16);border-right:2px solid var(--blue)}
+.str-rail.is-fast .str-fill{background:rgba(var(--green-rgb), .16);border-right-color:var(--green)}
+/* Marca de forma ademas de color: rombo la cadena unica, circulo la
+   minoritaria. Se distingue en blanco y negro y con daltonismo. */
+.str-pt{position:absolute;top:50%;width:13px;height:13px;margin:-7px 0 0 -7px;background:var(--panel);border:2px solid var(--blue);border-radius:50%}
+.str-rail.is-fast .str-pt{border-color:var(--green);border-radius:2px;transform:rotate(45deg)}
+/* Cuota 0: el rail no termina, y se ve que no termina. */
+.str-line.is-open .str-fill{border-right-style:dashed}
+.str-axis{position:relative;height:30px;margin-top:16px;border-top:1px solid var(--line)}
+.str-tick{position:absolute;top:0;height:6px;border-left:1px solid var(--line2)}
+.str-tick span{position:absolute;top:9px;left:0;transform:translateX(-50%);font-size:12px;color:var(--dim2);white-space:nowrap}
+.str-tick:first-child span{transform:none}
+.str-tick:last-child span{transform:translateX(-100%)}
+.str-row{border-top:1px solid var(--line);padding:14px 0}
+.str-row:last-child{border-bottom:1px solid var(--line)}
+.str-row-h{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.str-row-h b{font-size:16px;font-weight:600;color:var(--txt)}
+.str-row-h .str-height{font-size:13px;color:var(--dim2)}
+.str-cmp{display:grid;grid-template-columns:9.5rem minmax(0,1fr) 7rem;gap:6px 12px;align-items:center;margin-top:8px}
+.str-cmp .k{font-size:13px;color:var(--dim)}
+.str-cmp .b{height:10px;background:var(--panel2);border-radius:999px;overflow:hidden}
+.str-cmp .b>i{display:block;height:100%;border-radius:999px;background:var(--green)}
+.str-cmp.slow .b>i{background:var(--blue)}
+.str-cmp .v{font-size:14px;color:var(--txt);text-align:right}
+.str-mult{margin-top:8px;font-size:13px;color:var(--dim)}
+.str-mult b{color:var(--blue);font-weight:700}
+.str-assume{margin-top:6px;padding-left:18px;font-size:14px;color:var(--txt2);max-width:68ch}
+.str-assume li+li{margin-top:5px}
+@media (max-width:34rem){
+  /* A 320 px cae la barra, nunca el numero: el numero es el dato. */
+  .str-cmp{grid-template-columns:1fr auto;gap:2px 10px}
+  .str-cmp .b{display:none}
+  .str-line{height:22px}
+}
+
+.poolrow{display:grid;grid-template-columns:minmax(9rem,1.4fr) minmax(0,3fr) 5rem;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+.poolrow .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
+.poolrow .nm{display:flex;align-items:center;gap:8px;min-width:0}
+.poolrow .nm span:last-child{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.poolrow .track{height:10px;background:var(--panel2);border-radius:999px;overflow:hidden}
+.poolrow .track>div{height:100%;border-radius:999px}
+.poolrow .pc{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:15px;text-align:right;color:var(--dim)}
+
+.riskrow{display:flex;gap:12px;align-items:flex-start;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+.riskrow .n{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:var(--orange-t);padding-top:2px}
+.riskrow .t{font-size:15px;max-width:64ch}
+
+.warnhead{font-size:20px;font-weight:550;color:var(--orange-t);max-width:60ch}
+.skel{height:80px;background:var(--panel);border:1px solid var(--line);border-radius:10px;opacity:.6}
+.err{color:var(--red);font-size:15px}
+.calc{color:var(--blue);font-size:15px}
+
+footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim2);font-size:13px;max-width:72ch}
+footer p+p{margin-top:8px}
+
+:focus-visible{outline:2px solid var(--orange-t);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="top">
+
+<header>
+  <div>
+    <a class="brand" href="#top" id="brand-top">
+      <img class="logo" src="/static/logo.png" width="44" height="44"
+       alt="Decentralized" loading="eager" decoding="async">
+      <h1>BIP-110 <span>Observer</span></h1></a>
+    <p class="tagline" id="tagline"></p>
+    <!-- La frescura se mide en bloques, no en horas de reloj. Todo lo demas
+         del panel se mide asi, y ademas la altura es un hecho objetivo
+         mientras que la hora es la del reloj de quien mira. -->
+    <p class="fresh" id="fresh" hidden><span class="dot" id="fresh-dot"></span><span id="fresh-txt"></span></p>
+  </div>
+  <nav aria-label="Language">
+    <a class="donate-nav" href="https://github.com/decentralizedb/bip110-observer"
+       target="_blank" rel="noopener noreferrer" id="gh-nav">
+      <span aria-hidden="true">&lt;/&gt;</span> <span data-k="navCode"></span></a>
+    <!-- "Donar", no "Apoyar": en un panel sobre el BIP-110, apoyar se lee
+         como apoyar la propuesta. -->
+    <a class="donate-nav" href="#donate"><span aria-hidden="true">&#9889;</span>
+      <span data-k="donateNav"></span></a>
+    <button type="button" class="lang" id="theme" onclick="toggleTema()"
+            aria-label="tema"><span id="theme-ico">&#9789;</span></button>
+    <button type="button" class="lang" id="l-en" onclick="setLang('en')">EN</button>
+    <button type="button" class="lang" id="l-es" onclick="setLang('es')">ES</button>
+  </nav>
+</header>
+
+<section class="answer" style="margin-top:24px">
+  <p class="q" data-k="answerQ"></p>
+  <p class="a" data-k="answerA"></p>
+  <p class="lead" data-k="answerLead"></p>
+  <!-- El aviso de estafas NO se pliega. Es lo unico de esta pagina que
+       puede costarle dinero al lector, y quien llega asustado es el mas
+       expuesto. Lo que se pliega es la explicacion, no la advertencia. -->
+  <div class="caveat caveat--sample">
+    <div class="caveat-k" data-k="riskKicker"></div>
+    <div class="caveat-b" style="font-size:15px" data-k="riskShort"></div>
+  </div>
+  <button type="button" class="more" id="answer-toggle" aria-expanded="false"
+          aria-controls="answer-more" onclick="toggleAnswer()"></button>
+  <div id="answer-more" hidden>
+    <p data-k="answerP1"></p>
+    <p data-k="answerP2"></p>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><h2 data-k="legendTitle"></h2></div>
+  <div class="grid grid-15">
+    <div class="panel t-data" style="padding:14px 16px">
+      <div class="caveat-k g" data-k="tagData"></div>
+      <div style="font-size:15px;color:var(--dim);margin-top:6px" data-k="legendData"></div>
+    </div>
+    <div class="panel t-est" style="padding:14px 16px">
+      <div class="caveat-k b" data-k="tagEst"></div>
+      <div style="font-size:15px;color:var(--dim);margin-top:6px" data-k="legendEst"></div>
+    </div>
+    <div class="panel t-sample" style="padding:14px 16px">
+      <div class="caveat-k o" data-k="tagSample"></div>
+      <div style="font-size:15px;color:var(--dim);margin-top:6px" data-k="legendSample"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><h2 data-k="chainTitle"></h2><span class="pill p-data" data-k="tagData"></span></div>
+  <p class="method" data-k="chainMethod"></p>
+  <!-- Tres paradas, no tres botones.
+       Los estados no son alternativas: son una secuencia. No se puede
+       volver a una cadena sin haberse separado antes. Ese orden es
+       informacion, asi que la forma es un recorrido.
+       El tramo que ya ha ocurrido va en linea continua y el que no, en
+       discontinua: eso dice "esto todavia no ha pasado" sin etiqueta. -->
+  <div class="track-wrap">
+    <div class="track-head">
+      <span class="track-eyebrow" data-k="trackEyebrow"></span>
+      <p class="track-lead" data-k="trackLead"></p>
+    </div>
+    <div class="track" id="track" role="tablist" aria-label="estados">
+      <button type="button" class="stop" role="tab" id="st-pre_split" onclick="setView('pre_split')">
+        <span class="stop-dot"></span>
+        <span class="stop-name" data-k="statePre"></span><span class="stop-now" hidden></span>
+        <span class="stop-when" data-k="whenPre"></span>
+      </button>
+      <button type="button" class="stop" role="tab" id="st-split" onclick="setView('split')">
+        <span class="stop-dot"></span>
+        <span class="stop-name" data-k="stateSplit"></span><span class="stop-now" hidden></span>
+        <span class="stop-when" data-k="whenSplit"></span>
+      </button>
+      <button type="button" class="stop" role="tab" id="st-reunified" onclick="setView('reunified')">
+        <span class="stop-dot"></span>
+        <span class="stop-name" data-k="stateReuni"></span><span class="stop-now" hidden></span>
+        <span class="stop-when" data-k="whenReuni"></span>
+      </button>
+    </div>
+    <p class="track-note" data-k="chainStateNote"></p>
+  </div>
+  <div id="chain"><div class="skel" style="margin-top:18px"></div></div>
+</section>
+
+<section>
+  <h2 data-k="tlTitle" style="margin-bottom:6px"></h2>
+  <p class="method" data-k="tlMethod"></p>
+  <div id="tl" style="display:flex;flex-direction:column;gap:10px;margin-top:20px"><div class="skel"></div></div>
+</section>
+
+<!-- Va pegada al recorrido de las tres alturas a proposito. Son LAS MISMAS
+     tres alturas: arriba cuando llegan si la cadena sigue siendo una, aqui
+     cuando llegarian si se separa. Separadas por media pagina el lector las
+     leia como dos temas distintos, y son el mismo contado dos veces. -->
+<section id="stretch">
+  <div class="shead"><h2 data-k="strTitle"></h2><span class="pill p-est" data-k="tagEst"></span></div>
+  <p class="method" data-k="strMethod"></p>
+  <div class="panel t-est" style="margin-top:20px">
+    <p class="str-lead" id="strlead"></p>
+    <div id="strrails"><div class="skel" style="margin-top:20px;height:150px"></div></div>
+    <div id="strrows" style="margin-top:22px"></div>
+    <div class="caveat caveat--est">
+      <div class="caveat-k" data-k="strAssumeKicker"></div>
+      <ul class="str-assume">
+        <li data-k="strAssume1"></li>
+        <li data-k="strAssume2"></li>
+        <li data-k="strAssume3"></li>
+      </ul>
+      <div class="caveat-b" style="max-width:70ch;margin-top:10px" data-k="strNote"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><h2 data-k="minersTitle"></h2><span class="pill p-data" data-k="tagData"></span></div>
+  <p class="method" data-k="minersMethod"></p>
+  <div id="miners"><div class="skel" style="margin-top:20px;height:220px"></div></div>
+</section>
+
+<section>
+  <div class="shead"><h2 data-k="simTitle"></h2><span class="pill p-est" data-k="tagEst"></span></div>
+  <p class="method" data-k="simMethod"></p>
+  <div class="panel t-est" style="margin-top:20px">
+    <label for="share" style="display:block;font-size:15px;color:var(--dim);margin-bottom:10px">
+      <span data-k="simLabel"></span>
+      <span class="mono b" id="shareval" style="font-size:24px;font-weight:700;display:block;margin-top:4px"></span>
+    </label>
+    <input id="share" type="range" min="1" max="600" step="1" value="20" aria-describedby="simout">
+    <div class="presets" id="presets"></div>
+    <div class="grid" id="simout" style="margin-top:24px"></div>
+    <div id="simviable"></div>
+    <div class="caveat caveat--est">
+      <div class="caveat-k" data-k="assumeKicker"></div>
+      <div class="caveat-b" style="max-width:70ch" data-k="simNote"></div>
+    </div>
+  </div>
+</section>
+
+
+
+<section>
+  <div class="shead"><h2 data-k="poolsTitle"></h2><span class="pill p-est" data-k="tagEst"></span></div>
+  <p class="method" data-k="poolsMethod"></p>
+  <div id="pools" style="margin-top:18px;display:flex;flex-direction:column;gap:6px"><div class="skel"></div></div>
+  <div class="caveat caveat--est">
+    <div class="caveat-k" data-k="coalitionKicker"></div>
+    <div class="caveat-b" style="max-width:70ch" id="coalition"></div>
+  </div>
+</section>
+
+<section>
+  <h2 data-k="gfTitle" style="margin-bottom:6px"></h2>
+  <p class="gfa" data-k="gfAnswer"></p>
+  <p class="method" data-k="gfMethod"></p>
+  <div class="panel" style="margin-top:20px">
+    <h3 data-k="gfRiskTitle"></h3>
+    <p style="font-size:15px;color:var(--dim);max-width:66ch;margin-top:6px" data-k="gfWho"></p>
+    <p style="font-size:15px;color:var(--dim);max-width:66ch;margin-top:6px" data-k="gfRiskIntro"></p>
+    <div id="risks" style="display:flex;flex-direction:column;gap:8px;margin-top:16px"></div>
+    <div class="caveat caveat--ok">
+      <div class="caveat-k" data-k="gfOutKicker"></div>
+      <div class="caveat-b" style="font-size:15px;max-width:68ch" data-k="gfRiskOut"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shead"><h2 data-k="nodesTitle"></h2><span class="pill p-sample" data-k="tagSample"></span></div>
+  <div class="panel t-sample" style="margin-top:10px">
+    <!-- Orden a proposito: pregunta, respuesta, lo que si se puede ver, y
+         DESPUES por que eso no es un censo. Los cuatro sesgos siguen
+         enteros y visibles, sin plegar; lo que cambia es que ya no forman
+         un muro antes de la primera cifra. La etiqueta naranja y la
+         respuesta en grande van arriba, asi que el marco epistemico sigue
+         llegando primero. -->
+    <p class="warnhead" data-k="nodesWarnTitle"></p>
+    <p style="font-size:15px;color:var(--dim);max-width:68ch;margin-top:8px" data-k="nodesLead"></p>
+    <div id="nodes"><div class="skel" style="margin-top:22px"></div></div>
+    <h3 style="margin-top:30px;font-size:17px" data-k="whyTitle"></h3>
+    <div class="grid grid-17" id="caveats" style="margin-top:14px"></div>
+    <div class="caveat caveat--sample">
+      <div class="caveat-k" data-k="nodesTailKicker"></div>
+      <div class="caveat-b" style="font-size:15px;max-width:68ch" data-k="nodesWarnTail"></div>
+      <div style="font-size:14px;color:var(--dim);margin-top:8px;max-width:68ch" data-k="nodesTail"></div>
+    </div>
+  </div>
+</section>
+
+<section id="donate" class="donate">
+  <div class="donate-k"><span aria-hidden="true">&#9889;</span> <span data-k="donateKicker"></span></div>
+  <h2 data-k="donateTitle"></h2>
+  <p class="donate-body" data-k="donateBody"></p>
+  <div class="pay">
+    <div class="pay-row">
+      <div class="pay-lbl" data-k="donateLn"></div>
+      <code class="pay-val" id="ln-val"></code>
+      <div class="pay-btns">
+        <button type="button" class="paybtn" id="ln-copy" onclick="copiar('ln')"></button>
+        <a class="paybtn primary" id="ln-open" href="#"></a>
+      </div>
+    </div>
+    <div class="pay-row">
+      <div class="pay-lbl" data-k="donateSp"></div>
+      <code class="pay-val sp" id="sp-val"></code>
+      <div class="pay-btns">
+        <button type="button" class="paybtn" id="sp-copy" onclick="copiar('sp')"></button>
+      </div>
+    </div>
+  </div>
+  <p class="donate-priv" data-k="donatePrivacy"></p>
+</section>
+
+<a href="#top" class="totop" id="totop" aria-label="arriba" hidden>&#8593;</a>
+
+<footer>
+  <p data-k="footerSrc"></p>
+  <p data-k="footerOwn"></p>
+  <p><a href="/methodology" data-k="footerMethod"></a></p>
+  <p><a href="https://github.com/decentralizedb/bip110-observer"
+        target="_blank" rel="noopener noreferrer" data-k="footerCode"></a></p>
+</footer>
+
+</div>
+
+<script>
+/* ===================== i18n =====================
+   Textos copiados literalmente del handoff de diseño. Las claves son las
+   mismas en en y es; hay un test que lo comprueba. */
+const DICT = {
+en: {
+ answerQ:"Do I need to do anything with my bitcoin?", answerA:"No.",
+ answerLead:"If you keep your bitcoin in self-custody, meaning you hold your own keys, you don't need to move anything, upgrade anything, or pick a side.",
+ riskKicker:"The real risk in the coming weeks",
+ riskShort:"It is not the fork. It is the rush around it. Nobody legitimate will ever ask you for your seed phrase, for any reason.",
+ answerMore:"Explain this to me", answerLess:"Show less",
+ answerP1:"Your bitcoin does not move on its own and does not disappear. If you run a node it keeps validating exactly as it does today, and if you keep your coins in self-custody you do not have to touch your wallet either. The only thing that would ask a decision of you is wanting to sell coins from a new chain, and that is a decision you can take calmly, or not take at all.",
+ answerP2:"Three things could actually cost you money, and all three depend on what you do. First, a scam asking for your seed phrase, usually dressed up as helping you protect your funds. Second, a transaction you sign on one chain being copied onto the other when you did not expect it. Third, handing your personal data to an exchange while chasing a prize that probably will not exist.",
+ legendTitle:"How to read every number here",
+ tagData:"Verifiable data", tagEst:"Estimate", tagSample:"Biased sample",
+ legendData:"Anyone with a full node gets the same figure. No sampling involved.",
+ legendEst:"A model or a sample, with its assumptions written next to it.",
+ legendSample:"Does not represent the population. The reasons why are on screen, never hidden.",
+ chainTitle:"Has Bitcoin split in two?",
+ chainMethod:"To answer that we run two nodes of our own, two computers that verify Bitcoin by themselves. One follows the rules in force today, the other follows the BIP-110 rules. While both see the same blocks there is one chain. The day they stop matching, there are two. Nobody has to announce it: it can be checked directly.",
+ trackEyebrow:"See it before it happens",
+ trackLead:"Today Bitcoin is one single chain. At block {splitHeight} it could split in two, and later it could become one again. Tap each point to see this same page in each case.",
+ whenPre:"until block {splitHeight}", whenSplit:"at block {splitHeight}",
+ whenReuni:"if the minority chain stops",
+ chainStateLabel:"See how it would look",
+ statePre:"One chain", stateSplit:"Two chains", stateReuni:"One chain again",
+ stopNow:"now",
+ chainStateNote:"Only the stop marked NOW shows real data. The other two are an example, so the day it changes does not catch you off guard. If it happens, that mark moves by itself and what you see there stops being an example.",
+ previewBadge:"Example · this is not happening",
+ previewNote:"These figures are made up to show the layout. It has not happened. When it does, this panel detects it on its own by comparing the two nodes, and switches to real data without anyone touching anything.",
+ oneChainKicker:"One chain · both nodes agree",
+ oneChainBody:"Both nodes are on the same chain and see exactly the same latest block. There is nothing to compare yet, so you see one figure here instead of two.",
+ nodeCore:"Our node with today's rules", nodeKnots:"Our node with the BIP-110 rules",
+ hashLabel:"Fingerprint of its latest block",
+ hashMatch:"Both fingerprints match, so both nodes are on the same block.",
+ hashDiffer:"The fingerprints do not match: each node is on a different block.",
+ hashWhat:"That string is the fingerprint of a block: a code that comes out of its contents, so two identical blocks always give the same code and two different ones never do. It is what lets us compare the two nodes without trusting either of them.",
+ aheadKicker:"What changes at {splitHeight}",
+ aheadBody:"From that block onward, the node running the BIP-110 rules starts rejecting any block that does not back them. If some miners do not back them, the two nodes stop seeing the same thing and this panel splits in two.",
+ majKicker:"Majority chain · validated by most of the economy",
+ majBody:"The chain most wallets, exchanges and merchants follow. Its numbers carry the same weight they do today.",
+ minKicker:"Minority chain · BIP-110 enforced",
+ minBody:"Every figure below applies only to this chain, and only while it produces blocks.",
+ asymKicker:"Not symmetric",
+ asymBody:"These two panels are different sizes on purpose. Showing them side by side as equals would suggest an equivalence nobody has measured.",
+ hashShare:"Share of mining", blockPace:"A block every",
+ reuniKicker:"One chain again",
+ reuniBody:"Either the minority chain stopped producing blocks, or the BIP-110 time limit ran out. There is one chain to report again, so the split view is gone.",
+ reuniHistKicker:"What is kept",
+ reuniHistBody:"The heights where the split opened and closed stay on record. Removing them would rewrite what happened.",
+ singleKicker:"Only one node configured",
+ singleBody:"The second node is not set up, so there is nothing to compare. This is a deployment choice, not a failure, and it says nothing about whether the chains have separated. Set BTC_RPC_URL_KNOTS to enable the comparison.",
+ degradedKicker:"One node is not answering",
+ degradedBody:"The two chains cannot be compared right now. This does NOT mean they have separated: an infrastructure failure and a chain split look alike from outside and have nothing to do with each other.",
+ splitAt:"Split opened at block {n}",
+ tlTitle:"BIP-110's dates are not dates, and they mark three different moments",
+ tlMethod:"Most coverage treats August 8th as one single event. There are three, they are apart, and treating them as one is the most common mistake in the whole debate. The one that can split the chain is the first, and it has nothing to do with the data rules, which come later. And that later can be far longer than it looks.",
+ ms1:"BIP-110 nodes start rejecting blocks",
+ ms1d:"From this block on, a node running the BIP-110 rules throws out any block that does not carry the mark. Nobody is obliged to anything: it only changes what those nodes accept. This is where the chains can separate.",
+ ms1q1:"What changes exactly?",
+ ms1a1:"Until this block, carrying the mark is voluntary and only counts toward the tally. From here on, a block without it is invalid for the nodes running these rules, while it stays perfectly valid for everyone else.",
+ ms1q2:"Who switches it on?",
+ ms1a2:"Nobody. It happens on its own when the chain reaches block {h}. There is no vote, no announcement and no button.",
+ ms1q3:"And what does that cause?",
+ ms1a3:"If every miner carries the mark, nothing happens and there is still one chain. If some do not, their blocks are accepted by part of the network and rejected by the rest, and from that moment each group follows a different chain. If your node does not run these rules, you notice nothing.",
+ ms2:"The outcome is settled",
+ ms2d:"For the nodes running these rules the change is settled from here, even if the miners never reached the threshold.",
+ ms2q1:"Why this exact block?",
+ ms2a1:"The window in which backing is compulsory ends at block {prev}, and lasts exactly one difficulty period, {periodSize} blocks. Block {h} is the one right after.",
+ ms2q2:"What does settled mean?",
+ ms2a2:"That it will take effect at the third date, and that it no longer depends on the tally. It happens whatever the count said: for those nodes there is nothing left to count. It does not mean anything breaks on this date.",
+ ms2q3:"Does anything change for transactions?",
+ ms2a3:"Not yet. No rule about what you can or cannot send changes on this date. It only fixes that they will change, and when.",
+ ms3:"The data rules take effect",
+ ms3d:"The seven restrictions start applying. Anything confirmed before this block is exempt for good.",
+ ms3q1:"Which rules are these?",
+ ms3a1:"Seven limits on how much arbitrary data a transaction can carry. They target data storage, not payments: an ordinary transaction is unaffected.",
+ ms3q2:"Do they touch coins I already hold?",
+ ms3a2:"No. Coins confirmed before block {h} stay outside the new rules permanently, for the whole time they are in force. This is written into the BIP itself.",
+ ms3q3:"How long do they last?",
+ ms3a3:"About a year, and then they expire on their own without anyone doing anything. And they only apply on the chain whose nodes enforce them.",
+ blocks:"blocks", daysAway:"≈{n} days", reached:"reached",
+ minersTitle:"Are the miners backing it?",
+ minersMethod:"For BIP-110 to go ahead, the miners have to back it: {thr}% of the blocks in a {periodSize} block stretch have to carry a mark saying so. We count those marks one by one on our own node. No explorer and no third-party API, so anyone with a full node can repeat the count and get the same number.",
+ gapKicker:"How far it is from the {thr}% needed",
+ gapUnit:"percentage points short of {thr}%",
+ gapBody:"The number that matters is not the {n}% signalling so far in this period. It is how far that is from the {thr}% needed.",
+ trendFlat:"Across the last {histPeriods} closed periods it barely moved, from {first}% to {last}%.",
+ trendUp:"Across the last {histPeriods} closed periods it went up, from {first}% to {last}%.",
+ trendDown:"Across the last {histPeriods} closed periods it went down, from {first}% to {last}%.",
+ trendNone:"There is not enough closed-period history yet to say whether it is moving.",
+ reachYes:"In theory, yes", reachNo:"No, not this period", reachMet:"It already has",
+ reachNoNote:"Even if every block left signalled, it would fall short of the {t} needed. The count starts over next period.",
+ reachMetNote:"{sig} of the {t} blocks needed have signalled in this period, so the threshold is already met. What happens next is set by the dates above.",
+ barLegend:"progress toward the {thr}% threshold",
+ mSig:"Signalling blocks", mSigOf:"of {n} scanned this period",
+ mTip:"Current block", mTipNote:"period {p} · from {a} to {b}",
+ mReach:"Could it still reach {thr}%?", mReachVal:"In theory, yes",
+ mReachNote:"{t} of the {periodSize} blocks are needed and {r} are still to be mined, so the numbers still add up. It says nothing about whether it will happen.",
+ mTrend:"Last {n} closed periods", mTrendNote:"{v} %",
+ whoTitle:"Who has signalled in period {p}, the one running now",
+ whoNone:"No block has signalled bit 4 in this period yet.",
+ whoShare:"Combined mining share of those signalling",
+ whoShareNote:"{n} pool(s), {b} blocks so far this period. Their share is measured over recent blocks, so it is an estimate.",
+ histTitle:"Who signalled in the {histPeriods} periods already closed",
+ histLead:"Of the {histBlocks} blocks mined in periods {firstPeriod} to {lastPeriod}, {b} signalled. This is who mined them:",
+ histNone:"Not a single block signalled in those {histPeriods} periods.",
+ histOfSig:"{pct}% of those", histMining:"{pct}% of mining",
+ histOnlyOne:"A single pool, so this is one operator's decision rather than a movement across mining.",
+ histSeveral:"{poolCount} different pools, so it is no longer one operator's decision. What matters is how much mining they add up to.",
+ coinbaseKicker:"Coinbase tags are not authenticated",
+ coinbaseBody:"A pool can omit its tag, change it, or imitate another's. Useful for reading the map, not proof of authorship.",
+ simTitle:"What if the chain splits?",
+ simMethod:"If some miners went their own way, they would have to keep mining with the difficulty of the whole network, but with only a fraction of the machines. Blocks would take far longer to appear. Move the control and see how long.",
+ simLabel:"Hashrate following the BIP-110 chain",
+ simInterval:"One block every", simPerDay:"Blocks per day",
+ simPerDayNote:"vs {bpd} on the main chain",
+ simRetarget:"First difficulty retarget", simMajority:"Majority chain",
+ simMajNote:"barely affected by losing that share",
+ assumeKicker:"Assumptions",
+ simNote:"Difficulty only readjusts every {periodSize} blocks, and a soft fork like this one does not touch that mechanism, so the smaller chain inherits the difficulty of the whole network and has to live with it until its own retarget arrives. The calculation assumes that difficulty and that the hashrate stays stable: it is an order-of-magnitude estimate, not a prediction. When Bitcoin Cash split in 2017 it survived this because it was a hard fork and could add an emergency difficulty adjustment. BIP-110, by design, has none.",
+ strTitle:"The different moments of BIP-110",
+ strMethod:"They are block heights, and every node measures them on the chain it considers valid, not on the chain with the most work. That changes everything that comes after.",
+ strLead:"At the {share}% signalling right now, the BIP-110 chain would produce one block every {interval} instead of one every ten minutes. Its milestones are heights, not dates, so each one takes however long that chain needs to reach it. From block {splitHeight} on, this is how it would look.",
+ strNoData:"This server is not sending the projection yet. It is an older version of the panel.",
+ tlIfSplit:"if they split: {v} (estimate)",
+ tlSameBoth:"the same on both chains: up to here there is only one",
+ strAxis0:"split",
+ strAxisY1:"{n} year",
+ strAxisYn:"{n} years",
+ strRailFast:"If the chain stays one",
+ strRailSlow:"If they split, at today's {share}%",
+ strMs2:"Forced LOCKED_IN",
+ strMs3:"ACTIVE, the rules take effect",
+ strMs4:"The rules expire",
+ strAtHeight:"block {h}",
+ strKFast:"one single chain",
+ strKSlow:"minority chain",
+ strMult:"On the minority chain it would take {x} times longer.",
+ strNeverRow:"never",
+ strNever:"With nobody signalling there is no minority chain to measure: it would not produce a single block, so none of these milestones would ever arrive.",
+ strNoSplit:"At this share there would be no split: the whole network would follow those rules and the milestones would arrive at their normal pace. What follows is an exercise, not a forecast.",
+ strAssumeKicker:"What this calculation is taking for granted",
+ strAssume1:"That today's signalling share holds. This is the shakiest of the three.",
+ strAssume2:"That whoever signals ends up mining that chain. Signalling states an intention, it is not a commitment: you can signal and then follow the other chain.",
+ strAssume3:"That difficulty retargets every {periodSize} blocks and drops to at most a quarter each time, which is Bitcoin's own cap. Without that cap the waits would be far longer.",
+ strNote:"A soft fork does not touch the difficulty mechanism, so the small chain starts out with the difficulty of the whole network. That is why the first leg is the slow one and the rest get shorter: once difficulty has finished falling, the chain goes back to its normal pace. What stretches is the beginning.",
+ simViable:"At this share the chain would be the majority: there would be no split, the whole network would follow those rules.",
+ poolsTitle:"Who could change this?",
+ poolsMethod:"Each pool's share measured over the last {sampleBlocks} blocks against an own node, not taken from a third party. {poolsIdent} pools identified, {unattrPct}% unattributed.",
+ coalitionKicker:"The coalition that does not exist",
+ coalitionBody:"No combination reaches {thr}% today unless several of the majors move at the same time. Only {pool} signals, and it holds {share}%. That is the coordination problem keeping everyone still.",
+ coalitionBodyMany:"Reaching {thr}% needs several of the majors moving at the same time. Right now {poolCount} pools signal and together they hold {sigShare}% of mining. That is {gapShare} points short of the threshold.",
+ coalitionBodyOver:"{poolCount} pools now signal and together they hold {sigShare}% of mining, above the {thr}% the BIP asks for. Mining share is not the same as blocks actually signalled, so it is the count per period that decides, not this figure.",
+ gfTitle:"Can my bitcoin get locked up by this?",
+ gfAnswer:"No, not what you already hold confirmed.",
+ gfMethod:"The BIP itself puts every coin confirmed before the activation block out of reach of the new rules, permanently and for the whole year the rules last. Coins you already have are not affected, and you do not need to move them anywhere.",
+ gfRiskTitle:"The one case that would need a second look",
+ gfWho:"If you use a normal wallet and you hold your own keys, this does not describe you and you can skip it. It is written out in full anyway, because leaving it out would be hiding the only real risk there is.",
+ gfRiskIntro:"The BIP text acknowledges one very unlikely scenario in which funds could be frozen or lost. Every one of these conditions has to hold at the same time:",
+ r1:"The UTXO is pay-to-Taproot (P2TR).",
+ r2:"The UTXO is committed in a pre-signed transaction.",
+ r3:"That UTXO must be confirmed and spent during the one-year deployment.",
+ r4:"The chosen Taptree leaf contains OP_IF/OP_NOTIF, or sits deeper than 7 levels.",
+ r5:"The keypath is unusable, and there is no other valid leaf in the tree.",
+ gfOutKicker:"If none of that describes you",
+ gfRiskOut:"If you don't use Taproot, or you use it in standard ways, or your UTXOs are confirmed before activation, none of this touches you. The BIP recommends migrating any funds matching that profile in advance, and provides at least two weeks between lock-in and activation to do so.",
+ nodesTitle:"Can we know how many nodes back BIP-110?",
+ nodesWarnTitle:"No. Not this panel and not any other.",
+ nodesLead:"A node does not publish anywhere the rules it enforces. The only thing anyone can observe is what each node says about itself: which software it announces, and whether it declares that it enforces BIP-110. That is what you see below, and right after it, the four reasons why it is a sample and not a headcount.",
+ whyTitle:"Why this is a sample and not a headcount",
+ c1k:"Self-declared", c1:"Changed with one config line. A Knots node can announce itself as Core and the other way round.",
+ c2k:"Listening nodes only", c2:"The crawl connects outward, so it only reaches nodes accepting incoming connections. Nodes behind NAT are left out twice: they cannot be called and they do not advertise. The sample over-represents servers and VPSs.",
+ c3k:"Trivially sybilled", c3:"A thousand cloud nodes cost pocket change. Either side can inflate its count in an afternoon.",
+ c4k:"Partial network coverage", c4:"The crawl reaches IPv4, IPv6 and Tor. Nodes speaking only i2p or cjdns are out, because reaching them needs a router for those networks.",
+ nodesTailKicker:"Even with all four solved",
+ nodesWarnTail:"It still would not measure the only thing that decides anything: how much economic activity validates through each node. A node verifying a business's incoming payments weighs more than a thousand idle ones, and from the outside they look identical.",
+ nodesTail:"These percentages describe this sample, not the network. Do not quote them as node share.",
+ nReached:"Nodes reached", nReachedNote:"from {n} own seeds",
+ nCore:"Announcing Core", nKnots:"Announcing Knots", nBit:"Announce they enforce it",
+ nOf:"of this sample", nBitNote:"a mark they choose to display",
+ rulesTitle:"What each node declares about BIP-110",
+ ruleDeclares:"Announce they enforce it", ruleUaOnly:"Say so in their name only",
+ ruleKnotsUndeclared:"Run Knots, announce nothing", ruleUndeclared:"Announce nothing",
+ rulesKicker:"What that mark is worth",
+ moreTech:"Sources and technical detail →",
+ rulesBody:"A node can add a mark to its calling card saying it enforces BIP-110. That mark was invented by Bitcoin Knots, it is not part of BIP-110, and it is switched on or off with one line of configuration, so nobody can check from outside whether it is true. Running Knots does not mean enforcing BIP-110 either: that depends on the version and the configuration. Hence separate columns, never added together.",
+ netsNote:"Networks crawled: {probed}. Left out: {skipped}.",
+ sampleWarn:"Sample of {n} nodes reached. Too small to quote as a percentage of the network, and that is not what it is for.",
+ footerSrc:"Parameters taken from the Deployment section of bip-0110.mediawiki in the bitcoin/bips repository, version 1.0.0 (Status: Complete).",
+ footerOwn:"Miner and pool data are read from an own Bitcoin Core node. Node data comes from an own P2P crawl. No external explorers, no third-party APIs, no remote fonts or scripts.",
+ donateNav:"Donate",
+ donateKicker:"No ads and no sponsors",
+ donateTitle:"If this was useful, buy me a coffee in sats",
+ donateBody:"This panel sells nothing, tracks nobody and has no company behind it. It runs on a node at home and spare time. If it helped you understand what is going on, you can chip in. And if not, nothing changes: the panel is the same either way.",
+ donateLn:"Lightning", donateSp:"Silent payment (on chain)",
+ donateCopy:"Copy", donateCopied:"Copied", donateOpen:"Open wallet",
+ donatePrivacy:"The Lightning address issues a fresh invoice for every payment, and the silent payment address derives a different on chain address for each sender. Neither leaves a public trail linking donations to each other. It seemed the least I could do on a panel that spends its time telling you what can and cannot be observed.",
+ navCode:"Code",
+ footerCode:"Source code on GitHub, MIT licensed",
+ freshAt:"read at block {h} · {ago}",
+ agoSec:"{n}s ago", agoMin:"{n} min ago", agoHour:"{n} h ago",
+ footerMethod:"Full methodology, sources and limitations",
+ hours:"hours", minutes:"minutes", days:"days", years:"years", current:"current",
+ ofNormal:"{n}% of normal pace", loading:"Loading…",
+ computing:"Working this out for the first time. It reads the blocks one by one from an own node, and over Tor that takes a few minutes. This updates on its own, no need to reload.",
+ staleNote:"Figures from {n} min ago. A fresh reading is being taken right now.",
+ errTimeout:"The server took too long and something in between cut the connection. It is still working on it: this updates on its own.",
+ errHttp:"The server answered with an error ({code}).",
+ errBadJson:"The answer did not arrive as expected. Something between this page and the server modified it."
+},
+es: {
+ answerQ:"¿Tengo que hacer algo con mi bitcoin?", answerA:"No.",
+ answerLead:"Si guardas tus bitcoin en autocustodia, es decir con tus propias llaves, no tienes que mover nada, ni actualizar nada, ni elegir bando.",
+ riskKicker:"El riesgo real de estas semanas",
+ riskShort:"No es la bifurcación, son las prisas que genera. Nadie legítimo te va a pedir nunca tu frase semilla, por ningún motivo.",
+ answerMore:"Explícamelo", answerLess:"Mostrar menos",
+ answerP1:"Tus bitcoin no se mueven solos ni desaparecen. Si tienes un nodo, seguirá validando igual que hoy, y si tienes tus bitcoin en autocustodia, tampoco tienes que tocar tu cartera. Lo único que te pediría decidir algo es querer vender monedas de una cadena nueva, y esa decisión la puedes tomar con calma, o no tomarla.",
+ answerP2:"Hay tres cosas que sí pueden costarte dinero, y las tres dependen de lo que hagas tú. La primera, una estafa que te pide la frase semilla, normalmente disfrazada de ayudarte a proteger tus fondos. La segunda, que una transacción que firmas en una cadena se copie en la otra sin que lo esperes. Y la tercera, entregarle tus datos a un exchange corriendo detrás de un premio que probablemente no exista.",
+ legendTitle:"Cómo leer cada cifra de este panel",
+ tagData:"Dato verificable", tagEst:"Estimación", tagSample:"Muestra sesgada",
+ legendData:"Cualquiera con un nodo completo obtiene la misma cifra. Sin muestreo.",
+ legendEst:"Un modelo o una muestra, con sus supuestos escritos al lado.",
+ legendSample:"No representa a la población. Los motivos están en pantalla, nunca escondidos.",
+ chainTitle:"¿Se ha partido Bitcoin en dos?",
+ chainMethod:"Para responder tenemos dos nodos propios, dos ordenadores que verifican Bitcoin por su cuenta. Uno lleva las reglas que están en vigor hoy y el otro las del BIP-110. Mientras los dos vean los mismos bloques, hay una sola cadena. El día que dejen de coincidir, habrá dos. No hace falta que nadie lo anuncie: se puede comprobar directamente.",
+ trackEyebrow:"Míralo antes de que pase",
+ trackLead:"Hoy Bitcoin es una sola cadena. En el bloque {splitHeight} podría partirse en dos, y más adelante podría volver a ser una. Pulsa cada punto y verás esta misma página en cada caso.",
+ whenPre:"hasta el bloque {splitHeight}", whenSplit:"en el bloque {splitHeight}",
+ whenReuni:"si la minoritaria se queda sin bloques",
+ chainStateLabel:"Ver cómo quedaría",
+ statePre:"Una cadena", stateSplit:"Dos cadenas", stateReuni:"Vuelve a ser una",
+ stopNow:"ahora",
+ chainStateNote:"Solo la parada marcada como AHORA muestra datos reales. Las otras dos son un ejemplo, para que el día que cambie no te pille de nuevas. Si ocurre, esa marca se mueve sola y lo que veas ahí dejará de ser un ejemplo.",
+ previewBadge:"Ejemplo · esto no está pasando",
+ previewNote:"Las cifras de aquí están inventadas para enseñar cómo quedaría. No ha ocurrido. Cuando ocurra, este panel lo detecta solo comparando los dos nodos y pasa a mostrar datos reales sin que nadie toque nada.",
+ oneChainKicker:"Una cadena · los dos nodos coinciden",
+ oneChainBody:"Los dos nodos van por la misma cadena y ven exactamente el mismo último bloque. Todavía no hay nada que comparar, así que aquí ves una sola cifra en vez de dos.",
+ nodeCore:"Nuestro nodo con las reglas de hoy", nodeKnots:"Nuestro nodo con las reglas del BIP-110",
+ hashLabel:"Huella de su último bloque",
+ hashMatch:"Las dos huellas coinciden, así que los dos nodos van por el mismo bloque.",
+ hashDiffer:"Las huellas no coinciden: cada nodo va por un bloque distinto.",
+ hashWhat:"Ese código es la huella de un bloque: sale de su contenido, así que dos bloques idénticos dan siempre el mismo código y dos distintos no coinciden nunca. Es lo que permite comparar los dos nodos sin fiarse de ninguno de los dos.",
+ aheadKicker:"Qué cambia en el {splitHeight}",
+ aheadBody:"A partir de ese bloque, el nodo que lleva las reglas del BIP-110 empieza a rechazar los bloques que no las apoyen. Si algunos mineros no las apoyan, los dos nodos dejan de ver lo mismo y este panel se parte en dos.",
+ majKicker:"Cadena mayoritaria · la valida casi toda la economía",
+ majBody:"La cadena que siguen la mayoría de carteras, exchanges y comercios. Sus cifras pesan lo mismo que hoy.",
+ minKicker:"Cadena minoritaria · con BIP-110 aplicado",
+ minBody:"Cada cifra de aquí abajo vale solo para esta cadena, y solo mientras produzca bloques.",
+ asymKicker:"No son simétricas",
+ asymBody:"Estos dos paneles tienen tamaños distintos a propósito. Ponerlos lado a lado como iguales sugeriría una equivalencia que nadie ha medido.",
+ hashShare:"Cuota de minado", blockPace:"Un bloque cada",
+ reuniKicker:"Una sola cadena otra vez",
+ reuniBody:"O la cadena minoritaria dejó de producir bloques, o se agotó el plazo del BIP-110. Vuelve a haber una sola cadena que contar, así que la vista partida desaparece.",
+ reuniHistKicker:"Qué se conserva",
+ reuniHistBody:"Quedan registradas las alturas en las que se abrió y se cerró la separación. Borrarlas sería reescribir lo que pasó.",
+ singleKicker:"Solo hay un nodo configurado",
+ singleBody:"El segundo nodo no está configurado, así que no hay nada que comparar. Es una decisión de despliegue, no una avería, y no dice nada sobre si las cadenas se han separado. Configura BTC_RPC_URL_KNOTS para activar la comparación.",
+ degradedKicker:"Un nodo no responde",
+ degradedBody:"Ahora mismo no se pueden comparar las dos cadenas. Esto NO significa que se hayan separado: un fallo de infraestructura y una bifurcación se parecen desde fuera y no tienen nada que ver.",
+ splitAt:"La separación se abrió en el bloque {n}",
+ tlTitle:"Las fechas del BIP-110 no son fechas, y hablan de tres momentos distintos",
+ tlMethod:"Casi toda la cobertura trata el 8 de agosto como un único evento. Son tres, están separados, y confundirlos como uno solo es el error más extendido de todo el debate. El que puede partir la cadena es el primero, y no tiene nada que ver con las reglas de datos, que llegan después. Y ese después puede ser mucho más largo de lo que parece.",
+ ms1:"Los nodos con BIP-110 empiezan a rechazar bloques",
+ ms1d:"Desde este bloque, un nodo que lleve las reglas del BIP-110 tira cualquier bloque que no traiga la marca. Nadie queda obligado a nada: solo cambia lo que esos nodos aceptan. Aquí es donde se pueden separar las cadenas.",
+ ms1q1:"¿Qué cambia exactamente?",
+ ms1a1:"Hasta este bloque, llevar la marca es voluntario y solo cuenta para el recuento. A partir de aquí, un bloque sin ella es inválido para los nodos que llevan esas reglas, mientras sigue siendo perfectamente válido para todos los demás.",
+ ms1q2:"¿Quién lo activa?",
+ ms1a2:"Nadie. Ocurre solo cuando la cadena llega al bloque {h}. No hay votación, ni anuncio, ni botón que pulsar.",
+ ms1q3:"¿Y eso qué provoca?",
+ ms1a3:"Si todos los mineros llevan la marca, no pasa nada y sigue habiendo una sola cadena. Si algunos no la llevan, sus bloques los acepta una parte de la red y los rechaza la otra, y desde ese momento cada grupo sigue una cadena distinta. Si tu nodo no lleva esas reglas, tú no notas nada.",
+ ms2:"El resultado queda decidido",
+ ms2d:"Para los nodos que llevan esas reglas el cambio queda decidido a partir de aquí, aunque los mineros nunca llegaran al umbral.",
+ ms2q1:"¿Por qué justo este bloque?",
+ ms2a1:"La ventana en la que apoyarlo es obligatorio termina en el bloque {prev}, y dura exactamente un periodo de dificultad, {periodSize} bloques. El bloque {h} es el siguiente.",
+ ms2q2:"¿Qué significa que quede decidido?",
+ ms2a2:"Que entrará en vigor en la tercera fecha, y que ya no depende del recuento. Ocurre dijera lo que dijera: para esos nodos no queda nada que contar. No significa que nada se estropee ni que haya ningún riesgo en esta fecha.",
+ ms2q3:"¿Cambia algo en las transacciones?",
+ ms2a3:"Todavía no. En esta fecha no cambia ninguna regla sobre lo que puedes o no puedes enviar. Solo queda fijado que van a cambiar, y cuándo.",
+ ms3:"Las reglas de datos entran en vigor",
+ ms3d:"Empiezan a aplicarse las siete restricciones. Lo confirmado antes de este bloque queda exento para siempre.",
+ ms3q1:"¿Qué reglas son?",
+ ms3a1:"Siete límites a la cantidad de datos arbitrarios que puede llevar una transacción. Van contra el almacenamiento de datos, no contra los pagos: una transacción normal no se ve afectada.",
+ ms3q2:"¿Afectan a las monedas que ya tengo?",
+ ms3a2:"No. Las monedas confirmadas antes del bloque {h} quedan fuera de las reglas nuevas de forma permanente, durante todo el tiempo que estén en vigor. Está escrito en el propio BIP.",
+ ms3q3:"¿Cuánto duran?",
+ ms3a3:"Alrededor de un año, y después expiran solas sin que nadie haga nada. Y solo se aplican en la cadena cuyos nodos las hacen cumplir.",
+ blocks:"bloques", daysAway:"≈{n} días", reached:"alcanzado",
+ minersTitle:"¿Los mineros lo están apoyando?",
+ minersMethod:"Para que el BIP-110 salga adelante, los mineros tienen que apoyarlo: el {thr}% de los bloques de una tanda de {periodSize} tiene que llevar una marca que lo diga. Esas marcas las contamos una a una en nuestro propio nodo. Sin exploradores ni APIs de terceros, así que cualquiera con un nodo completo puede repetir la cuenta y obtener el mismo número.",
+ gapKicker:"Lo que falta para el {thr}% necesario",
+ gapUnit:"puntos por debajo del {thr}%",
+ gapBody:"La cifra que importa no es el {n}% que lleva señalizado este periodo. Es lo lejos que queda del {thr}% necesario.",
+ trendFlat:"En los {histPeriods} periodos cerrados anteriores apenas se movió, del {first}% al {last}%.",
+ trendUp:"En los {histPeriods} periodos cerrados anteriores subió, del {first}% al {last}%.",
+ trendDown:"En los {histPeriods} periodos cerrados anteriores bajó, del {first}% al {last}%.",
+ trendNone:"Todavía no hay suficientes periodos cerrados para decir si se mueve o no.",
+ reachYes:"En teoría, sí", reachNo:"No, en este periodo ya no", reachMet:"Ya lo ha alcanzado",
+ reachNoNote:"Aunque señalizaran todos los bloques que quedan, no llegaría a los {t} necesarios. La cuenta vuelve a empezar en el siguiente periodo.",
+ reachMetNote:"En este periodo ya han señalizado {sig} de los {t} bloques necesarios, así que el umbral está cumplido. Lo que venga después lo marcan las fechas de arriba.",
+ barLegend:"progreso hacia el umbral del {thr}%",
+ mSig:"Bloques señalizando", mSigOf:"de {n} escaneados este periodo",
+ mTip:"Bloque actual", mTipNote:"periodo {p} · del {a} al {b}",
+ mReach:"¿Todavía puede llegar al {thr}%?", mReachVal:"En teoría, sí",
+ mReachNote:"hacen falta {t} de los {periodSize} bloques y quedan {r} por minar, así que las cuentas todavía dan. No dice nada sobre si va a ocurrir.",
+ mTrend:"Últimos {n} periodos cerrados", mTrendNote:"{v} %",
+ whoTitle:"Quién ha señalizado en el periodo {p}, el que está en curso",
+ whoNone:"Todavía no ha señalizado el bit 4 ningún bloque de este periodo.",
+ whoShare:"Cuota de minado sumada de los que señalizan",
+ whoShareNote:"{n} pool(s), {b} bloques en lo que va de periodo. Su cuota está medida sobre los últimos bloques, así que es una estimación.",
+ histTitle:"Quién señalizó en los {histPeriods} periodos ya cerrados",
+ histLead:"De los {histBlocks} bloques minados en los periodos {firstPeriod} a {lastPeriod}, señalizaron {b}. Estos son los que los minaron:",
+ histNone:"En esos {histPeriods} periodos no señalizó ni un solo bloque.",
+ histOfSig:"{pct}% de esos", histMining:"{pct}% del minado",
+ histOnlyOne:"Un solo pool, así que es la decisión de un operador y no un movimiento del minado.",
+ histSeveral:"{poolCount} pools distintos, así que ya no es la decisión de un operador. Lo que importa es cuánto minado suman entre todos.",
+ coinbaseKicker:"Las etiquetas de coinbase no están autenticadas",
+ coinbaseBody:"Un pool puede omitirla, cambiarla o imitar la de otro. Sirve para leer el mapa, no como prueba de autoría.",
+ simTitle:"¿Y si la cadena se separa?",
+ simMethod:"Si unos cuantos mineros se fueran por su cuenta, tendrían que seguir minando con la dificultad de toda la red pero con una fracción de las máquinas. Los bloques tardarían muchísimo más en aparecer. Mueve el control y mira cuánto.",
+ simLabel:"Potencia de minado que sigue la cadena BIP-110",
+ simInterval:"Un bloque cada", simPerDay:"Bloques al día",
+ simPerDayNote:"frente a {bpd} en la cadena principal",
+ simRetarget:"Primer reajuste de dificultad", simMajority:"Cadena mayoritaria",
+ simMajNote:"apenas la afecta perder esa cuota",
+ assumeKicker:"Supuestos",
+ simNote:"La dificultad solo se reajusta cada {periodSize} bloques, y un soft fork como este no toca ese mecanismo, así que la cadena pequeña hereda la dificultad de toda la red y tiene que aguantarla hasta que le llegue su propio reajuste. El cálculo asume esa dificultad y que la potencia de minado se mantiene estable: es una estimación del orden de magnitud, no una predicción. Cuando Bitcoin Cash se separó en 2017 sobrevivió a esto porque era un hard fork y pudo añadir un ajuste de emergencia de dificultad. El BIP-110, por diseño, no lo tiene.",
+ strTitle:"Los diferentes momentos del BIP-110",
+ strMethod:"Son alturas de bloque, y cada nodo las mide sobre la cadena que él da por válida, no sobre la que más trabajo acumula. Eso cambia todo lo que viene después.",
+ strLead:"Con el {share}% que señaliza ahora mismo, la cadena con BIP-110 haría un bloque cada {interval} en vez de uno cada diez minutos. Sus hitos son alturas, no fechas, así que cada uno tarda lo que esa cadena tarde en llegar a él. A partir del bloque {splitHeight}, esto es lo que saldría.",
+ strNoData:"Este servidor todavía no envía la proyección. Es una versión anterior del panel.",
+ tlIfSplit:"si se separan: {v} (estimación)",
+ tlSameBoth:"igual en las dos cadenas: hasta aquí solo hay una",
+ strAxis0:"separación",
+ strAxisY1:"{n} año",
+ strAxisYn:"{n} años",
+ strRailFast:"Si la cadena sigue siendo una",
+ strRailSlow:"Si se separan, con el {share}% actual",
+ strMs2:"LOCKED_IN forzado",
+ strMs3:"ACTIVE, entran en vigor las reglas",
+ strMs4:"Las reglas expiran",
+ strAtHeight:"bloque {h}",
+ strKFast:"una sola cadena",
+ strKSlow:"cadena minoritaria",
+ strMult:"En la cadena minoritaria tardaría {x} veces más.",
+ strNeverRow:"nunca",
+ strNever:"Sin nadie señalizando no hay cadena minoritaria que medir: no llegaría a producir un solo bloque, así que ninguno de estos hitos llegaría nunca.",
+ strNoSplit:"Con esta cuota no habría separación: la red entera seguiría esas reglas y los hitos llegarían a su ritmo normal. Lo de abajo se queda como ejercicio, no como pronóstico.",
+ strAssumeKicker:"Qué está dando por supuesto este cálculo",
+ strAssume1:"Que la cuota que señaliza hoy se mantiene. Es lo más frágil de los tres.",
+ strAssume2:"Que quien señaliza acaba minando esa cadena. Señalizar es declarar una intención, no comprometerse: se puede señalizar y luego seguir la otra.",
+ strAssume3:"Que la dificultad se reajusta cada {periodSize} bloques y en cada reajuste baja como mucho a la cuarta parte, que es el tope del propio Bitcoin. Sin ese tope las esperas serían mucho mayores.",
+ strNote:"Un soft fork no toca el mecanismo de dificultad, así que la cadena pequeña arranca con la dificultad de toda la red. Por eso el primer tramo es el lento y los siguientes se van acortando: cuando la dificultad termina de bajar, la cadena vuelve a su ritmo. Lo que se estira es el principio.",
+ simViable:"Con esta cuota la cadena sería mayoritaria: no habría separación, la red entera seguiría esas reglas.",
+ poolsTitle:"¿Quién podría cambiarlo?",
+ poolsMethod:"Cuota de cada pool medida sobre los últimos {sampleBlocks} bloques contra un nodo propio, no tomada de un tercero. {poolsIdent} pools identificados, {unattrPct}% sin atribuir.",
+ coalitionKicker:"La coalición que hoy no existe",
+ coalitionBody:"Ninguna combinación llega al {thr}% sin que varios de los grandes se muevan a la vez. Solo señaliza {pool}, con el {share}%. Ese es el problema de coordinación que mantiene inmóvil a todo el mundo.",
+ coalitionBodyMany:"Llegar al {thr}% exige que varios de los grandes se muevan a la vez. Ahora mismo señalizan {poolCount} pools y entre todos suman el {sigShare}% del minado. Eso deja {gapShare} puntos hasta el umbral.",
+ coalitionBodyOver:"Ya señalizan {poolCount} pools y entre todos suman el {sigShare}% del minado, por encima del {thr}% que pide el BIP. Cuota de minado no es lo mismo que bloques señalizados, así que lo que decide es el recuento de cada periodo, no esta cifra.",
+ gfTitle:"¿Se me pueden bloquear los bitcoin por esto?",
+ gfAnswer:"No, los que ya tienes confirmados no.",
+ gfMethod:"El propio BIP deja fuera del alcance de las reglas nuevas todas las monedas confirmadas antes del bloque de activación, de forma permanente y durante todo el año que duran las reglas. Lo que ya tienes no se ve afectado, y no necesitas moverlo a ningún sitio.",
+ gfRiskTitle:"El único caso en el que sí habría que mirar",
+ gfWho:"Si usas una cartera normal y guardas tus propias llaves, esto no te describe y te lo puedes saltar. Aun así está escrito entero, porque omitirlo sería esconder el único riesgo real que hay.",
+ gfRiskIntro:"El texto del BIP reconoce un escenario, muy improbable, en el que unos fondos podrían quedar congelados o perderse. Tienen que cumplirse todas estas condiciones a la vez:",
+ r1:"El UTXO es pay-to-Taproot (P2TR).",
+ r2:"Ese UTXO ya está incluido en una transacción firmada de antemano.",
+ r3:"Ese UTXO tiene que confirmarse y gastarse durante el año que dura el despliegue.",
+ r4:"La rama del Taptree elegida contiene OP_IF/OP_NOTIF, o está a más de 7 niveles de profundidad.",
+ r5:"La ruta por clave no sirve para gastar, y no hay otra rama válida en el árbol.",
+ gfOutKicker:"Si nada de eso te describe",
+ gfRiskOut:"Si no usas Taproot, o lo usas de forma estándar, o tus UTXOs están confirmados antes de la activación, no te afecta nada de esto. El propio BIP recomienda migrar con antelación cualquier fondo que encaje en ese perfil, y prevé al menos dos semanas entre el lock-in y la activación para hacerlo.",
+ nodesTitle:"¿Se puede saber cuántos nodos apoyan el BIP-110?",
+ nodesWarnTitle:"No. Ni este panel ni ningún otro.",
+ nodesLead:"Un nodo no publica en ningún sitio las reglas que aplica. Lo único que se puede observar es lo que cada nodo dice de sí mismo: qué programa anuncia y si declara que aplica el BIP-110. Eso es lo que ves aquí abajo, y justo después, los cuatro motivos por los que es una muestra y no un recuento.",
+ whyTitle:"Por qué esto es una muestra y no un recuento",
+ c1k:"Autodeclarado", c1:"Se cambia con una línea de configuración. Un nodo Knots puede anunciarse como Core y al revés.",
+ c2k:"Solo nodos que escuchan", c2:"El sondeo conecta hacia fuera, así que solo alcanza a los que aceptan conexiones entrantes. Los que están tras NAT quedan fuera dos veces: no se les puede llamar y tampoco se anuncian. La muestra sobrerrepresenta servidores y VPS.",
+ c3k:"Sybil trivial", c3:"Mil nodos en la nube cuestan cuatro duros. Cualquier bando puede inflar su cifra en una tarde.",
+ c4k:"Cobertura parcial de redes", c4:"El sondeo llega a IPv4, IPv6 y Tor. Los nodos que solo hablan i2p o cjdns quedan fuera, porque alcanzarlos exige ejecutar un router de esas redes.",
+ nodesTailKicker:"Y aunque se resolvieran los cuatro",
+ nodesWarnTail:"Seguiría sin medirse lo único que decide algo: cuánta actividad económica valida a través de cada nodo. Un nodo que verifica los cobros de un negocio pesa más que mil nodos ociosos, y desde fuera se ven exactamente iguales.",
+ nodesTail:"Estos porcentajes describen esta muestra, no la red. No los cites como cuota de nodos.",
+ nReached:"Nodos alcanzados", nReachedNote:"desde {n} semillas propias",
+ nCore:"Se anuncian como Core", nKnots:"Se anuncian como Knots", nBit:"Anuncian que lo aplican",
+ nOf:"de esta muestra", nBitNote:"una marca que ellos eligen poner",
+ rulesTitle:"Qué declara cada nodo sobre el BIP-110",
+ ruleDeclares:"Anuncian que lo aplican", ruleUaOnly:"Solo lo dicen en el nombre",
+ ruleKnotsUndeclared:"Usan Knots y no anuncian nada", ruleUndeclared:"No anuncian nada",
+ rulesKicker:"Lo que vale esa marca",
+ moreTech:"Fuentes y detalle técnico →",
+ rulesBody:"Un nodo puede añadir una marca a su carta de presentación diciendo que aplica el BIP-110. Esa marca se la inventó Bitcoin Knots, no forma parte del BIP-110, y se pone o se quita con una línea de configuración, así que nadie puede comprobar desde fuera si es verdad. Usar Knots tampoco significa aplicar el BIP-110: depende de la versión y de la configuración. Por eso van en columnas separadas y no se suman.",
+ netsNote:"Redes sondeadas: {probed}. Fuera del sondeo: {skipped}.",
+ sampleWarn:"Muestra de {n} nodos alcanzados. Demasiado pequeña para citarla como porcentaje de la red, y tampoco es para eso.",
+ footerSrc:"Parámetros tomados de la sección Deployment de bip-0110.mediawiki en el repositorio bitcoin/bips, versión 1.0.0 (Status: Complete).",
+ footerOwn:"Los datos de mineros y pools se leen de un nodo Bitcoin Core propio. Los de nodos, de un sondeo propio del P2P. Sin exploradores externos, sin APIs de terceros, sin tipografías ni scripts remotos.",
+ donateNav:"Donar",
+ donateKicker:"Sin publicidad y sin patrocinadores",
+ donateTitle:"Si te ha servido, invítame a un café en sats",
+ donateBody:"Este panel no vende nada, no rastrea a nadie y no tiene ninguna empresa detrás. Se sostiene con un nodo en casa y ratos libres. Si te ha ayudado a entender qué está pasando, puedes echar una mano. Y si no, no cambia nada: el panel es el mismo.",
+ donateLn:"Lightning", donateSp:"Pago silencioso (en cadena)",
+ donateCopy:"Copiar", donateCopied:"Copiado", donateOpen:"Abrir cartera",
+ donatePrivacy:"La dirección de Lightning genera una factura nueva en cada pago, y la dirección de pago silencioso deriva una dirección distinta en cadena para cada persona que envía. Ninguna de las dos deja un rastro público que enlace unas donaciones con otras. Me parecía lo mínimo en un panel que se pasa el rato explicando qué se puede observar y qué no.",
+ navCode:"Código",
+ footerCode:"Código fuente en GitHub, con licencia MIT",
+ freshAt:"leído en el bloque {h} · {ago}",
+ agoSec:"hace {n}s", agoMin:"hace {n} min", agoHour:"hace {n} h",
+ footerMethod:"Metodología completa, fuentes y limitaciones",
+ hours:"horas", minutes:"minutos", days:"días", years:"años", current:"actual",
+ ofNormal:"{n}% del ritmo normal", loading:"Cargando…",
+ computing:"Calculándolo por primera vez. Lee los bloques uno a uno de un nodo propio, y por Tor eso tarda unos minutos. Esto se actualiza solo, no hace falta recargar.",
+ staleNote:"Cifras de hace {n} min. Se está tomando una lectura nueva ahora mismo.",
+ errTimeout:"El servidor tardó demasiado y algo por el camino cortó la conexión. Sigue trabajando en ello: esto se actualiza solo.",
+ errHttp:"El servidor respondió con un error ({code}).",
+ errBadJson:"La respuesta no llegó como se esperaba. Algo entre esta página y el servidor la ha modificado."
+}};
+
+/* Direcciones de donacion. Aqui y en ningun otro sitio: cambiar una es
+   cambiar una linea. No van en el diccionario porque no se traducen. */
+const PAGO = {
+  ln: "decentralizedb@pagos.dinerosinreglas.com",
+  sp: "sp1qqv8k8q826lr67zrd5qz989ts8v4jrzzxt23rn78kvd035q9c4qszuq5cet0c3c0x5u334d8vxvqteqt5p0wgq0x8dsyap4g4d4c5yqajwvk5cur9",
+};
+
+/* ===================== estado ===================== */
+/* Tema.
+   Por defecto se respeta lo que diga el sistema: quien tiene el movil en
+   claro no quiere que una pagina le deslumbre, y al reves igual. Solo si
+   el visitante lo cambia a mano se recuerda su eleccion. */
+let TEMA = (function(){
+  try{ const t = localStorage.getItem("bip110theme"); if(t === "light" || t === "dark") return t; }catch(e){}
+  return (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches)
+    ? "light" : "dark";
+})();
+
+function aplicarTema(){
+  document.documentElement.setAttribute("data-theme", TEMA);
+  const ico = $("theme-ico");
+  // Se enseña el sitio al que se va, no donde se esta: sol para ir a claro.
+  if(ico) ico.innerHTML = TEMA === "dark" ? "&#9788;" : "&#9789;";
+}
+function toggleTema(){
+  TEMA = TEMA === "dark" ? "light" : "dark";
+  try{ localStorage.setItem("bip110theme", TEMA); }catch(e){}
+  aplicarTema();
+}
+
+let LANG = (function(){
+  try{ const s = localStorage.getItem("bip110lang"); if(s === "en" || s === "es") return s; }catch(e){}
+  return (navigator.language || "").toLowerCase().startsWith("es") ? "es" : "en";
+})();
+let VIEW = null;                       // vista elegida por el usuario
+const DATA = {miners:null, pools:null, nodes:null, chain:null, history:null, params:null};
+
+/* Parametros del BIP. Nunca escritos a mano: salen de /api/params, que los
+   lee de signaling.py, que a su vez cita el .mediawiki oficial. */
+const bip = () => (DATA.params && DATA.params.bip) || {};
+/* Umbral en porcentaje. De /api/params, no del 55 escrito a mano. */
+const thrPct = () => (DATA.params && DATA.params.threshold_pct) ||
+  (DATA.miners && DATA.miners.ok && DATA.miners.threshold_pct) || 55;
+
+const t = (k, vars) => {
+  let s = (DICT[LANG] && DICT[LANG][k]) || DICT.en[k] || k;
+  if(vars) for(const [a,b] of Object.entries(vars)) s = s.split("{"+a+"}").join(b);
+  return s;
+};
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = n => (n === null || n === undefined || isNaN(n)) ? "—" :
+  Number(n).toLocaleString(LANG === "es" ? "es-ES" : "en-US");
+const num = (v, d) => (v === null || v === undefined || isNaN(v)) ? "—" :
+  Number(v).toLocaleString(LANG === "es" ? "es-ES" : "en-US",
+    {minimumFractionDigits:d, maximumFractionDigits:d});
+
+/* Estado real que dice el backend. Nunca lo decide el usuario. */
+const realState = () => (DATA.chain && DATA.chain.ok && DATA.chain.state) || "pre_split";
+const shownState = () => VIEW || realState();
+
+function setLang(l){
+  LANG = l;
+  try{ localStorage.setItem("bip110lang", l); }catch(e){}
+  document.documentElement.lang = l;
+  document.title = "BIP-110 Observer";
+  renderAll();
+}
+function setView(v){ VIEW = v; renderChain(); paintStateButtons(); }
+
+function toggleBox(idCaja, idBoton){
+  const box = $(idCaja), btn = $(idBoton);
+  const abrir = box.hasAttribute("hidden");
+  if(abrir) box.removeAttribute("hidden"); else box.setAttribute("hidden", "");
+  btn.setAttribute("aria-expanded", String(abrir));
+  btn.textContent = t(abrir ? "answerLess" : "answerMore");
+}
+
+function toggleAnswer(){
+  const box = $("answer-more"), btn = $("answer-toggle");
+  const open = box.hasAttribute("hidden");
+  if(open) box.removeAttribute("hidden"); else box.setAttribute("hidden", "");
+  btn.setAttribute("aria-expanded", String(open));
+  btn.textContent = t(open ? "answerLess" : "answerMore");
+}
+
+/* ===================== render ===================== */
+function paintStatic(){
+  const B = bip();
+  const P = DATA.pools && DATA.pools.ok ? DATA.pools : null;
+  const P0 = DATA.params || {};
+  // Nombres largos y descriptivos a proposito. Con marcadores de una letra
+  // los dos conjuntos definian {n} con significados distintos, uno pisaba
+  // al otro al fusionarlos, y el panel llego a decir "10.080 pools
+  // identificados" cuando eran los bloques del historico.
+  const vars = Object.assign({
+    sampleBlocks: P ? fmt(P.sample_blocks) : "—",
+    poolsIdent:   P ? fmt(P.pools_identified) : "—",
+    unattrPct:    P ? num(P.unattributed_pct, 2) : "—",
+  }, constVars());
+  const coal = coalitionVars();
+  const choque = Object.keys(vars).filter(k => k in coal);
+  if(choque.length) console.warn("marcadores duplicados:", choque);
+  document.querySelectorAll("[data-k]").forEach(el => {
+    el.textContent = t(el.dataset.k, Object.assign({}, vars, coal));
+  });
+  if(B.bit != null){
+    $("tagline").textContent = (B.name || "reduced_data") + " · bit " + B.bit + " · " +
+      fmt(B.threshold_num) + "/" + fmt(B.period) + " (" +
+      num(B.threshold_num / B.period * 100, 0) + "%)";
+  }
+  const ab = $("answer-toggle");
+  if(ab) ab.textContent = t(ab.getAttribute("aria-expanded") === "true" ? "answerLess" : "answerMore");
+  $("l-en").setAttribute("aria-pressed", LANG === "en");
+  $("l-es").setAttribute("aria-pressed", LANG === "es");
+  $("risks").innerHTML = ["r1","r2","r3","r4","r5"].map((k,i) =>
+    `<div class="riskrow"><span class="n">${i+1}</span><span class="t">${esc(t(k))}</span></div>`).join("");
+  $("caveats").innerHTML = [1,2,3,4].map(i =>
+    `<div class="caveat caveat--sample" style="margin-top:0">
+       <div class="caveat-k">${esc(t("c"+i+"k"))}</div>
+       <div class="caveat-b">${esc(t("c"+i))}</div>
+     </div>`).join("");
+}
+
+/* Pool que mas señaliza, y su cuota. Sale de /api/history (periodos
+   cerrados) cruzado con /api/pools (cuota actual). Cero cifras a mano. */
+function coalitionVars(){
+  const h = DATA.history && DATA.history.ok ? DATA.history : null;
+  const P = DATA.pools && DATA.pools.ok ? DATA.pools : null;
+  if(!h || !h.top_pool) return {pool:"—", share:"—", a:"—", b:"—", others:"—",
+                                histBlocks:"—", firstPeriod:"—", lastPeriod:"—"};
+  const row = P ? (P.pools || []).find(r => r.pool === h.top_pool) : null;
+  const first = h.periods && h.periods.length ? h.periods[0].period : null;
+  const last = h.periods && h.periods.length ? h.periods[h.periods.length-1].period : null;
+  return {
+    pool: h.top_pool,
+    share: row ? num(row.share_pct, 2) : "—",
+    a: fmt(h.top_pool_blocks),
+    b: fmt(h.signalling_blocks),
+    others: fmt(h.other_pools),
+    histBlocks: fmt(h.total_blocks),
+    firstPeriod: fmt(first), lastPeriod: fmt(last),
+  };
+}
+
+/* Frescura medida en bloques.
+   El punto se enciende un instante cuando entran datos nuevos, y se pone
+   naranja si el dato lleva demasiado sin refrescarse. Un reloj viejo pasa
+   desapercibido; una altura de bloque congelada mientras la red avanza,
+   no. */
+let ULTIMA_ALTURA = null;
+
+function paintFresh(){
+  const el = $("fresh"), dot = $("fresh-dot"), txt = $("fresh-txt");
+  if(!el) return;
+  const d = DATA.chain;
+  const tip = (d && d.ok && d.nodes && d.nodes.core && d.nodes.core.tip) ||
+              (DATA.miners && DATA.miners.ok && DATA.miners.tip) || null;
+  const upd = (d && d.ok && d.updated) || (DATA.miners && DATA.miners.updated) || null;
+  if(tip == null){ el.setAttribute("hidden",""); return; }
+  el.removeAttribute("hidden");
+
+  const seg = upd ? Math.max(0, Math.round(Date.now()/1000 - upd)) : null;
+  txt.textContent = t("freshAt", {h: fmt(tip), ago: hace(seg)});
+
+  // Naranja si lleva mas de tres veces su propio TTL sin moverse.
+  dot.classList.toggle("old", seg != null && seg > 300);
+  if(tip !== ULTIMA_ALTURA){
+    ULTIMA_ALTURA = tip;
+    dot.classList.add("live");
+    setTimeout(() => dot.classList.remove("live"), 1600);
+  }
+}
+
+function hace(seg){
+  if(seg == null) return "";
+  if(seg < 60) return t("agoSec", {n: fmt(seg)});
+  if(seg < 3600) return t("agoMin", {n: fmt(Math.round(seg/60))});
+  return t("agoHour", {n: num(seg/3600, 1)});
+}
+
+function paintDonate(){
+  const ln = $("ln-val"), sp = $("sp-val"), open_ = $("ln-open");
+  if(!ln) return;
+  ln.textContent = PAGO.ln;
+  sp.textContent = PAGO.sp;
+  open_.href = "lightning:" + PAGO.ln;
+  open_.textContent = t("donateOpen");
+  $("ln-copy").textContent = t("donateCopy");
+  $("sp-copy").textContent = t("donateCopy");
+}
+
+/* Copiar sin depender de nada externo. Si el navegador no deja usar el
+   portapapeles (pasa sin https o en navegadores viejos), se selecciona el
+   texto para que se pueda copiar a mano en vez de no hacer nada. */
+function copiar(cual){
+  const txt = PAGO[cual], btn = $(cual + "-copy");
+  const ok = () => {
+    btn.textContent = t("donateCopied");
+    setTimeout(() => { btn.textContent = t("donateCopy"); }, 1800);
+  };
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(txt).then(ok).catch(() => seleccionar(cual));
+  } else {
+    seleccionar(cual);
+  }
+}
+function seleccionar(cual){
+  const el = $(cual + "-val");
+  const r = document.createRange();
+  r.selectNodeContents(el);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(r);
+}
+
+function paintStateButtons(){
+  const orden = ["pre_split", "split", "reunified"];
+  const real = realState(), shown = shownState();
+  const iReal = orden.indexOf(real);
+  orden.forEach((s, i) => {
+    const b = $("st-" + s);
+    if(!b) return;
+    b.setAttribute("aria-selected", String(s === shown));
+    // done: ya ocurrio.  now: donde estamos.  future: no ha pasado, y por
+    // eso el tramo que lleva hasta el va en linea discontinua.
+    b.classList.toggle("done", i < iReal);
+    b.classList.toggle("now", i === iReal);
+    b.classList.toggle("future", i > iReal);
+    const marca = b.querySelector ? b.querySelector(".stop-now") : null;
+    if(marca){
+      marca.textContent = t("stopNow");
+      if(i === iReal) marca.removeAttribute("hidden"); else marca.setAttribute("hidden", "");
+    }
+  });
+  // Cada parada dice QUE la dispara, que no cambia. Donde estamos lo dice
+  // el punto verde, no el texto.
+}
+
+
+/* Distintivo de ejemplo. Va con la explicacion pegada, no solo con la
+   etiqueta: "vista previa" a secas se podia leer como "esto todavia no lo
+   medimos", que es justo lo contrario de lo que pasa. */
+function previewBox(){
+  return `<div class="preview">${esc(t("previewBadge"))}</div>
+    <p class="previewnote">${esc(t("previewNote"))}</p>`;
+}
+
+function chainPanelOne(d, preview){
+  const solo = !!d.single_node;
+  const tip = preview ? (d && d.nodes && d.nodes.core ? d.nodes.core.tip : null)
+                      : (d.majority ? d.majority.tip : null);
+  // Cada tarjeta enseña la huella de SU nodo. Antes se cogia la del nodo
+  // core y se pintaba en las dos, asi que la coincidencia salia dibujada
+  // en vez de medida: si algun dia no coincidieran, se habrian seguido
+  // viendo iguales. La seccion afirma justo lo contrario.
+  const hCore  = preview ? "0000…ejemplo" : ((d.nodes && d.nodes.core  && d.nodes.core.hash)  || "—");
+  const hKnots = preview ? "0000…ejemplo" : ((d.nodes && d.nodes.knots && d.nodes.knots.hash) || "—");
+  const cut = h => (h && h.length > 20) ? h.slice(0,10) + "…" + h.slice(-8) : (h || "—");
+  const iguales = !preview && !solo && hCore !== "—" && hCore === hKnots;
+  return `<div class="panel" style="margin-top:18px">
+    ${preview ? previewBox() : ""}
+    <div class="caveat-k g">${esc(solo ? t("nodeCore") : t("oneChainKicker"))}</div>
+    <div class="bigtip">${fmt(tip)}</div>
+    ${solo ? "" : `<div style="color:var(--dim);font-size:15px;margin-top:6px;max-width:64ch">${esc(t("oneChainBody"))}</div>`}
+    <div class="grid grid-14" style="margin-top:20px">
+      <div class="card"><div class="lbl">${esc(t("nodeCore"))}</div>
+        <div class="note" style="margin:6px 0 2px">${esc(t("hashLabel"))}</div>
+        <div class="mono ${iguales ? "g" : ""}" style="font-size:15px">${esc(cut(hCore))}</div></div>
+      ${solo ? "" : `<div class="card"><div class="lbl">${esc(t("nodeKnots"))}</div>
+        <div class="note" style="margin:6px 0 2px">${esc(t("hashLabel"))}</div>
+        <div class="mono ${iguales ? "g" : ""}" style="font-size:15px">${esc(cut(hKnots))}</div></div>`}
+    </div>
+    ${solo || preview ? "" : `<p class="hashnote ${iguales ? "ok" : "no"}">${
+        esc(iguales ? t("hashMatch") : t("hashDiffer"))}</p>`}
+    ${solo ? "" : `<p class="note" style="max-width:66ch;margin-top:8px">${esc(t("hashWhat"))}</p>`}
+    <div class="caveat caveat--sample" style="margin-top:20px">
+      <div class="caveat-k">${esc(t("aheadKicker", constVars()))}</div>
+      <div class="caveat-b" style="font-size:15px;max-width:66ch">${esc(t("aheadBody"))}</div>
+    </div></div>`;
+}
+
+function pace(sec){
+  if(sec == null) return "—";
+  if(sec < 3600) return num(sec/60, 1) + " " + t("minutes");
+  return num(sec/3600, 1) + " " + t("hours");
+}
+
+function chainPanelSplit(d, preview){
+  // En vista previa no hay medida: se usan valores ilustrativos y se dice.
+  const maj = preview ? {tip:(d.nodes&&d.nodes.core?d.nodes.core.tip:0)+212, avg_interval_sec:618}
+                      : (d.majority || {});
+  const min = preview ? {tip:(d.nodes&&d.nodes.core?d.nodes.core.tip:0)+7, avg_interval_sec:20160}
+                      : (d.minority || {});
+  // En vista previa la cuota se deriva de lo que se mide hoy, no se inventa.
+  const cv = coalitionVars();
+  const sh = (cv.share && cv.share !== "—") ? cv.share : null;
+  const mShare = preview && sh ? num(100 - parseFloat(sh.replace(",",".")), 2) + "%" : "—";
+  const nShare = preview && sh ? sh + "%" : "—";
+  return `${preview ? `<div style="margin-top:18px">${previewBox()}</div>` : ""}
+  <div class="chains">
+    <div class="panel t-data">
+      <div class="caveat-k g">${esc(t("majKicker"))}</div>
+      <div class="mono" style="font-size:40px;font-weight:700;line-height:1.05;margin-top:10px">${fmt(maj.tip)}</div>
+      <div style="color:var(--dim);font-size:15px;margin-top:6px">${esc(t("majBody"))}</div>
+      <div class="pair">
+        <div><div class="lbl">${esc(t("hashShare"))}</div>
+          <div class="mono g" style="font-size:24px;font-weight:700">${mShare}</div></div>
+        <div><div class="lbl">${esc(t("blockPace"))}</div>
+          <div class="mono" style="font-size:24px;font-weight:700">${esc(pace(maj.avg_interval_sec))}</div></div>
+      </div>
+    </div>
+    <div class="panel t-sample chain-min" style="padding:20px">
+      <div class="caveat-k o">${esc(t("minKicker"))}</div>
+      <div class="mono o" style="font-size:28px;font-weight:700;line-height:1.05;margin-top:10px">${fmt(min.tip)}</div>
+      <div style="color:var(--dim);font-size:15px;margin-top:6px">${esc(t("minBody"))}</div>
+      <div class="pair">
+        <div><div class="lbl">${esc(t("hashShare"))}</div>
+          <div class="mono o" style="font-size:20px;font-weight:700">${nShare}</div></div>
+        <div><div class="lbl">${esc(t("blockPace"))}</div>
+          <div class="mono" style="font-size:20px;font-weight:700">${esc(pace(min.avg_interval_sec))}</div></div>
+      </div>
+      <div class="caveat caveat--sample">
+        <div class="caveat-k">${esc(t("asymKicker"))}</div>
+        <div class="caveat-b">${esc(t("asymBody"))}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function chainPanelReuni(d, preview){
+  const tip = d && d.nodes && d.nodes.core ? d.nodes.core.tip : null;
+  const sh = d && d.split_height;
+  return `<div class="panel" style="margin-top:18px">
+    ${preview ? previewBox() : ""}
+    <div class="caveat-k g">${esc(t("reuniKicker"))}</div>
+    <div class="bigtip">${fmt(tip)}</div>
+    <div style="color:var(--dim);font-size:15px;margin-top:6px;max-width:64ch">${esc(t("reuniBody"))}</div>
+    <div class="caveat">
+      <div class="caveat-k">${esc(t("reuniHistKicker"))}</div>
+      <div class="caveat-b" style="font-size:15px;max-width:66ch">${esc(t("reuniHistBody"))}
+        ${sh ? "<br>" + esc(t("splitAt", {n: fmt(sh)})) : ""}</div>
+    </div></div>`;
+}
+
+function renderChain(){
+  const d = DATA.chain, el = $("chain");
+  if(!d){ el.innerHTML = `<div class="skel" style="margin-top:18px"></div>`; return; }
+  if(!d.ok){ el.innerHTML = `<p class="err" style="margin-top:18px">${esc(d.error||"")}</p>`; return; }
+
+  const real = realState(), shown = shownState(), preview = (shown !== real);
+  let html = "";
+  if(d.single_node){
+    // Gris, no naranja: no hay nada que alarmar, solo falta configuracion.
+    html += `<div class="caveat" style="margin-top:18px">
+      <div class="caveat-k">${esc(t("singleKicker"))}</div>
+      <div class="caveat-b" style="font-size:15px">${esc(t("singleBody"))}</div></div>`;
+  } else if(d.degraded){
+    html += `<div class="caveat caveat--sample" style="margin-top:18px">
+      <div class="caveat-k">${esc(t("degradedKicker"))}</div>
+      <div class="caveat-b" style="font-size:15px">${esc(t("degradedBody"))}</div></div>`;
+  }
+  if(shown === "split")           html += chainPanelSplit(d, preview);
+  else if(shown === "reunified")  html += chainPanelReuni(d, preview);
+  else                            html += chainPanelOne(d, preview);
+  el.innerHTML = html;
+  paintStateButtons();
+}
+
+function renderTimeline(){
+  const d = DATA.miners, el = $("tl");
+  if(!d){ el.innerHTML = `<div class="skel"></div>`; return; }
+  if(!d.ok){ el.innerHTML = `<p class="err">${esc(d.error||"")}</p>`; return; }
+  const ms = d.milestones || {};
+  const rows = [
+    ["mandatory_signalling_start", "ms1", "ms1d", "var(--orange)"],
+    ["forced_lockin",              "ms2", "ms2d", "var(--blue)"],
+    ["rules_active",               "ms3", "ms3d", "var(--green)"],
+  ];
+  el.innerHTML = rows.map(([k, tk, bk, c], i) => {
+    const m = ms[k] || {};
+    const away = m.passed ? t("reached") : fmt(m.blocks_away) + " " + t("blocks");
+    const eta  = m.passed ? "" : t("daysAway", {n: num(m.approx_days, 1)});
+    const n = i + 1;
+    const v = Object.assign(constVars(), {h: fmt(m.height), prev: fmt(m.height - 1)});
+    const qa = [1, 2, 3].map(j => {
+      const q = t(`ms${n}q${j}`, v), a = t(`ms${n}a${j}`, v);
+      return q.startsWith("ms") ? "" :
+        `<div class="qa"><div class="q">${esc(q)}</div><div class="a">${esc(a)}</div></div>`;
+    }).join("");
+    // La misma altura, contada en la otra cadena. La primera parada llega
+    // igual en las dos porque hasta ahi la cadena es una sola, y decirlo es
+    // justo lo que hace entender por que las otras dos se separan.
+    let alt = "";
+    const pr = d.milestone_projection;
+    if(pr && !m.passed){
+      if(k === "mandatory_signalling_start"){
+        alt = `<span class="tl-est same">${esc(t("tlSameBoth"))}</span>`;
+      } else {
+        const x = (pr.milestones || []).find(z => z.key === k);
+        if(x) alt = `<span class="tl-est">${esc(t("tlIfSplit", {v: strDur(x.minority_days)}))}</span>`;
+      }
+    }
+    return `<div class="tlrow" style="border-left-color:${c}">
+      <div class="h" style="color:${c}">${fmt(m.height)}</div>
+      <div class="m"><strong>${esc(t(tk))}</strong><span>${esc(t(bk))}</span>
+        ${qa ? `<button type="button" class="more small" id="tl-b${n}" aria-expanded="false"
+                  aria-controls="tl-x${n}" onclick="toggleBox('tl-x${n}','tl-b${n}')">${esc(t("answerMore"))}</button>
+                <div id="tl-x${n}" class="qabox" hidden>${qa}</div>` : ""}</div>
+      <div class="r"><b>${esc(away)}</b>${esc(eta)}${alt}</div></div>`;
+  }).join("");
+}
+
+/* Quien señaliza en el periodo en curso.
+   Se dibuja como lista, no como etiquetas sueltas: si algun dia señalizan
+   diez pools tiene que seguir leyendose, y ademas hace falta sitio para la
+   cuota de minado de cada uno, que es el dato que de verdad importa. */
+/* El aviso sobre los periodos cerrados NO puede estar escrito dando por
+   hecho que solo señaliza un pool. Si algun dia señalizan varios, decir
+   "un pool, no un movimiento" seria falso justo el dia que mas se mire.
+   Se elige el texto segun lo concentrado que este. */
+/* Los periodos ya cerrados.
+ *
+ * Antes era un parrafo que intentaba contarlo todo, y acababa diciendo
+ * "otros pools que señalizaron: 1", un numero donde el lector quiere un
+ * nombre. Con cuatro o cinco era peor. La prosa que se adapta se ramifica
+ * sin parar y cada rama es una oportunidad de decir algo raro.
+ *
+ * Ahora los datos van en lista, con nombres, y la prosa se queda en una
+ * frase corta que no depende de cuantos sean. */
+function histBlock(){
+  const h = DATA.history && DATA.history.ok ? DATA.history : null;
+  if(!h || !h.periods || !h.periods.length) return "";
+  const v = Object.assign({}, coalitionVars(), constVars());
+
+  if(!h.signalling_blocks){
+    return `<div class="caveat caveat--sample">
+      <div class="caveat-k">${esc(t("histTitle", v))}</div>
+      <div class="caveat-b" style="font-size:15px">${esc(t("histNone", v))}</div></div>`;
+  }
+
+  const P = DATA.pools && DATA.pools.ok ? (DATA.pools.pools || []) : [];
+  const cuota = n => { const r = P.find(x => x.pool === n); return r ? r.share_pct : null; };
+  const filas = Object.entries(h.by_pool || {}).sort((a, b) => b[1] - a[1]);
+  const uno = filas.length === 1;
+
+  return `<div class="caveat caveat--sample">
+    <div class="caveat-k">${esc(t("histTitle", v))}</div>
+    <div class="caveat-b" style="font-size:15px;max-width:66ch">${esc(t("histLead", v))}</div>
+    <div class="histlist">
+      ${filas.map(([nombre, n]) => {
+        const c = cuota(nombre);
+        return `<div class="histrow">
+          <span class="nm">${esc(nombre)}</span>
+          <span class="mono blk">${fmt(n)} ${esc(t("blocks"))}</span>
+          <span class="mono pc">${esc(t("histOfSig", {pct: num(n / h.signalling_blocks * 100, 0)}))}</span>
+          <span class="mono sh">${c == null ? "—" : esc(t("histMining", {pct: num(c, 2)}))}</span>
+        </div>`;
+      }).join("")}
+    </div>
+    <div class="caveat-b" style="font-size:15px;max-width:66ch;margin-top:10px">${
+      esc(t(uno ? "histOnlyOne" : "histSeveral", Object.assign(v, {poolCount: fmt(filas.length)})))}</div>
+  </div>`;
+}
+
+function whoBlock(d, p){
+  const by = Object.entries(d.signalling_by_pool || {}).sort((a,b) => b[1] - a[1]);
+  const title = `<h3 style="margin-top:26px;font-size:17px">${esc(t("whoTitle", {p: fmt(p.index)}))}</h3>`;
+  if(!by.length) return title + `<p class="note" style="margin-top:8px">${esc(t("whoNone"))}</p>`;
+
+  const P = DATA.pools && DATA.pools.ok ? (DATA.pools.pools || []) : [];
+  const shareOf = name => { const r = P.find(x => x.pool === name); return r ? r.share_pct : null; };
+  const known = by.map(([k]) => shareOf(k)).filter(v => v != null);
+  const suma = known.reduce((a, b) => a + b, 0);
+  const total = by.reduce((a, b) => a + b[1], 0);
+
+  return title + `<div class="whobox">
+    <div class="whohead">
+      <div><div class="lbl">${esc(t("whoShare"))}</div>
+        <div class="mono o" style="font-size:32px;font-weight:700">${known.length ? num(suma, 2) + "%" : "—"}</div>
+        <div class="note">${esc(t("whoShareNote", {n: fmt(by.length), b: fmt(total)}))}</div></div>
+    </div>
+    ${by.map(([k, v]) => {
+      const sh = shareOf(k);
+      return `<div class="whorow">
+        <span class="nm">${esc(k)}</span>
+        <span class="track"><span style="width:${Math.min(100, Math.max(3, (sh == null ? 3 : sh / thrPct() * 100)))}%"></span></span>
+        <span class="mono blk">${fmt(v)} ${esc(t("blocks"))}</span>
+        <span class="mono pc">${sh == null ? "—" : num(sh, 2) + "%"}</span></div>`;
+    }).join("")}
+  </div>`;
+}
+
+/* Constantes que vienen de /api/params, nunca escritas a mano. Incluye
+   las que "no van a cambiar": el 55%, los 2016 bloques y los 144 al dia. */
+function constVars(){
+  const P0 = DATA.params || {}, B = bip();
+  return {
+    periodSize: B.period ? fmt(B.period) : "…",
+    histPeriods: fmt(P0.history_periods != null ? P0.history_periods :
+            (DATA.history && DATA.history.ok ? (DATA.history.periods || []).length : 0)),
+    bpd: P0.blocks_per_day != null ? fmt(P0.blocks_per_day) : "…",
+    splitHeight: B.mandatory_start ? fmt(B.mandatory_start) : "…",
+    thr: P0.threshold_pct != null ? num(P0.threshold_pct, 0) :
+         (DATA.miners && DATA.miners.ok ? num(DATA.miners.threshold_pct, 0) : "…"),
+  };
+}
+
+/* La tendencia se mide, no se afirma. "Lo poco que se ha movido" dejaria
+   de ser verdad en cuanto empezara a moverse, y nadie releeria el texto. */
+function trendText(){
+  const h = DATA.history && DATA.history.ok ? DATA.history : null;
+  const ps = h ? (h.periods || []) : [];
+  if(ps.length < 2) return t("trendNone");
+  const first = ps[0].pct, last = ps[ps.length - 1].pct;
+  const v = Object.assign(constVars(), {first: num(first, 2), last: num(last, 2)});
+  const delta = last - first;
+  if(Math.abs(delta) < 0.5) return t("trendFlat", v);
+  return t(delta > 0 ? "trendUp" : "trendDown", v);
+}
+
+function renderMiners(){
+  const d = DATA.miners, el = $("miners");
+  if(!d){ el.innerHTML = `<div class="skel" style="margin-top:20px;height:220px"></div>`; return; }
+  if(!d.ok){ el.innerHTML = `<p class="err" style="margin-top:20px">${esc(d.error||"")}</p>`; return; }
+
+  const pct = d.pct_of_scanned || 0;
+  const thr = d.threshold_pct || thrPct();
+  const gap = Math.max(0, thr - pct);
+  const barPct = Math.min(100, (pct / thr) * 100);
+  const H = DATA.history && DATA.history.ok ? DATA.history : null;
+  const trend = H ? H.periods.map(p => p.pct) : [];
+  // Ojo al denominador: un periodo entero sin señalizacion deja todos los
+  // valores a cero, y v/0 pinta "NaN%" en el atributo de estilo.
+  const mx = (trend.length ? Math.max.apply(null, trend) : 0) || 1;
+  const trendTxt = trend.length ? trend.map(v => num(v, 2)).join(" · ") : "—";
+  const p = d.period || {};
+  const left = (p.remaining == null) ? "—" : fmt(p.remaining);
+
+  el.innerHTML = `<div class="panel t-data" style="margin-top:20px">
+    <div class="caveat-k">${esc(t("gapKicker", constVars()))}</div>
+    <div class="gapnum"><span class="n">${num(gap, 2)}</span><span class="u">${esc(t("gapUnit", constVars()))}</span></div>
+    <div style="font-size:15px;color:var(--dim);margin-top:10px;max-width:64ch">${
+      esc(t("gapBody", Object.assign({n: num(pct, 2)}, constVars())))} ${esc(trendText())}</div>
+    <div class="bar"><div style="width:${barPct}%"></div></div>
+    <div class="barlg"><span class="mono">${num(pct, 2)}%</span><span>${esc(t("barLegend", constVars()))}</span><span class="mono">55%</span></div>
+    <div class="grid" style="margin-top:22px">
+      <div class="card"><div class="lbl">${esc(t("mSig"))}</div>
+        <div class="val o">${fmt(d.signalling_blocks)}</div>
+        <div class="note">${esc(t("mSigOf", {n: fmt(p.scanned)}))}</div></div>
+      <div class="card"><div class="lbl">${esc(t("mTip"))}</div>
+        <div class="val">${fmt(d.tip)}</div>
+        <div class="note">${esc(t("mTipNote", {p: fmt(p.index), a: fmt(p.start), b: fmt(p.end)}))}</div></div>
+      ${(() => {
+        // Tres estados. Con solo "alcanzable si/no", un periodo que YA ha
+        // cumplido el umbral se contaba como posibilidad, y ese es el dia
+        // en que la propuesta sale adelante.
+        const cumplido = d.signalling_blocks >= d.threshold_blocks;
+        const clave = cumplido ? "reachMet" : (d.threshold_reachable ? "reachYes" : "reachNo");
+        const nota  = cumplido ? "reachMetNote" : (d.threshold_reachable ? "mReachNote" : "reachNoNote");
+        const color = cumplido ? "g" : (d.threshold_reachable ? "b" : "o");
+        return `<div class="card"><div class="lbl">${esc(t("mReach", constVars()))}</div>
+          <div class="val ${color}">${esc(t(clave))}</div>
+          <div class="note">${esc(t(nota, {t: fmt(d.threshold_blocks), r: left,
+            sig: fmt(d.signalling_blocks), periodSize: fmt(bip().period)}))}</div></div>`;
+      })()}
+      <div class="card"><div class="lbl">${esc(t("mTrend", {n: fmt(trend.length)}))}</div>
+        <div class="spark">${trend.map((v,i) => `<i title="${esc(H.periods[i].period)}: ${num(v,2)}%" style="height:${Math.max(4,Math.round(v/mx*100))}%"></i>`).join("")}</div>
+        <div class="note">${esc(t("mTrendNote", {v: trendTxt}))}</div></div>
+    </div>
+    ${whoBlock(d, p)}
+    ${histBlock()}
+    <div class="caveat">
+      <div class="caveat-k">${esc(t("coinbaseKicker"))}</div>
+      <div class="caveat-b" style="max-width:66ch">${esc(t("coinbaseBody"))}</div>
+    </div>
+  </div>`;
+}
+
+/* Cuantos pools señalizan HOY y cuanto minado suman. "Solo señaliza X"
+   es una conclusion con fecha de caducidad, asi que se elige el texto. */
+function coalitionText(){
+  const P = DATA.pools && DATA.pools.ok ? (DATA.pools.pools || []) : [];
+  const firman = P.filter(r => r.signalling_blocks > 0);
+  const v = Object.assign(constVars(), coalitionVars());
+  if(firman.length <= 1) return t("coalitionBody", v);
+  const suma = firman.reduce((a, r) => a + r.share_pct, 0);
+  // Si ya suman por encima del umbral, decir "quedan 0 puntos" es absurdo.
+  // Y ahi hace falta el matiz: cuota de minado no es señalizacion medida.
+  return t(suma >= thrPct() ? "coalitionBodyOver" : "coalitionBodyMany", Object.assign(v, {
+    poolCount: fmt(firman.length),
+    sigShare: num(suma, 2),
+    gapShare: num(Math.max(0, thrPct() - suma), 2),
+  }));
+}
+
+/* Un panel sin datos puede estar en dos situaciones muy distintas: se
+   esta calculando (normal, hay que esperar) o ha fallado (hay que mirar).
+   Decir "error" en el primer caso asusta sin motivo. */
+function estadoNoOk(d, estilo){
+  const st = estilo ? ` style="${estilo}"` : "";
+  if(d && d.computing){
+    return `<p class="calc"${st}>${esc(t("computing"))}</p>`;
+  }
+  return `<p class="err"${st}>${esc(d && d.error || "")}</p>`;
+}
+
+function avisoViejo(d){
+  if(!d || !d.stale) return "";
+  return `<p class="note" style="margin-top:10px">${
+    esc(t("staleNote", {n: fmt(Math.round((d.stale_seconds||0)/60))}))}</p>`;
+}
+
+function renderPools(){
+  const d = DATA.pools, el = $("pools");
+  if(!d){ el.innerHTML = `<div class="skel"></div>`; return; }
+  if(!d.ok){ el.innerHTML = estadoNoOk(d); return; }
+  const rows = (d.pools || []).slice(0, 14);
+  const mx = (rows.length ? rows[0].share_pct : 0) || 1;
+  const co = $("coalition");
+  if(co) co.textContent = coalitionText();
+  el.innerHTML = rows.map(p => {
+    const sig = p.signalling_blocks > 0;
+    return `<div class="poolrow">
+      <div class="nm"><span class="dot" style="background:${sig ? "var(--green)" : "var(--line2)"}"></span>
+        <span>${esc(p.pool)}</span></div>
+      <div class="track"><div style="width:${Math.max(2,(p.share_pct/mx)*100)}%;background:${sig ? "var(--green)" : "var(--blue)"}"></div></div>
+      <div class="pc">${num(p.share_pct, 2)}%</div></div>`;
+  }).join("");
+}
+
+function renderNodes(){
+  const d = DATA.nodes, el = $("nodes");
+  if(!d){ el.innerHTML = `<div class="skel" style="margin-top:22px"></div>`; return; }
+  if(!d.ok){ el.innerHTML = estadoNoOk(d, "margin-top:22px"); return; }
+
+  const total = d.total_reachable_sampled || 0;
+  const by = d.by_client || {}, pct = d.pct || {};
+  const rules = d.by_rules || {}, prules = d.pct_rules || {};
+  const pc = (v) => total ? num(v / total * 100, 2) : "0,00";
+  const cards = [
+    [t("nReached"), fmt(total), t("nReachedNote", {n: fmt(d.seeds_used)}), ""],
+    [t("nCore"),    fmt(by.Core || 0),  num(pct.Core || 0, 2) + "% " + t("nOf"), ""],
+    [t("nKnots"),   fmt(by.Knots || 0), num(pct.Knots || 0, 2) + "% " + t("nOf"), ""],
+    [t("nBit"),     fmt(rules.declares || 0), t("nBitNote"), "o"],
+  ];
+  const rk = [["declares","ruleDeclares"],["ua_only","ruleUaOnly"],
+              ["knots_undeclared","ruleKnotsUndeclared"],["undeclared","ruleUndeclared"]]
+             .filter(([k]) => rules[k] != null);
+
+  el.innerHTML = `
+    <div class="grid grid-11" style="margin-top:22px">
+      ${cards.map(([l,v,n,c]) => `<div class="card"><div class="lbl">${esc(l)}</div>
+        <div class="val ${c}" style="font-size:24px">${v}</div>
+        <div class="note">${esc(n)}</div></div>`).join("")}
+    </div>
+    ${rk.length ? `<h3 style="margin-top:26px;font-size:17px">${esc(t("rulesTitle"))}</h3>
+    <div class="grid grid-11" style="margin-top:10px">
+      ${rk.map(([k,lk]) => `<div class="card"><div class="lbl">${esc(t(lk))}</div>
+        <div class="val ${k === "declares" ? "o" : ""}" style="font-size:24px">${fmt(rules[k])}</div>
+        <div class="note">${num(prules[k] || 0, 2)}% ${esc(t("nOf"))}</div></div>`).join("")}
+    </div>
+    <div class="caveat caveat--sample">
+      <div class="caveat-k">${esc(t("rulesKicker"))}</div>
+      <div class="caveat-b" style="max-width:70ch">${esc(t("rulesBody"))}
+        <a href="/methodology" style="margin-left:4px">${esc(t("moreTech"))}</a></div>
+    </div>` : ""}
+    <div class="caveat caveat--sample">
+      <div class="caveat-k">${esc(t("c4k"))}</div>
+      <div class="caveat-b">${esc(t("netsNote", {
+          probed: (d.networks_probed || []).join(", ") || "—",
+          skipped: (d.networks_skipped || []).join(", ") || "—"}))}
+        <br>${esc(t("sampleWarn", {n: fmt(total)}))}</div>
+    </div>`;
+}
+
+/* ===================== simulador ===================== */
+function renderPresets(){
+  const cur = DATA.miners && DATA.miners.ok ? (DATA.miners.pct_of_scanned || 0) : null;
+  // Escenarios de referencia, derivados y no clavados: el umbral que pide
+  // el BIP, la mitad de ese umbral, y la cuota del mayor pool de hoy.
+  const top = DATA.pools && DATA.pools.ok && DATA.pools.pools.length
+            ? DATA.pools.pools[0].share_pct : 27;
+  const vals = [...new Set([1, 5, 10, Math.round(top), Math.round(thrPct()/2), thrPct()])]
+               .filter(v => v > 0 && v <= 60).sort((a,b) => a-b);
+  let html = vals.map(v => `<button type="button" class="pbtn" onclick="setShare(${v})">${num(v,1)}%</button>`).join("");
+  if(cur != null) html += `<button type="button" class="pbtn" onclick="setShare(${cur})">${esc(t("current"))} ${num(cur,2)}%</button>`;
+  $("presets").innerHTML = html;
+}
+function setShare(pct){ $("share").value = Math.round(Math.min(60, Math.max(0.1, pct)) * 10); renderSim(); }
+
+function renderSim(){
+  const share = Math.max(0.001, $("share").value / 1000);
+  const spacing = (DATA.params && DATA.params.target_spacing) || 600;
+  const period = bip().period || 2016;
+  const interval = spacing / share;
+  const perDay = 86400 / interval;
+  const retargetDays = interval * period / 86400;
+  const majority = spacing / Math.max(1e-9, 1 - share);
+
+  $("shareval").textContent = num(share * 100, 2) + "%";
+  const iTxt = interval < 3600 ? num(interval/60,1) + " " + t("minutes") : num(interval/3600,1) + " " + t("hours");
+  const rTxt = retargetDays < 365 ? num(retargetDays,0) + " " + t("days") : num(retargetDays/365,2) + " " + t("years");
+
+  $("simout").innerHTML = `
+    <div class="card"><div class="lbl">${esc(t("simInterval"))}</div>
+      <div class="val o">${esc(iTxt)}</div>
+      <div class="note">${esc(t("ofNormal", {n: num(share*100, 2)}))}</div></div>
+    <div class="card"><div class="lbl">${esc(t("simPerDay"))}</div>
+      <div class="val">${num(perDay, 2)}</div>
+      <div class="note">${esc(t("simPerDayNote", constVars()))}</div></div>
+    <div class="card"><div class="lbl">${esc(t("simRetarget"))}</div>
+      <div class="val b">${esc(rTxt)}</div>
+      <div class="note">${num(retargetDays, 0)} ${esc(t("days"))}</div></div>
+    <div class="card"><div class="lbl">${esc(t("simMajority"))}</div>
+      <div class="val g">${num(majority/60, 1)} ${esc(t("minutes"))}</div>
+      <div class="note">${esc(t("simMajNote"))}</div></div>`;
+  $("simviable").innerHTML = share >= 0.5 ? `<div class="viable">${esc(t("simViable"))}</div>` : "";
+}
+
+/* Las fechas del BIP son alturas, y en una cadena lenta llegan tarde.
+   Los plazos NO se calculan aqui: vienen de signaling.milestone_projection
+   por /api/miners. El navegador solo reparte anchuras. */
+function strDur(dias){
+  if(dias === null || dias === undefined) return t("strNeverRow");
+  return dias < 365 ? num(dias, 0) + " " + t("days") : num(dias/365.25, 2) + " " + t("years");
+}
+/* La marca existe para que el banco de pruebas pueda comprobar que un hito
+   inalcanzable NO imprime un plazo. Atarlo a la palabra "nunca" no valia:
+   esa palabra sale en otros textos de la pagina, asi que la comprobacion
+   daba positivo siempre y no comprobaba nada. */
+function strNeverCls(dias){ return (dias === null || dias === undefined) ? " is-never" : ""; }
+function renderStretch(){
+  const d = DATA.miners, lead = $("strlead"), rails = $("strrails"), rows = $("strrows");
+  if(!d){ return; }
+  if(!d.ok || !d.milestone_projection){
+    lead.textContent = ""; rows.innerHTML = "";
+    // Nunca un error vacio. Con el campo ausente y sin error que contar,
+    // la seccion se quedaba en blanco y parecia texto estatico: no decia
+    // ni que faltaba un dato ni por que. Un error mudo es peor que ninguno.
+    rails.innerHTML = d.computing
+      ? `<div class="computing">${esc(t("computing"))}</div>`
+      : `<div class="err">${esc(d.error || t("strNoData"))}</div>`;
+    return;
+  }
+  const p = d.milestone_projection;
+  const ms = p.milestones || [];
+  const share = p.share_pct || 0;
+  const thr = (d.threshold_pct || 55);
+  const nombres = {forced_lockin:"strMs2", rules_active:"strMs3", rules_expire:"strMs4"};
+
+  const mc = d.minority_chain || {};
+  const iv = mc.interval_hours;
+  lead.textContent = share <= 0 ? t("strNever")
+                   : share >= thr ? t("strNoSplit")
+                   : t("strLead", {splitHeight: num(p.fork_height, 0), share: num(share, 2),
+                                   interval: iv ? num(iv, 1) + " " + t("hours") : "…"});
+
+  // Escala del eje: el hito lento mas lejano. Con cuota 0 no hay escala y
+  // el rail se dibuja abierto, sin punto final ni eje.
+  const lentos = ms.map(m => m.minority_days).filter(v => v !== null && isFinite(v));
+  const finito = lentos.length === ms.length && ms.length > 0;
+  const max = finito ? Math.max.apply(null, lentos.concat([1])) : 0;
+  const pos = v => (max > 0 && isFinite(v)) ? Math.min(100, Math.max(0, v / max * 100)) : 0;
+
+  const puntos = (campo) => ms.map(m => {
+    const v = m[campo];
+    return (v === null || v === undefined) ? "" :
+      `<span class="str-pt" style="left:${pos(v)}%"></span>`;
+  }).join("");
+
+  const ultimoRapido = ms.length ? ms[ms.length-1].nominal_days : 0;
+  let ejeHtml = "";
+  if(finito && max > 0){
+    const anios = Math.max(1, Math.ceil(max/365.25));
+    let ticks = "";
+    for(let a = 0; a <= anios; a++){
+      const dias = a * 365.25;
+      if(dias > max) break;
+      // Singular y plural. "1 años" se leia en el eje del primer render.
+      ticks += `<span class="str-tick" style="left:${pos(dias)}%"><span>${
+        a === 0 ? esc(t("strAxis0"))
+                : esc(t(a === 1 ? "strAxisY1" : "strAxisYn", {n: num(a,0)}))}</span></span>`;
+    }
+    ejeHtml = `<div class="str-axis">${ticks}</div>`;
+  }
+
+  rails.innerHTML = `
+    <div class="str-rail is-fast">
+      <div class="str-rail-k">${esc(t("strRailFast"))}</div>
+      <div class="str-line"><span class="str-fill" style="width:${pos(ultimoRapido)}%"></span>${puntos("nominal_days")}</div>
+    </div>
+    <div class="str-rail is-slow">
+      <div class="str-rail-k">${esc(t("strRailSlow", {share: num(share, 2)}))}</div>
+      <div class="str-line${finito ? "" : " is-open"}"><span class="str-fill" style="width:${finito ? 100 : 100}%"></span>${finito ? puntos("minority_days") : ""}</div>
+    </div>${ejeHtml}`;
+
+  rows.innerHTML = ms.map(m => {
+    const lento = m.minority_days;
+    const anchoLento = lento === null ? 100 : pos(lento);
+    const anchoRapido = lento === null ? 0 : pos(m.nominal_days);
+    const mult = (m.slowdown === null || m.slowdown === undefined) ? "" :
+      `<div class="str-mult">${t("strMult", {x: "<b>" + num(m.slowdown, 1) + "</b>"})}</div>`;
+    return `<div class="str-row">
+      <div class="str-row-h"><b>${esc(t(nombres[m.key] || m.key))}</b>
+        <span class="str-height">${esc(t("strAtHeight", {h: num(m.height, 0)}))}</span></div>
+      <div class="str-cmp"><span class="k">${esc(t("strKFast"))}</span>
+        <span class="b"><i style="width:${anchoRapido}%"></i></span>
+        <span class="v">${esc(strDur(m.nominal_days))}</span></div>
+      <div class="str-cmp slow"><span class="k">${esc(t("strKSlow"))}</span>
+        <span class="b"><i style="width:${anchoLento}%"></i></span>
+        <span class="v${strNeverCls(lento)}">${esc(strDur(lento))}</span></div>
+      ${mult}</div>`;
+  }).join("");
+}
+
+/* ===================== arranque ===================== */
+function renderAll(){
+  paintStatic(); paintDonate(); paintFresh(); renderChain(); renderTimeline(); renderMiners();
+  renderPools(); renderNodes(); renderPresets(); renderSim(); renderStretch();
+}
+
+document.documentElement.lang = LANG;
+aplicarTema();
+// Si no hay eleccion guardada, seguir al sistema si cambia sobre la marcha.
+if(window.matchMedia){
+  const mq = window.matchMedia("(prefers-color-scheme: light)");
+  if(mq.addEventListener) mq.addEventListener("change", e => {
+    let guardado = null;
+    try{ guardado = localStorage.getItem("bip110theme"); }catch(err){}
+    if(!guardado){ TEMA = e.matches ? "light" : "dark"; aplicarTema(); }
+  });
+}
+$("share").addEventListener("input", renderSim);
+window.addEventListener("scroll", () => {
+  const b = $("totop");
+  if(window.scrollY > 600) b.removeAttribute("hidden"); else b.setAttribute("hidden", "");
+}, {passive: true});
+renderAll();
+
+/* Nunca hacer JSON.parse a ciegas.
+   Un CDN por delante puede devolver su propia pagina de error (un 524 en
+   texto plano, por ejemplo) y el navegador reventaba con un error de
+   sintaxis que no explicaba nada. Se comprueba el estado y el tipo antes
+   de intentar leerlo. */
+function pedirJson(url){
+  return fetch(url, {headers: {"Accept": "application/json"}}).then(r => {
+    const tipo = r.headers.get("content-type") || "";
+    if(!r.ok || tipo.indexOf("json") < 0){
+      return r.text().catch(() => "").then(() => ({
+        ok: false,
+        http: r.status,
+        error: t(r.status === 524 || r.status === 504 ? "errTimeout" : "errHttp",
+                 {code: r.status}),
+      }));
+    }
+    return r.json().catch(() => ({ok: false, error: t("errBadJson")}));
+  });
+}
+
+function load(name, url){
+  const before = realState();
+  return pedirJson(url)
+    .then(d => {
+      DATA[name] = d;
+      // Si el estado real cambia (por ejemplo, se separan las cadenas), se
+      // vuelve a la realidad aunque el visitante estuviera mirando una
+      // vista previa. Lo que esta pasando manda sobre lo que se estaba
+      // curioseando.
+      if(name === "chain" && realState() !== before) VIEW = null;
+      renderAll();
+      // Si el servidor esta calculando por primera vez, se vuelve a
+      // preguntar en un rato en lugar de dejar el hueco vacio.
+      if(d && d.computing) setTimeout(() => load(name, url), 20000);
+    })
+    .catch(e => { DATA[name] = {ok:false, error:String(e)}; renderAll(); });
+}
+
+/* El panel se actualiza solo. Sin esto, quien tuviera la pagina abierta el
+   dia de la separacion no se enteraria hasta recargar. La comparacion de
+   cadenas es barata (unas 20 llamadas), asi que puede ir fresca; el resto
+   cuesta mucho mas y va mucho mas espaciado. */
+function autoRefresh(){
+  // El "hace X" tiene que avanzar aunque no entren datos: si el panel se
+  // quedara mudo, el contador subiendo es la senal de que algo pasa.
+  setInterval(paintFresh, 10000);
+  setInterval(() => load("chain",  "/api/chain"),  60 * 1000);
+  setInterval(() => load("miners", "/api/miners"), 5 * 60 * 1000);
+  setInterval(() => { load("history","/api/history"); load("pools","/api/pools"); },
+              30 * 60 * 1000);
+}
+load("params", "/api/params");
+load("history","/api/history");
+load("chain",  "/api/chain");
+load("miners", "/api/miners");
+load("pools",  "/api/pools");
+load("nodes",  "/api/nodes");
+autoRefresh();
+</script>
+</body>
+</html>

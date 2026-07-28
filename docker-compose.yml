@@ -1,0 +1,86 @@
+services:
+  bip110-observer:
+    build: .
+    container_name: bip110-observer
+    restart: unless-stopped
+
+    # SOLO se escucha en localhost. Detras van Nginx y Cloudflare, y si el
+    # puerto quedara abierto a todas las interfaces cualquiera entraria por
+    # IP:8110 saltandose los dos. Para probar en local sin proxy delante,
+    # cambiar a "8110:8110".
+    ports:
+      - "127.0.0.1:8110:8110"
+
+    environment:
+      # ------------------------------------------------------------------
+      # NODO CANONICO: el que NO aplica BIP-110 (Bitcoin Core).
+      # Se usa la primera direccion que responda. Clearnet primero porque
+      # es mas rapida; desde el VPS fallara en unos segundos y se quedara
+      # en Tor sin que haya que tocar nada.
+      # ------------------------------------------------------------------
+      BTC_RPC_URL: "${BTC_RPC_URL:-}"
+      BTC_RPC_TOR_URL: "${BTC_RPC_TOR_URL:-}"
+      BTC_RPC_USER: "${BTC_RPC_USER}"
+      BTC_RPC_PASSWORD: "${BTC_RPC_PASSWORD}"
+
+      # ------------------------------------------------------------------
+      # NODO BIP-110 (Knots con reduced_data). Opcional pero recomendado:
+      # sin el no hay comparacion de cadenas ni deteccion de separacion.
+      # ------------------------------------------------------------------
+      BTC_RPC_URL_KNOTS: "${BTC_RPC_URL_KNOTS:-}"
+      BTC_RPC_TOR_URL_KNOTS: "${BTC_RPC_TOR_URL_KNOTS:-}"
+      BTC_RPC_USER_KNOTS: "${BTC_RPC_USER_KNOTS:-}"
+      BTC_RPC_PASSWORD_KNOTS: "${BTC_RPC_PASSWORD_KNOTS:-}"
+
+      # Eleccion de direccion: se recuerda este rato, pero se invalida en
+      # cuanto una llamada falla.
+      RPC_PICK_TTL: "${RPC_PICK_TTL:-120}"
+      RPC_PROBE_TIMEOUT: "${RPC_PROBE_TIMEOUT:-6}"
+
+      # ------------------------------------------------------------------
+      # Sondeo del P2P
+      # ------------------------------------------------------------------
+      CRAWL_VIA_TOR: "${CRAWL_VIA_TOR:-false}"
+      CRAWL_INCLUDE_ONION: "${CRAWL_INCLUDE_ONION:-true}"
+      CRAWL_MAX_NODES: "${CRAWL_MAX_NODES:-250}"
+      CRAWL_MAX_SEEDS: "${CRAWL_MAX_SEEDS:-60}"
+
+      # ------------------------------------------------------------------
+      # Muestras y cache
+      # ------------------------------------------------------------------
+      POOLS_SAMPLE: "${POOLS_SAMPLE:-500}"
+      HISTORY_PERIODS: "${HISTORY_PERIODS:-5}"
+      MINERS_TTL: "${MINERS_TTL:-300}"
+      POOLS_TTL: "${POOLS_TTL:-3600}"
+      NODES_TTL: "${NODES_TTL:-3600}"
+      CHAINS_TTL: "${CHAINS_TTL:-60}"
+      HEALTH_TIMEOUT: "${HEALTH_TIMEOUT:-12}"
+      HEALTH_TIMEOUT_TOR: "${HEALTH_TIMEOUT_TOR:-35}"
+      HISTORY_TTL: "${HISTORY_TTL:-3600}"
+
+      # Explicito a proposito. Aqui viven los periodos cerrados y la altura
+      # de separacion, que NO se puede perder: es un hecho historico.
+      CACHE_DIR: "/data"
+
+    volumes:
+      - bip110-data:/data
+
+    healthcheck:
+      # /api/health devuelve 503 si el nodo canonico no contesta.
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8110/api/health"]
+      # Margen por encima de HEALTH_TIMEOUT (12s por defecto): el endpoint
+      # ya corta por su cuenta, asi que el healthcheck no deberia llegar
+      # nunca a su propio limite. Si llega, es que algo va muy mal.
+      interval: 60s
+      timeout: 45s
+      start_period: 240s   # arrancar Tor y construir circuitos tarda
+      retries: 3
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  bip110-data:

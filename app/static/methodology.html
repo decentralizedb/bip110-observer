@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Methodology · BIP-110 Observer</title>
+<meta name="description" content="How every number on the BIP-110 Observer is measured, what it cannot tell you, and the primary sources behind each claim.">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="canonical" href="https://bip110.dinerosinreglas.com/methodology">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:#0d0f12;color:#eceef1;font-family:system-ui,-apple-system,"Segoe UI",Helvetica,sans-serif;font-size:17px;line-height:1.65;font-weight:350;letter-spacing:-.003em}
+a{color:#FF8A3D;text-decoration:underline;text-underline-offset:2px}
+a:hover{color:#eceef1}
+.wrap{max-width:52rem;margin:0 auto;padding:24px 16px 64px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;border-bottom:2px solid #E7640F;padding-bottom:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{border-radius:50%;flex-shrink:0;display:block}
+h1{font-size:30px;font-weight:650;line-height:1.15;letter-spacing:-.02em}
+h1 span{color:#FF8A3D}
+nav{display:flex;gap:4px;flex-shrink:0}
+.lang{min-height:44px;min-width:44px;padding:0 14px;background:#161a20;color:#a8b0bd;border:1px solid #2b323d;border-radius:8px;cursor:pointer;font:inherit;font-size:14px}
+.lang[aria-pressed="true"]{background:rgba(231,100,15,.14);border-color:#E7640F;color:#FF8A3D;font-weight:600}
+.back{font-size:14px;margin-top:10px;display:inline-block}
+section{margin-top:40px}
+h2{font-size:22px;font-weight:650;letter-spacing:-.015em;margin-bottom:10px}
+h3{font-size:17px;font-weight:600;margin:22px 0 6px}
+p{max-width:66ch;margin-top:10px;color:#d6dae0}
+ul{margin:10px 0 0 20px;max-width:66ch;color:#d6dae0}
+li{margin-top:6px}
+.pill{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;display:inline-block}
+.p-data{background:rgba(76,201,106,.14);color:#4CC96A;border:1px solid rgba(76,201,106,.35)}
+.p-est{background:rgba(90,169,230,.14);color:#5AA9E6;border:1px solid rgba(90,169,230,.35)}
+.p-sample{background:rgba(231,100,15,.14);color:#FF8A3D;border:1px solid rgba(231,100,15,.35)}
+pre{background:#12151a;border:1px solid #2b323d;border-left:3px solid #5AA9E6;border-radius:0 8px 8px 0;padding:12px 14px;margin-top:12px;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.5;color:#a8b0bd}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;color:#FF8A3D}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:15px;display:block;overflow-x:auto}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #2b323d;vertical-align:top}
+th{color:#868f9d;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.caveat{border-left:2px solid #E7640F;padding-left:14px;margin-top:18px}
+.caveat-k{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#FF8A3D}
+.caveat-b{font-size:15px;color:#a8b0bd;margin-top:4px;max-width:66ch}
+footer{margin-top:56px;padding-top:16px;border-top:1px solid #2b323d;color:#868f9d;font-size:13px;max-width:66ch}
+:focus-visible{outline:2px solid #FF8A3D;outline-offset:2px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <div class="brand"><img class="logo" src="/static/logo.png" width="44" height="44"
+       alt="Decentralized" loading="eager" decoding="async">
+    <h1>BIP-110 <span>Observer</span></h1></div>
+    <a class="back" href="/" data-k="back"></a>
+  </div>
+  <nav aria-label="Language">
+    <button type="button" class="lang" id="l-en" onclick="setLang('en')">EN</button>
+    <button type="button" class="lang" id="l-es" onclick="setLang('es')">ES</button>
+  </nav>
+</header>
+
+<section>
+  <h2 data-k="t1"></h2>
+  <p data-k="p1a"></p>
+  <p data-k="p1b"></p>
+  <table>
+    <tr><th data-k="thLevel"></th><th data-k="thMeans"></th><th data-k="thWhere"></th></tr>
+    <tr><td><span class="pill p-data" data-k="tagData"></span></td><td data-k="lvl1"></td><td data-k="lvl1w"></td></tr>
+    <tr><td><span class="pill p-est" data-k="tagEst"></span></td><td data-k="lvl2"></td><td data-k="lvl2w"></td></tr>
+    <tr><td><span class="pill p-sample" data-k="tagSample"></span></td><td data-k="lvl3"></td><td data-k="lvl3w"></td></tr>
+  </table>
+  <div class="caveat"><div class="caveat-k" data-k="k1"></div><div class="caveat-b" data-k="b1"></div></div>
+</section>
+
+<section>
+  <h2 data-k="t2"></h2>
+  <p data-k="p2a"></p>
+  <pre data-k="code2"></pre>
+  <p data-k="p2b"></p>
+  <h3 data-k="h2b"></h3>
+  <p data-k="p2c"></p>
+</section>
+
+<section>
+  <h2 data-k="t3"></h2>
+  <p data-k="p3a"></p>
+  <p data-k="p3b"></p>
+  <div class="caveat"><div class="caveat-k" data-k="k3"></div><div class="caveat-b" data-k="b3"></div></div>
+</section>
+
+<section>
+  <h2 data-k="t4"></h2>
+  <p data-k="p4a"></p>
+  <ul><li data-k="l4a"></li><li data-k="l4b"></li><li data-k="l4c"></li><li data-k="l4d"></li></ul>
+  <h3 data-k="h4b"></h3>
+  <p data-k="p4b"></p>
+  <pre data-k="code4"></pre>
+  <p data-k="p4c"></p>
+  <div class="caveat"><div class="caveat-k" data-k="k4"></div><div class="caveat-b" data-k="b4"></div></div>
+</section>
+
+<section>
+  <h2 data-k="t5"></h2>
+  <p data-k="p5a"></p>
+  <pre data-k="code5"></pre>
+  <p data-k="p5b"></p>
+  <p data-k="p5c"></p>
+</section>
+
+<section>
+  <h2 data-k="tH"></h2>
+  <p data-k="pHa"></p>
+  <pre data-k="codeH1"></pre>
+  <p data-k="pHb"></p>
+  <pre data-k="codeH2"></pre>
+  <p data-k="pHc"></p>
+  <p data-k="pHd"></p>
+  <div class="caveat"><div class="caveat-k" data-k="kH"></div><div class="caveat-b" data-k="bH"></div></div>
+</section>
+
+<section>
+  <h2 data-k="t6"></h2>
+  <p data-k="p6a"></p>
+  <ul><li data-k="l6a"></li><li data-k="l6b"></li><li data-k="l6c"></li></ul>
+  <p data-k="p6b"></p>
+</section>
+
+<section>
+  <h2 data-k="t7"></h2>
+  <p data-k="p7a"></p>
+  <ul><li data-k="l7a"></li><li data-k="l7b"></li><li data-k="l7c"></li><li data-k="l7d"></li></ul>
+  <div class="caveat"><div class="caveat-k" data-k="k7"></div><div class="caveat-b" data-k="b7"></div></div>
+</section>
+
+<section>
+  <h2 data-k="t8"></h2>
+  <p data-k="p8a"></p>
+  <ul>
+    <li><a href="https://github.com/bitcoin/bips/blob/master/bip-0110.mediawiki">bip-0110.mediawiki</a> <span data-k="s8a"></span></li>
+    <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260508/src/protocol.h">bitcoinknots/bitcoin · src/protocol.h</a> <span data-k="s8b"></span></li>
+    <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260508/src/net_processing.cpp">bitcoinknots/bitcoin · src/net_processing.cpp</a> <span data-k="s8c"></span></li>
+    <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260508/src/init.cpp">bitcoinknots/bitcoin · src/init.cpp</a> <span data-k="s8d"></span></li>
+    <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260508/src/deploymentstatus.h">bitcoinknots/bitcoin · src/deploymentstatus.h</a> <span data-k="s8e"></span></li>
+    <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260508/src/versionbits.cpp">bitcoinknots/bitcoin · src/versionbits.cpp</a> <span data-k="s8f"></span></li>
+  </ul>
+</section>
+
+<footer><p data-k="foot"></p></footer>
+</div>
+
+<script>
+const DICT = {
+en:{
+ back:"← Back to the panel",
+ tagData:"Verifiable data", tagEst:"Estimate", tagSample:"Biased sample",
+ thLevel:"Level", thMeans:"What it means", thWhere:"Where it is used",
+
+ t1:"Why every number carries a label",
+ p1a:"Most dashboards present all their figures with the same authority. That is convenient and it is misleading: a block count read from your own node and a percentage of sampled nodes are not the same kind of claim, and they should not look alike.",
+ p1b:"This panel sorts every figure into one of three levels, and never promotes one. If a new feature does not fit clearly into a level, it does not ship until it does.",
+ lvl1:"Anyone running a full node gets the same figure. No sampling, no model.",
+ lvl1w:"Miner signalling, chain comparison, deployment parameters.",
+ lvl2:"A model or a sample, with its assumptions written next to it.",
+ lvl2w:"Pool share, minority chain simulator.",
+ lvl3:"Does not represent the population. The reasons are on screen, never hidden.",
+ lvl3w:"Node crawl.",
+ k1:"Warnings are not decoration",
+ b1:"No caveat on this site is behind a tooltip, an accordion or a footnote. If a design change would improve the look by hiding a warning, it gets rejected. That honesty is the product, not an obstacle to it.",
+
+ t2:"Miner signalling",
+ p2a:"Each block header carries a version field. A block signals BIP-110 when bit 4 is set and the top bits match the versionbits marker. The count is a direct read of the current retarget period from an own node.",
+ code2:"signals_bit(version):\n    return (version & 0xE0000000) == 0x20000000 \\\n           and (version & (1 << 4)) != 0",
+ p2b:"Checking the top bits matters. Without it, any block whose version happens to have bit 4 set for another reason gets counted, and the figure drifts above what other panels report. It is the most likely cause if these numbers ever stop matching.",
+ h2b:"Cross-check without third parties",
+ p2c:"Bitcoin Core and Bitcoin Knots both expose their own consensus counter through getdeploymentinfo. Comparing that counter with the figure shown here verifies the calculation against the reference implementation itself, which is stronger evidence than agreeing with another dashboard. Both nodes and this panel report the same count.",
+
+ t3:"Bit 4 was used before",
+ p3a:"BIP-91 used the same versionbits bit 4 in July 2017. This panel only scans the current retarget period, so there is no collision today.",
+ p3b:"If historical series are ever added, the height range has to be restricted, or 2017 blocks will be counted as BIP-110 signalling.",
+ k3:"Not the same as service bit 27",
+ b3:"Versionbits bit 4 is how miners signal, and it is defined in the BIP. Service bit 27 is how nodes declare, and it is not in the BIP at all. They are different mechanisms with different levels of trust, and mixing them up is easy.",
+
+ t4:"Node crawl, and what it cannot tell you",
+ p4a:"The crawl starts from the peers of the project's own nodes and walks the network by handshake. Four reasons the result is a biased sample and never a census:",
+ l4a:"Self-declared. The user agent is a string the node chooses. A Knots node can announce itself as Core and the other way round.",
+ l4b:"Listening nodes only. The crawl connects outward, so it reaches only nodes that accept incoming connections. Nodes behind NAT are excluded twice over: they cannot be dialled, and Bitcoin Core does not gossip addresses it believes unreachable, so the crawl never learns they exist.",
+ l4c:"Trivially sybilled. A thousand cloud nodes cost pocket change. Either side can inflate its count in an afternoon.",
+ l4d:"Partial network coverage. The crawl reaches {probed}. Nodes speaking only {skipped} are excluded, because reaching them requires running a router for those networks, which this panel does not.",
+ h4b:"Service bit 27",
+ p4b:"A node enforcing BIP-110 can announce service bit 27. Bitcoin Knots defines it; BIP-110 does not mention it anywhere in the 382 lines of version 1.0.0. The definition, as read in tag v29.3.knots20260508 on 2026-07-27. Later versions may differ, so check the tag before quoting this:",
+ code4:"// src/protocol.h\n// Bits 24-31 are reserved for temporary experiments. [...]\n// Remember that service bits are just unauthenticated\n// advertisements, so your code must be robust against\n// collisions and other cases where nodes may be advertising\n// a service they do not actually support.\n\n// NODE_REDUCED_DATA means the node enforces ReducedData rules\nNODE_REDUCED_DATA = (1 << 27),",
+ p4c:"The comment above the bit is the point: Bitcoin's own source warns that service bits are unauthenticated and that code must expect collisions. The bit is also recent, absent in v29.3.knots20260210 and present in v29.3.knots20260416rc1, so a node running the earlier BIP-110 patch enforces the rules without announcing the bit. That is why this panel counts declaration by service bit and by user agent in separate columns, and never adds them together.",
+ k4:"Measuring from a Knots node overstates the result",
+ b4:"Knots limits how many automatic outbound peers it keeps that do not announce bit 27, and disconnects the rest (src/net_processing.cpp). A node running Knots therefore sees more BIP-110 peers than the network holds. The crawl is seeded preferentially from the Core node for this reason. It is an instrument bias, the kind that deceives most because the number still looks objective.",
+
+ t5:"Comparing the two chains",
+ p5a:"The project runs two of its own nodes: Bitcoin Core, which does not enforce BIP-110, and Bitcoin Knots, which does. A split is detected by comparing block hashes at the same height, not by anyone's claim.",
+ code5:"if hash_core(h) == hash_knots(h): one chain\nelse: binary search for the last common height",
+ p5b:"When they diverge, the fork height is found by binary search, roughly twenty calls, and stored on disk. It is never deleted, not even after a reunification: the height where the split opened is a historical fact and removing it would rewrite what happened.",
+ p5c:"Majority and minority are decided by accumulated proof-of-work, not by which rules we prefer. If the BIP-110 chain ever carries more work, it is labelled the majority. And if one node stops answering, the panel does not assume a split: an infrastructure failure and a chain split look alike from outside and have nothing to do with each other.",
+
+ tH:"Why the BIP-110 dates are heights, and what that changes",
+ pHa:"The milestones are not dates, they are block heights, and every node measures them on the chain it considers valid. Mandatory signalling is a straight height comparison, in src/deploymentstatus.h:",
+ codeH1:"return nHeight >= deployment.max_activation_height - (2 * nPeriod)\n    && nHeight <  deployment.max_activation_height - nPeriod;",
+ pHb:"With max_activation_height {maxh} and a period of {p} blocks, that is exactly the window [{mand}, {lock}). The three transitions still ahead are heights too, in src/versionbits.cpp:",
+ codeH2:"... pindexPrev->nHeight + 1 >= max_activation_height - nPeriod   // forced LOCKED_IN\npindexPrev->nHeight + 1 >= min_activation_height                 // ACTIVE\n... pindexPrev->nHeight + 1 >= activation_height + active_duration  // EXPIRED",
+ pHc:"Median time past only appears in two places: the DEFINED to STARTED move, which happened in December 2025, and the timeout, which for this deployment is NO_TIMEOUT and never arrives. So none of the milestones still ahead depends on the clock. If the BIP-110 chain advances slowly, its own rules take longer to activate on it.",
+ pHd:"The projection walks period by period. The minority chain inherits the difficulty of the whole network, and each retarget can drop it to at most a quarter, which is Bitcoin's own cap and not something BIP-110 changes. That cap decides the figures: without it the waits would be far longer. The share fed into it is the rate of signalling blocks, not a pool's total share, because that chain only accepts blocks that signal.",
+ kH:"This is an estimate, not a measurement",
+ bH:"It assumes today's signalling share holds and that whoever signals actually mines that chain. Signalling states an intention, it is not a commitment. The heights are verifiable and come from the source code; when they would be reached is a model.",
+ s8e:"the mandatory signalling window, by height",
+ s8f:"the deployment state machine",
+ t6:"Pool attribution",
+ p6a:"Each pool is identified by the tag it writes into the coinbase, read from an own node. Three things about that:",
+ l6a:"The tag is not authenticated. A pool can omit it, change it, or imitate another's. It is a useful convention, not proof of authorship.",
+ l6b:"Matching is a case-insensitive literal substring and does not require a leading slash. Requiring one excluded whole pools that write 'Powered by Luxor Tech' or '| MARA Made in USA |'.",
+ l6c:"Over the last {s} blocks, {n} pools were identified and {u}% of blocks stayed unattributed, the ones whose coinbase contains only a UUID and no pool name.",
+ p6b:"None of these labels come from a third-party list. They were derived from the coinbase data of the project's own node.",
+
+ t7:"What this panel does not do",
+ p7a:"Stated plainly, because absence is easy to miss:",
+ l7a:"It does not query mempool.space, blockstream.info or any external API. Every figure comes from the project's own nodes and its own P2P crawl.",
+ l7b:"It does not load any third-party resource: no fonts, no CDN, no icons, no analytics. Nothing you do here is visible to anyone else.",
+ l7c:"It does not measure support for BIP-110, because nothing observable measures that.",
+ l7d:"It does not predict whether the proposal will activate.",
+
+ k7:"One caveat, since absences should be honest too",
+ b7:"This site is served through a CDN, and that CDN asks the browser to report network errors it runs into here. It is not a script and not a resource the page loads, so the line above still holds, but it is traffic to a third party that the visitor did not choose. It comes from the network in front, not from the panel. A page that spends its time explaining what can and cannot be observed should not leave an unstated exception in its own claim to be clean.",
+ t8:"Primary sources",
+ p8a:"Every technical claim above can be checked here. Where a claim rests on reading source code rather than a specification, that is said explicitly.",
+ s8a:"— deployment parameters, version 1.0.0",
+ s8b:"— service bit 27 definition and the experimental-range warning",
+ s8c:"— outbound peer preference for nodes announcing bit 27",
+ s8d:"— where the bit is set and where it is withdrawn",
+ foot:"This page is updated whenever a measurement or a source changes. Anything not verified is labelled as such rather than presented as certain."
+},
+es:{
+ back:"← Volver al panel",
+ tagData:"Dato verificable", tagEst:"Estimación", tagSample:"Muestra sesgada",
+ thLevel:"Nivel", thMeans:"Qué significa", thWhere:"Dónde se usa",
+
+ t1:"Por qué cada cifra lleva etiqueta",
+ p1a:"Casi todos los paneles presentan todas sus cifras con la misma autoridad. Es cómodo y es engañoso: un recuento de bloques leído de tu propio nodo y un porcentaje de nodos muestreados no son la misma clase de afirmación, y no deberían parecerlo.",
+ p1b:"Este panel clasifica cada cifra en uno de tres niveles, y nunca la promociona de nivel. Si una función nueva no encaja claramente en uno, no se publica hasta que encaje.",
+ lvl1:"Cualquiera con un nodo completo obtiene la misma cifra. Sin muestreo ni modelo.",
+ lvl1w:"Señalización de mineros, comparación de cadenas, parámetros del despliegue.",
+ lvl2:"Un modelo o una muestra, con sus supuestos escritos al lado.",
+ lvl2w:"Cuota de pools, simulador de cadena minoritaria.",
+ lvl3:"No representa a la población. Los motivos están en pantalla, nunca escondidos.",
+ lvl3w:"Sondeo de nodos.",
+ k1:"Las advertencias no son decoración",
+ b1:"Ninguna advertencia de este sitio está detrás de un tooltip, un acordeón o una nota al pie. Si un cambio de diseño mejorase el aspecto escondiendo un aviso, se rechaza. Esa honestidad es el producto, no un obstáculo para el producto.",
+
+ t2:"Señalización de mineros",
+ p2a:"Cada cabecera de bloque lleva un campo de versión. Un bloque señaliza BIP-110 cuando tiene el bit 4 activo y los bits altos coinciden con el marcador de versionbits. El recuento es una lectura directa del periodo de retarget actual desde un nodo propio.",
+ code2:"signals_bit(version):\n    return (version & 0xE0000000) == 0x20000000 \\\n           and (version & (1 << 4)) != 0",
+ p2b:"Comprobar los bits altos importa. Sin eso se cuenta cualquier bloque cuya versión tenga el bit 4 activo por otro motivo, y la cifra se va por encima de la que dan otros paneles. Es la causa más probable si estos números dejan de cuadrar algún día.",
+ h2b:"Comprobación cruzada sin terceros",
+ p2c:"Tanto Bitcoin Core como Bitcoin Knots exponen su propio contador de consenso en getdeploymentinfo. Comparar ese contador con la cifra de aquí verifica el cálculo contra la implementación de referencia, que es mejor prueba que coincidir con otro panel. Los dos nodos y este panel dan el mismo recuento.",
+
+ t3:"El bit 4 ya se usó antes",
+ p3a:"El BIP-91 usó el mismo bit 4 de versionbits en julio de 2017. Este panel solo escanea el periodo de retarget actual, así que hoy no hay colisión.",
+ p3b:"Si algún día se añaden series históricas, hay que restringir el rango de alturas, o se contarán bloques de 2017 como señalización del BIP-110.",
+ k3:"No confundir con el bit de servicio 27",
+ b3:"El bit 4 de versionbits es cómo señalizan los mineros, y está definido en el BIP. El bit de servicio 27 es cómo declaran los nodos, y no está en el BIP. Son mecanismos distintos con niveles de confianza distintos, y confundirlos es fácil.",
+
+ t4:"El sondeo de nodos, y lo que no puede decirte",
+ p4a:"El sondeo parte de los peers de los nodos propios del proyecto y recorre la red por handshake. Cuatro motivos por los que el resultado es una muestra sesgada y nunca un censo:",
+ l4a:"Autodeclarado. El user agent es un texto que el nodo elige. Un nodo Knots puede anunciarse como Core y al revés.",
+ l4b:"Solo nodos que escuchan. El sondeo conecta hacia fuera, así que solo alcanza a los que aceptan conexiones entrantes. Los nodos tras NAT quedan excluidos dos veces: no se les puede llamar, y además Bitcoin Core no propaga direcciones que cree inalcanzables, así que el sondeo ni llega a saber que existen.",
+ l4c:"Sybil trivial. Mil nodos en la nube cuestan cuatro duros. Cualquier bando puede inflar su cifra en una tarde.",
+ l4d:"Cobertura parcial de redes. El sondeo llega a {probed}. Los nodos que solo hablan {skipped} quedan fuera, porque alcanzarlos exige ejecutar un router de esas redes, y este panel no lo hace.",
+ h4b:"El bit de servicio 27",
+ p4b:"Un nodo que aplica el BIP-110 puede anunciar el bit de servicio 27. Lo define Bitcoin Knots; el BIP-110 no lo menciona en ninguna de las 382 líneas de la versión 1.0.0. La definición, tal como se leyó en el tag v29.3.knots20260508 el 2026-07-27. Versiones posteriores pueden cambiarla, así que comprueba el tag antes de citar esto:",
+ code4:"// src/protocol.h\n// Bits 24-31 are reserved for temporary experiments. [...]\n// Remember that service bits are just unauthenticated\n// advertisements, so your code must be robust against\n// collisions and other cases where nodes may be advertising\n// a service they do not actually support.\n\n// NODE_REDUCED_DATA means the node enforces ReducedData rules\nNODE_REDUCED_DATA = (1 << 27),",
+ p4c:"El comentario que hay encima del bit es lo importante: el propio código de Bitcoin advierte de que los bits de servicio no están autenticados y de que el código debe contar con colisiones. El bit es además reciente: no está en v29.3.knots20260210 y sí en v29.3.knots20260416rc1, así que un nodo con el parche anterior de BIP-110 aplica las reglas sin anunciar el bit. Por eso este panel cuenta la declaración por bit de servicio y por user agent en columnas separadas, y nunca las suma.",
+ k4:"Medir desde un nodo Knots sobreestima el resultado",
+ b4:"Knots limita cuántos peers salientes automáticos mantiene que no anuncien el bit 27, y desconecta al resto (src/net_processing.cpp). Un nodo con Knots ve por tanto más peers BIP-110 de los que hay en la red. Por eso el sondeo se siembra preferentemente desde el nodo Core. Es un sesgo de instrumento, del tipo que más engaña porque la cifra sigue pareciendo objetiva.",
+
+ t5:"La comparación de las dos cadenas",
+ p5a:"El proyecto tiene dos nodos propios: Bitcoin Core, que no aplica el BIP-110, y Bitcoin Knots, que sí. La separación se detecta comparando hashes de bloque a la misma altura, no por lo que diga nadie.",
+ code5:"si hash_core(h) == hash_knots(h): una cadena\nsi no: búsqueda binaria de la última altura común",
+ p5b:"Cuando divergen, la altura de bifurcación se busca por búsqueda binaria, unas veinte llamadas, y se guarda en disco. No se borra nunca, ni siquiera tras una reunificación: la altura en la que se abrió la separación es un hecho histórico y borrarla sería reescribir lo que pasó.",
+ p5c:"Mayoritaria y minoritaria se deciden por trabajo acumulado, no por las reglas que nos gusten. Si algún día la cadena con BIP-110 acumula más trabajo, se etiqueta como mayoritaria. Y si un nodo deja de responder, el panel no da por hecho que haya separación: un fallo de infraestructura y una bifurcación se parecen desde fuera y no tienen nada que ver.",
+
+ tH:"Por qué las fechas del BIP-110 son alturas, y qué cambia eso",
+ pHa:"Los hitos no son fechas, son alturas de bloque, y cada nodo las mide sobre la cadena que él da por válida. La señalización obligatoria es una comparación de altura pelada, en src/deploymentstatus.h:",
+ codeH1:"return nHeight >= deployment.max_activation_height - (2 * nPeriod)\n    && nHeight <  deployment.max_activation_height - nPeriod;",
+ pHb:"Con max_activation_height {maxh} y un periodo de {p} bloques, eso es exactamente la ventana [{mand}, {lock}). Las tres transiciones que quedan por delante también son alturas, en src/versionbits.cpp:",
+ codeH2:"... pindexPrev->nHeight + 1 >= max_activation_height - nPeriod   // LOCKED_IN forzado\npindexPrev->nHeight + 1 >= min_activation_height                 // ACTIVE\n... pindexPrev->nHeight + 1 >= activation_height + active_duration  // EXPIRED",
+ pHc:"El tiempo mediano solo aparece en dos sitios: el paso de DEFINED a STARTED, que ocurrió en diciembre de 2025, y el timeout, que en este despliegue es NO_TIMEOUT y no llega nunca. Así que ninguno de los hitos que quedan depende del reloj. Si la cadena con BIP-110 avanza despacio, sus propias reglas tardan más en poder activarse en ella.",
+ pHd:"La proyección avanza periodo a periodo. La cadena minoritaria hereda la dificultad de toda la red, y cada reajuste puede bajarla como mucho a la cuarta parte, que es el tope del propio Bitcoin y no algo que el BIP-110 toque. Ese tope decide las cifras: sin él las esperas serían mucho mayores. La cuota que entra es el ritmo de bloques que señalizan, no la cuota total de un pool, porque esa cadena solo acepta bloques que señalicen.",
+ kH:"Esto es una estimación, no una medida",
+ bH:"Da por supuesto que la cuota que señaliza hoy se mantiene y que quien señaliza acaba minando esa cadena. Señalizar es declarar una intención, no comprometerse. Las alturas son verificables y salen del código fuente; cuándo se alcanzarían es un modelo.",
+ s8e:"la ventana de señalización obligatoria, por altura",
+ s8f:"la máquina de estados del despliegue",
+ t6:"Atribución de pools",
+ p6a:"Cada pool se identifica por la etiqueta que escribe en la coinbase, leída de un nodo propio. Tres cosas sobre eso:",
+ l6a:"La etiqueta no está autenticada. Un pool puede omitirla, cambiarla o imitar la de otro. Es una convención útil, no una prueba de autoría.",
+ l6b:"La comparación es de subcadena literal, sin distinguir mayúsculas y sin exigir barra delante. Exigirla dejaba fuera a pools enteros que escriben 'Powered by Luxor Tech' o '| MARA Made in USA |'.",
+ l6c:"Sobre los últimos {s} bloques se identificaron {n} pools y quedó sin atribuir el {u}% de los bloques, los que tienen una coinbase que solo contiene un UUID y ningún nombre de pool.",
+ p6b:"Ninguna de estas etiquetas viene de una lista de terceros. Se dedujeron de los datos de coinbase del nodo propio del proyecto.",
+
+ t7:"Lo que este panel no hace",
+ p7a:"Dicho explícitamente, porque las ausencias pasan desapercibidas:",
+ l7a:"No consulta mempool.space, blockstream.info ni ninguna API externa. Todas las cifras salen de los nodos propios del proyecto y de su propio sondeo del P2P.",
+ l7b:"No carga ningún recurso de terceros: ni tipografías, ni CDN, ni iconos, ni analítica. Nada de lo que hagas aquí es visible para nadie más.",
+ l7c:"No mide el apoyo al BIP-110, porque no hay nada observable que lo mida.",
+ l7d:"No predice si la propuesta se activará.",
+
+ k7:"Un matiz, porque las ausencias también hay que contarlas bien",
+ b7:"Este sitio se sirve a través de un CDN, y ese CDN le pide al navegador que le informe de los errores de red que tenga aquí. No es un script ni un recurso que la página cargue, así que lo de arriba sigue siendo cierto, pero es tráfico hacia un tercero que el visitante no ha elegido. Lo pone la red que hay delante, no el panel. Una página que se pasa el rato explicando qué se puede observar y qué no, no debería dejar una excepción sin declarar justo en su propia afirmación de estar limpia.",
+ t8:"Fuentes primarias",
+ p8a:"Todas las afirmaciones técnicas de arriba se pueden comprobar aquí. Cuando una afirmación se apoya en leer código fuente y no en una especificación, se dice explícitamente.",
+ s8a:"— parámetros del despliegue, versión 1.0.0",
+ s8b:"— definición del bit de servicio 27 y aviso del rango experimental",
+ s8c:"— preferencia de peers salientes que anuncian el bit 27",
+ s8d:"— dónde se activa el bit y dónde se retira",
+ foot:"Esta página se actualiza cada vez que cambia una medición o una fuente. Lo que no se ha podido verificar se marca como tal en vez de presentarse como cierto."
+}};
+
+let LANG = (function(){
+  try{ const s = localStorage.getItem("bip110lang"); if(s === "en" || s === "es") return s; }catch(e){}
+  return (navigator.language || "").toLowerCase().startsWith("es") ? "es" : "en";
+})();
+
+function setLang(l){
+  LANG = l;
+  try{ localStorage.setItem("bip110lang", l); }catch(e){}
+  document.documentElement.lang = l;
+  paint();
+}
+/* Las cifras medidas se piden a la API. Nada de numeros escritos a mano
+   que se queden obsoletos sin que nadie se entere. */
+let STATS = null, NETS = null;
+const nf = (v,d) => (v==null||isNaN(v)) ? "—" :
+  Number(v).toLocaleString(LANG==="es"?"es-ES":"en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
+
+let PARAMS = null;
+function paint(){
+  const D = DICT[LANG] || DICT.en;
+  const vars = STATS ? {s:nf(STATS.sample_blocks,0), n:nf(STATS.pools_identified,0),
+                        u:nf(STATS.unattributed_pct,2)} : {s:"…", n:"…", u:"…"};
+  vars.probed  = NETS ? (NETS.networks_probed  || []).join(", ") : "IPv4, IPv6, Tor";
+  // Los parametros del BIP no se escriben a mano ni aqui: vienen de la API.
+  vars.p    = PARAMS ? nf(PARAMS.period, 0) : "…";
+  vars.maxh = PARAMS ? nf(PARAMS.activation_height, 0) : "…";
+  vars.mand = PARAMS ? nf(PARAMS.mandatory_start, 0) : "…";
+  vars.lock = PARAMS ? nf(PARAMS.forced_lockin, 0) : "…";
+  vars.skipped = NETS ? (NETS.networks_skipped || []).join(", ") : "i2p, cjdns";
+  document.querySelectorAll("[data-k]").forEach(el => {
+    let v = D[el.dataset.k];
+    if(v === undefined) return;
+    for(const [a,b] of Object.entries(vars)) v = v.split("{"+a+"}").join(b);
+    el.textContent = v;
+  });
+  document.getElementById("l-en").setAttribute("aria-pressed", LANG === "en");
+  document.getElementById("l-es").setAttribute("aria-pressed", LANG === "es");
+  document.title = (LANG === "es" ? "Metodología" : "Methodology") + " · BIP-110 Observer";
+}
+document.documentElement.lang = LANG;
+paint();
+fetch("/api/params").then(r => r.json()).then(d => { if(d){ PARAMS = d.bip || d; paint(); } })
+  .catch(() => {});
+fetch("/api/pools").then(r => r.json()).then(d => { if(d && d.ok){ STATS = d; paint(); } })
+  .catch(() => {});
+fetch("/api/nodes").then(r => r.json()).then(d => { if(d && d.ok){ NETS = d; paint(); } })
+  .catch(() => {});
+</script>
+</body>
+</html>

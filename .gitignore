@@ -1,0 +1,74 @@
+# ---------------------------------------------------------------------
+# LISTA BLANCA: se ignora TODO y solo se permite lo que es del proyecto.
+#
+# Al reves, enumerando lo que no debe subirse, se falla siempre: no se
+# puede hacer una lista de lo que todavia no existe. Asi entro un fichero
+# de intercambio del editor (..env.kate-swp) que contenia una salida de
+# terminal con dos direcciones .onion dentro. Nadie lo puso a proposito y
+# ninguna lista de exclusiones lo habria previsto.
+#
+# Anadir un fichero nuevo al proyecto exige anadirlo aqui. Es a proposito:
+# ese roce de diez segundos es lo que obliga a mirar que se esta subiendo.
+# ---------------------------------------------------------------------
+
+# 1. Ignorar absolutamente todo, incluidos los directorios.
+/*
+/*/
+
+# 2. Permitir, uno a uno, lo que forma parte del proyecto.
+!.gitignore
+!LICENSE
+!README.md
+!Dockerfile
+!docker-compose.yml
+!entrypoint.sh
+!requirements.txt
+!.env.example
+
+!/app/
+/app/*
+!/app/*.py
+!/app/*.js
+!/app/static/
+/app/static/*
+!/app/static/*.html
+!/app/static/*.png
+!/app/static/robots.txt
+
+!/deploy/
+/deploy/*
+!/deploy/*.sh
+!/deploy/*.example
+
+# 3. Y aun asi, negar de forma explicita lo que nunca debe entrar aunque
+#    alguien afloje las reglas de arriba. Cinturon y tirantes.
+#
+#    Va DESPUES de la lista blanca a proposito: en git manda la ultima
+#    regla que coincide, asi que aunque alguien anadiera un "!.env" ahi
+#    arriba por error, esta denegacion gana igual. Con la lista blanca
+#    sola bastaria, pero lo que se juega aqui es una credencial, y un
+#    cinturon no estorba por llevar tirantes.
+#
+#    Notas de trabajo y borradores tampoco se publican con el codigo.
+CLAUDE.md
+*.notes.md
+.env
+.env.*
+!.env.example
+*.kate-swp
+.*.swp
+.*.swo
+*~
+*.orig
+*.rej
+*.bak
+*.pem
+*.key
+*.p12
+torrc
+hostname
+hs_ed25519_*
+rpcauth*
+/app/data/
+/data/
+*.tar.gz

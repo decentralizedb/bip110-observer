@@ -1,0 +1,11 @@
+# BIP-110 Observer
+#
+# Everything here is meant to be read. The API is left out of the index
+# because it returns raw JSON that means nothing out of context, and a
+# search result pointing at it would only mislead whoever clicks it.
+
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://bip110.dinerosinreglas.com/sitemap.xml
