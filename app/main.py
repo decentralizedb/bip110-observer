@@ -239,8 +239,27 @@ def _lanzar_calculo(ck, builder):
             payload = builder()
         except Exception as e:
             payload = {"ok": False, "error": _explicar(e)}
+        fallo = not payload.get("ok", False)
         with _lock:
-            _cache[ck] = (payload, time.time())
+            previo = _cache.get(ck)
+            bueno = previo and previo[0].get("ok")
+            if fallo and bueno:
+                # Un tropiezo pasajero NO tira un dato bueno.
+                #
+                # Guardar el fallo encima borraba cifras correctas y ponia
+                # un error en pantalla donde se podia estar sirviendo un
+                # dato de hace tres minutos. Con Tor por medio eso pasa
+                # cada dos por tres: un circuito que no monta no es motivo
+                # para dejar de contar lo que ya se sabe.
+                #
+                # Se conserva la marca de tiempo ORIGINAL a proposito: asi
+                # el dato sigue contando como viejo, la interfaz dice de
+                # cuando es, y la siguiente peticion vuelve a intentarlo.
+                conservado = dict(previo[0])
+                conservado["ultimo_fallo"] = payload.get("error")
+                _cache[ck] = (conservado, previo[1])
+            else:
+                _cache[ck] = (payload, time.time())
             _computando.discard(ck)
     threading.Thread(target=correr, daemon=True).start()
 
