@@ -694,6 +694,19 @@ en: {
  simRetarget:"First difficulty retarget", simMajority:"Majority chain",
  simMajNote:"barely affected by losing that share",
  assumeKicker:"Assumptions",
+ err_tor_circuito:"Could not reach the node over Tor right now.",
+ err_tor_caducado:"The Tor connection to the node expired before it completed.",
+ err_tor_no_encuentra:"Tor cannot find the node right now.",
+ err_tor_prohibido:"Tor is not allowed to connect to that address.",
+ err_sin_tor:"There is no Tor connection available to reach the node.",
+ err_rechazada:"The node refused the connection.",
+ err_credenciales:"The node did not accept the access credentials.",
+ err_prohibido:"The node does not allow this request.",
+ err_sin_escucha:"Nothing is listening at that address.",
+ err_lento:"The node took too long to answer.",
+ err_sin_dns:"The node's address could not be resolved.",
+ err_sin_configurar:"That node is not configured.",
+ err_sin_conexion:"Could not connect to the node.",
  simNote:"Difficulty only readjusts every {periodSize} blocks, and a soft fork like this one does not touch that mechanism, so the smaller chain inherits the difficulty of the whole network and has to live with it until its own retarget arrives. The calculation assumes that difficulty and that the hashrate stays stable: it is an order-of-magnitude estimate, not a prediction. When Bitcoin Cash split in 2017 it survived this because it was a hard fork and could add an emergency difficulty adjustment. BIP-110, by design, has none.",
  strTitle:"The different moments of BIP-110",
  strMethod:"They are block heights, and every node measures them on the chain it considers valid, not on the chain with the most work. That changes everything that comes after.",
@@ -900,6 +913,19 @@ es: {
  simRetarget:"Primer reajuste de dificultad", simMajority:"Cadena mayoritaria",
  simMajNote:"apenas la afecta perder esa cuota",
  assumeKicker:"Supuestos",
+ err_tor_circuito:"No se ha podido llegar al nodo por Tor en este momento.",
+ err_tor_caducado:"La conexión con el nodo por Tor ha caducado antes de completarse.",
+ err_tor_no_encuentra:"Tor no encuentra el nodo ahora mismo.",
+ err_tor_prohibido:"Tor no tiene permitido conectar con esa dirección.",
+ err_sin_tor:"No hay ninguna conexión Tor disponible para llegar al nodo.",
+ err_rechazada:"El nodo ha rechazado la conexión.",
+ err_credenciales:"El nodo no ha aceptado las credenciales de acceso.",
+ err_prohibido:"El nodo no permite esta consulta.",
+ err_sin_escucha:"No hay nadie escuchando en esa dirección.",
+ err_lento:"El nodo ha tardado demasiado en responder.",
+ err_sin_dns:"No se ha podido resolver la dirección del nodo.",
+ err_sin_configurar:"Ese nodo no está configurado.",
+ err_sin_conexion:"No se ha podido conectar con el nodo.",
  simNote:"La dificultad solo se reajusta cada {periodSize} bloques, y un soft fork como este no toca ese mecanismo, así que la cadena pequeña hereda la dificultad de toda la red y tiene que aguantarla hasta que le llegue su propio reajuste. El cálculo asume esa dificultad y que la potencia de minado se mantiene estable: es una estimación del orden de magnitud, no una predicción. Cuando Bitcoin Cash se separó en 2017 sobrevivió a esto porque era un hard fork y pudo añadir un ajuste de emergencia de dificultad. El BIP-110, por diseño, no lo tiene.",
  strTitle:"Los diferentes momentos del BIP-110",
  strMethod:"Son alturas de bloque, y cada nodo las mide sobre la cadena que él da por válida, no sobre la que más trabajo acumula. Eso cambia todo lo que viene después.",
@@ -1040,6 +1066,15 @@ const t = (k, vars) => {
   let s = (DICT[LANG] && DICT[LANG][k]) || DICT.en[k] || k;
   if(vars) for(const [a,b] of Object.entries(vars)) s = s.split("{"+a+"}").join(b);
   return s;
+};
+/* El motivo de un fallo llega como CLAVE estable desde la API, no como
+   frase: el texto del servidor esta en castellano y servirlo tal cual
+   dejaba la version inglesa enseniando espaniol. Si la clave no esta en el
+   diccionario se usa el texto que venga, que es mejor que un "err_xxx". */
+const errTxt = d => {
+  if(!d) return "";
+  const k = d.motivo ? "err_" + d.motivo : null;
+  return (k && t(k) !== k) ? t(k) : (d.error || "");
 };
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c =>
@@ -1341,7 +1376,7 @@ function chainPanelReuni(d, preview){
 function renderChain(){
   const d = DATA.chain, el = $("chain");
   if(!d){ el.innerHTML = `<div class="skel" style="margin-top:18px"></div>`; return; }
-  if(!d.ok){ el.innerHTML = `<p class="err" style="margin-top:18px">${esc(d.error||"")}</p>`; return; }
+  if(!d.ok){ el.innerHTML = `<p class="err" style="margin-top:18px">${esc(errTxt(d))}</p>`; return; }
 
   const real = realState(), shown = shownState(), preview = (shown !== real);
   let html = "";
@@ -1365,7 +1400,7 @@ function renderChain(){
 function renderTimeline(){
   const d = DATA.miners, el = $("tl");
   if(!d){ el.innerHTML = `<div class="skel"></div>`; return; }
-  if(!d.ok){ el.innerHTML = `<p class="err">${esc(d.error||"")}</p>`; return; }
+  if(!d.ok){ el.innerHTML = `<p class="err">${esc(errTxt(d))}</p>`; return; }
   const ms = d.milestones || {};
   const rows = [
     ["mandatory_signalling_start", "ms1", "ms1d", "var(--orange)"],
@@ -1517,7 +1552,7 @@ function trendText(){
 function renderMiners(){
   const d = DATA.miners, el = $("miners");
   if(!d){ el.innerHTML = `<div class="skel" style="margin-top:20px;height:220px"></div>`; return; }
-  if(!d.ok){ el.innerHTML = `<p class="err" style="margin-top:20px">${esc(d.error||"")}</p>`; return; }
+  if(!d.ok){ el.innerHTML = `<p class="err" style="margin-top:20px">${esc(errTxt(d))}</p>`; return; }
 
   const pct = d.pct_of_scanned || 0;
   const thr = d.threshold_pct || thrPct();
@@ -1597,7 +1632,7 @@ function estadoNoOk(d, estilo){
   if(d && d.computing){
     return `<p class="calc"${st}>${esc(t("computing"))}</p>`;
   }
-  return `<p class="err"${st}>${esc(d && d.error || "")}</p>`;
+  return `<p class="err"${st}>${esc(errTxt(d))}</p>`;
 }
 
 function avisoViejo(d){
@@ -1742,7 +1777,7 @@ function renderStretch(){
     // ni que faltaba un dato ni por que. Un error mudo es peor que ninguno.
     rails.innerHTML = d.computing
       ? `<div class="computing">${esc(t("computing"))}</div>`
-      : `<div class="err">${esc(d.error || t("strNoData"))}</div>`;
+      : `<div class="err">${esc(errTxt(d) || t("strNoData"))}</div>`;
     return;
   }
   const p = d.milestone_projection;

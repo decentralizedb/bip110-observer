@@ -238,7 +238,7 @@ def _lanzar_calculo(ck, builder):
         try:
             payload = builder()
         except Exception as e:
-            payload = {"ok": False, "error": _explicar(e)}
+            payload = {"ok": False, "error": _explicar(e), "motivo": _motivo(e), "detalle": _detalle(e)}
         fallo = not payload.get("ok", False)
         with _lock:
             previo = _cache.get(ck)
@@ -264,19 +264,80 @@ def _lanzar_calculo(ck, builder):
     threading.Thread(target=correr, daemon=True).start()
 
 
+# Fallos habituales traducidos a algo que se pueda leer.
+#
+# El orden importa: se coge la PRIMERA que coincida, asi que lo especifico
+# va antes que lo general. "max retries exceeded" aparece en casi todos los
+# fallos de red, por eso va el ultimo.
+#
+# Los codigos son de SOCKS5 (RFC 1928, campo REP), que es como Tor cuenta
+# lo que le paso. Sin traducir, al visitante le llegaba un parrafo con
+# SOCKSHTTPConnectionPool y NewConnectionError dentro.
+_MOTIVOS = [
+    ("0x01", "tor_circuito", "Tor no ha podido establecer el circuito con el nodo"),
+    ("0x02", "tor_prohibido", "Tor tiene prohibido conectar con esa direccion"),
+    ("0x04", "tor_no_encuentra", "Tor no encuentra el servicio oculto del nodo"),
+    ("0x05", "rechazada", "el nodo ha rechazado la conexion"),
+    ("0x06", "tor_caducado", "el circuito de Tor ha caducado antes de conectar"),
+    ("no hay ningun socks", "sin_tor", "no hay ningun Tor escuchando por el que salir"),
+    ("401", "credenciales", "el nodo ha rechazado el usuario o la clave del RPC"),
+    ("403", "prohibido", "el nodo no permite esta conexion al RPC"),
+    ("connection refused", "sin_escucha", "no hay nadie escuchando en esa direccion"),
+    ("timed out", "lento", "el nodo ha tardado demasiado en responder"),
+    ("read timeout", "lento", "el nodo ha tardado demasiado en responder"),
+    ("name or service not known", "sin_dns", "no se ha podido resolver la direccion del nodo"),
+    ("no esta configurado", "sin_configurar", "ese nodo no esta configurado"),
+    ("max retries exceeded", "sin_conexion", "no se ha podido conectar con el nodo"),
+]
+assert all(p == p.lower() for p, _, _ in _MOTIVOS), "los patrones van en minusculas"
+
+
 def _explicar(e):
     """
-    Un mensaje que le sirva a quien lo lee.
+    El motivo en una frase, para quien mira el panel.
 
-    str(KeyError('knots')) es "'knots'", que no dice absolutamente nada y
-    fue lo que acabo en pantalla la primera vez que un nodo tardo de mas.
-    Un error sin contexto es peor que ninguno: manda a buscar donde no es.
+    Antes salia el texto crudo de la excepcion, y en pantalla se leia
+    "SOCKSHTTPConnectionPool(host=<nodo>, port=8332): Max retries exceeded
+    ... NewConnectionError ... 0x01: General SOCKS server failure". Quien
+    visita el panel no puede hacer nada con eso y no le dice lo unico que
+    le importa, que es que el nodo no contesta ahora mismo.
+
+    El detalle tecnico no se pierde: va en _detalle(), que solo sale por la
+    API. La regla es la de siempre, cada dato en su sitio y ninguno se
+    esconde; lo que cambia es a quien se le pone delante.
     """
-    tipo = type(e).__name__
     txt = _sin_direcciones(str(e).strip())
+    bajo = txt.lower()
+    for pista, _clave, motivo in _MOTIVOS:
+        if pista in bajo:
+            return motivo
     if isinstance(e, KeyError):
-        return f"falta el dato {txt} al montar la respuesta ({tipo})"
-    return f"{txt} ({tipo})" if txt else tipo
+        # str(KeyError('knots')) es "'knots'", que no dice nada y fue lo que
+        # acabo en pantalla la primera vez que un nodo tardo de mas.
+        return f"falta el dato {txt} al montar la respuesta"
+    return txt or type(e).__name__
+
+
+def _motivo(e):
+    """
+    Clave estable del fallo, para que la interfaz lo traduzca.
+
+    El texto de _explicar() esta en castellano, y servirlo tal cual dejaba
+    la version inglesa del panel enseniando una frase en espaniol. Se
+    devuelve la clave y que cada idioma ponga la suya, igual que hace
+    crawler.classify_rules(). Si el fallo no esta en la tabla, la interfaz
+    se queda con el texto, que es mejor que nada.
+    """
+    bajo = _sin_direcciones(str(e).strip()).lower()
+    for pista, clave, _motivo in _MOTIVOS:
+        if pista in bajo:
+            return clave
+    return None
+
+
+def _detalle(e):
+    """El texto crudo, ya sin direcciones. Solo para la API, nunca en pantalla."""
+    return f"{_sin_direcciones(str(e).strip())} ({type(e).__name__})".strip()
 
 
 _RE_ONION = re.compile(r"\b[a-z2-7]{16,60}\.onion\b", re.I)
@@ -462,7 +523,7 @@ def _build_miners(node=DEFAULT_NODE):
         }
     except Exception as e:
         _invalidate_pick(node)
-        return {"ok": False, "node": node, "error": _explicar(e),
+        return {"ok": False, "node": node, "error": _explicar(e), "motivo": _motivo(e), "detalle": _detalle(e),
                 "hint": "Revisa BTC_RPC_URL / BTC_RPC_TOR_URL, usuario y clave."}
 
 
@@ -483,7 +544,7 @@ def _build_pools(node=DEFAULT_NODE):
                         rpc, sample=POOLS_SAMPLE, signals_fn=signaling.signals_bit))
     except Exception as e:
         _invalidate_pick(node)
-        return {"ok": False, "node": node, "error": _explicar(e)}
+        return {"ok": False, "node": node, "error": _explicar(e), "motivo": _motivo(e), "detalle": _detalle(e)}
 
 
 @app.route("/api/pools")
@@ -850,7 +911,7 @@ def _build_history(node=DEFAULT_NODE, periods=HISTORY_PERIODS):
         }
     except Exception as e:
         _invalidate_pick(node)
-        return {"ok": False, "node": node, "error": _explicar(e)}
+        return {"ok": False, "node": node, "error": _explicar(e), "motivo": _motivo(e), "detalle": _detalle(e)}
 
 
 @app.route("/api/history")
@@ -1009,7 +1070,7 @@ def _build_chains():
             }
         except Exception as e:
             _invalidate_pick(name)
-            out["nodes"][name] = {"ok": False, "error": _explicar(e)}
+            out["nodes"][name] = {"ok": False, "error": _explicar(e), "motivo": _motivo(e), "detalle": _detalle(e)}
 
     if len(rpcs) < 2:
         # "No configurado" y "no responde" son cosas distintas y no pueden
@@ -1036,6 +1097,8 @@ def _build_chains():
     except Exception as e:
         out["degraded"] = True
         out["error"] = _explicar(e)
+        out["motivo"] = _motivo(e)
+        out["detalle"] = _detalle(e)
         return out
 
     if same:
@@ -1167,7 +1230,8 @@ def health():
                 if intento < HEALTH_INTENTOS and time.time() < limite - 8:
                     time.sleep(1)
                     continue
-                entry.update(ok=False, error=_explicar(e), intentos=intento)
+                entry.update(ok=False, error=_explicar(e), motivo=_motivo(e), detalle=_detalle(e),
+                             intentos=intento)
                 return entry
 
     hilos, res = [], {}
