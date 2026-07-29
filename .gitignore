@@ -61,6 +61,7 @@ CUADERNO.md
 #    subirse se escribe, no se deja al descuido de una lista blanca.
 dev.sh
 .env.dev
+romper.py
 .env
 .env.*
 !.env.example
