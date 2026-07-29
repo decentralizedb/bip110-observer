@@ -54,6 +54,13 @@ CLAUDE.md
 CUADERNO.md
 *.notes.md
 *.borrador.md
+#
+#    Entorno de trabajo local. dev.sh carga .env.dev, que tiene la
+#    credencial del nodo. Ninguno de los dos se publica. El .env.* de
+#    arriba ya cubre el fichero, pero se nombra igual: lo que no debe
+#    subirse se escribe, no se deja al descuido de una lista blanca.
+dev.sh
+.env.dev
 .env
 .env.*
 !.env.example
