@@ -62,6 +62,7 @@ CUADERNO.md
 dev.sh
 .env.dev
 romper.py
+estado.py
 .env
 .env.*
 !.env.example
