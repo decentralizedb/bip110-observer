@@ -22,7 +22,14 @@ Uso: python3 test_contrast.py
 import re
 import sys
 
-FICHERO = "static/index.html"
+# Las DOS paginas. Solo se miraba el panel, y por eso paso desapercibido que
+# la metodologia tenia los colores escritos a mano y existia unicamente en
+# oscuro: quien leia el panel en claro se topaba con una pagina negra. Una
+# pagina cuyo contraste no se mide es una pagina que se descuadra sin avisar.
+#
+# El rojo solo existe en el panel: la metodologia no pinta errores. Por eso
+# cada fichero declara que casos le tocan, en vez de exigir a los dos la
+# misma lista y acabar aflojando la comprobacion para que pase.
 MIN_AA = 4.5
 MIN_PROSA = 6.0
 
@@ -48,39 +55,45 @@ def paleta(src, selector):
     return {k: v for k, v in re.findall(r"--([a-z0-9-]+)\s*:\s*(#[0-9a-fA-F]{6})", m.group(1))}
 
 
-def main():
-    src = open(FICHERO, encoding="utf-8").read()
+COMUNES = [
+    ("texto principal", "txt", MIN_PROSA),
+    ("texto secundario", "txt2", MIN_PROSA),
+    ("texto tenue (prosa)", "dim", MIN_PROSA),
+    ("texto tenue (etiquetas)", "dim2", MIN_AA),
+    ("naranja: muestra sesgada", "orange-t", MIN_AA),
+    ("verde: dato verificable", "green", MIN_AA),
+    ("azul: estimacion", "blue", MIN_AA),
+]
+
+PAGINAS = [
+    ("static/index.html", COMUNES + [("rojo: error", "red", MIN_AA)]),
+    ("static/methodology.html", COMUNES),
+]
+
+# Cada texto contra CADA fondo sobre el que puede aparecer.
+FONDOS = ["bg", "panel", "panel2", "panel3"]
+
+
+def revisar(ruta, casos):
+    src = open(ruta, encoding="utf-8").read()
     temas = {
         "oscuro": paleta(src, ":root"),
         "claro": paleta(src, ':root[data-theme="light"]'),
     }
-
-    # Cada texto contra CADA fondo sobre el que puede aparecer.
-    fondos = ["bg", "panel", "panel2", "panel3"]
-    casos = [
-        ("texto principal", "txt", MIN_PROSA),
-        ("texto secundario", "txt2", MIN_PROSA),
-        ("texto tenue (prosa)", "dim", MIN_PROSA),
-        ("texto tenue (etiquetas)", "dim2", MIN_AA),
-        ("naranja: muestra sesgada", "orange-t", MIN_AA),
-        ("verde: dato verificable", "green", MIN_AA),
-        ("azul: estimacion", "blue", MIN_AA),
-        ("rojo: error", "red", MIN_AA),
-    ]
-
     fallos = 0
     for nombre, p in temas.items():
         if not p:
-            print(f"  FALLO: no se encuentra la paleta del tema {nombre}")
-            return 1
-        print(f"=== tema {nombre} ===")
+            print(f"  FALLO: {ruta} no tiene paleta del tema {nombre}")
+            fallos += 1
+            continue
+        print(f"=== {ruta} · tema {nombre} ===")
         for etiqueta, clave, minimo in casos:
             if clave not in p:
                 print(f"  FALLO   falta la variable --{clave}")
                 fallos += 1
                 continue
             peor, peor_fondo = 99.0, ""
-            for f in fondos:
+            for f in FONDOS:
                 if f not in p:
                     continue
                 r = ratio(p[clave], p[f])
@@ -92,7 +105,11 @@ def main():
             print(f"  {marca}  {etiqueta:28s} {peor:5.2f}  (peor caso: sobre --{peor_fondo}, "
                   f"minimo {minimo})")
         print()
+    return fallos
 
+
+def main():
+    fallos = sum(revisar(ruta, casos) for ruta, casos in PAGINAS)
     print("sin fallos" if not fallos else f"{fallos} fallos de contraste")
     return 1 if fallos else 0
 

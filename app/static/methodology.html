@@ -9,41 +9,66 @@
 <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
 <link rel="canonical" href="https://bip110.dinerosinreglas.com/methodology">
 <style>
+/* La paleta es la MISMA que la del panel, variable por variable.
+   Esta pagina estuvo con los colores escritos a mano y solo en oscuro: el
+   visitante que leia el panel en claro pulsaba "Metodologia" y se topaba
+   con una pagina negra. Justo la pagina que existe para dar confianza era
+   la que parecia de otro sitio.
+   El tema se guarda en la misma clave del navegador, asi que la eleccion
+   viaja entre las dos paginas sin que haya que repetirla. */
+:root{
+  --bg:#0d0f12;      --panel:#161a20;   --panel2:#1e232b;  --panel3:#12151a;
+  --line:#2b323d;
+  --txt:#eceef1;     --txt2:#d6dae0;    --dim:#a8b0bd;   --dim2:#9aa4b2;
+  --orange:#E7640F;  --orange-t:#FF8A3D; --orange-rgb:231,100,15;
+  --green:#4CC96A;   --green-rgb:76,201,106;
+  --blue:#5AA9E6;    --blue-rgb:90,169,230;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#f5f7fa;      --panel:#ffffff;   --panel2:#eef1f6;  --panel3:#e7ebf1;
+  --line:#d8dee7;
+  --txt:#11151c;     --txt2:#2b3340;    --dim:#4a5462;   --dim2:#545d6b;
+  --orange:#C4520C;  --orange-t:#A8440A; --orange-rgb:196,82,12;
+  --green:#0D5F2D;   --green-rgb:13,95,45;
+  --blue:#175FA8;    --blue-rgb:23,95,168;
+  color-scheme:light;
+}
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
-body{background:#0d0f12;color:#eceef1;font-family:system-ui,-apple-system,"Segoe UI",Helvetica,sans-serif;font-size:17px;line-height:1.65;font-weight:350;letter-spacing:-.003em}
-a{color:#FF8A3D;text-decoration:underline;text-underline-offset:2px}
-a:hover{color:#eceef1}
+body{background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Helvetica,sans-serif;font-size:17px;line-height:1.65;font-weight:350;letter-spacing:-.003em}
+a{color:var(--orange-t);text-decoration:underline;text-underline-offset:2px}
+a:hover{color:var(--txt)}
 .wrap{max-width:52rem;margin:0 auto;padding:24px 16px 64px}
-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;border-bottom:2px solid #E7640F;padding-bottom:16px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--orange);padding-bottom:16px}
 .brand{display:flex;align-items:center;gap:12px}
 .logo{border-radius:50%;flex-shrink:0;display:block}
 h1{font-size:30px;font-weight:650;line-height:1.15;letter-spacing:-.02em}
-h1 span{color:#FF8A3D}
+h1 span{color:var(--orange-t)}
 nav{display:flex;gap:4px;flex-shrink:0}
-.lang{min-height:44px;min-width:44px;padding:0 14px;background:#161a20;color:#a8b0bd;border:1px solid #2b323d;border-radius:8px;cursor:pointer;font:inherit;font-size:14px}
-.lang[aria-pressed="true"]{background:rgba(231,100,15,.14);border-color:#E7640F;color:#FF8A3D;font-weight:600}
+.lang{min-height:44px;min-width:44px;padding:0 14px;background:var(--panel);color:var(--dim);border:1px solid var(--line);border-radius:8px;cursor:pointer;font:inherit;font-size:14px}
+.lang[aria-pressed="true"]{background:rgba(var(--orange-rgb),.14);border-color:var(--orange);color:var(--orange-t);font-weight:600}
 .back{font-size:14px;margin-top:10px;display:inline-block}
 section{margin-top:40px}
 h2{font-size:22px;font-weight:650;letter-spacing:-.015em;margin-bottom:10px}
 h3{font-size:17px;font-weight:600;margin:22px 0 6px}
-p{max-width:66ch;margin-top:10px;color:#d6dae0}
-ul{margin:10px 0 0 20px;max-width:66ch;color:#d6dae0}
+p{max-width:66ch;margin-top:10px;color:var(--txt2)}
+ul{margin:10px 0 0 20px;max-width:66ch;color:var(--txt2)}
 li{margin-top:6px}
 .pill{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;display:inline-block}
-.p-data{background:rgba(76,201,106,.14);color:#4CC96A;border:1px solid rgba(76,201,106,.35)}
-.p-est{background:rgba(90,169,230,.14);color:#5AA9E6;border:1px solid rgba(90,169,230,.35)}
-.p-sample{background:rgba(231,100,15,.14);color:#FF8A3D;border:1px solid rgba(231,100,15,.35)}
-pre{background:#12151a;border:1px solid #2b323d;border-left:3px solid #5AA9E6;border-radius:0 8px 8px 0;padding:12px 14px;margin-top:12px;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.5;color:#a8b0bd}
-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;color:#FF8A3D}
+.p-data{background:rgba(var(--green-rgb),.14);color:var(--green);border:1px solid rgba(var(--green-rgb),.35)}
+.p-est{background:rgba(var(--blue-rgb),.14);color:var(--blue);border:1px solid rgba(var(--blue-rgb),.35)}
+.p-sample{background:rgba(var(--orange-rgb),.14);color:var(--orange-t);border:1px solid rgba(var(--orange-rgb),.35)}
+pre{background:var(--panel3);border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:12px 14px;margin-top:12px;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.5;color:var(--dim)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;color:var(--orange-t)}
 table{width:100%;border-collapse:collapse;margin-top:12px;font-size:15px;display:block;overflow-x:auto}
-th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #2b323d;vertical-align:top}
-th{color:#868f9d;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
-.caveat{border-left:2px solid #E7640F;padding-left:14px;margin-top:18px}
-.caveat-k{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#FF8A3D}
-.caveat-b{font-size:15px;color:#a8b0bd;margin-top:4px;max-width:66ch}
-footer{margin-top:56px;padding-top:16px;border-top:1px solid #2b323d;color:#868f9d;font-size:13px;max-width:66ch}
-:focus-visible{outline:2px solid #FF8A3D;outline-offset:2px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--dim2);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.caveat{border-left:2px solid var(--orange);padding-left:14px;margin-top:18px}
+.caveat-k{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--orange-t)}
+.caveat-b{font-size:15px;color:var(--dim);margin-top:4px;max-width:66ch}
+footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim2);font-size:13px;max-width:66ch}
+:focus-visible{outline:2px solid var(--orange-t);outline-offset:2px}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -58,6 +83,8 @@ footer{margin-top:56px;padding-top:16px;border-top:1px solid #2b323d;color:#868f
     <a class="back" href="/" data-k="back"></a>
   </div>
   <nav aria-label="Language">
+    <button type="button" class="lang" id="theme" onclick="toggleTema()"
+            aria-label="tema"><span id="theme-ico">&#9789;</span></button>
     <button type="button" class="lang" id="l-en" onclick="setLang('en')">EN</button>
     <button type="button" class="lang" id="l-es" onclick="setLang('es')">ES</button>
   </nav>
@@ -371,6 +398,36 @@ es:{
  s8d:"— dónde se activa el bit, y la rama que aplica las reglas sin consentimiento",
  foot:"Esta página se actualiza cada vez que cambia una medición o una fuente. Lo que no se ha podido verificar se marca como tal en vez de presentarse como cierto."
 }};
+
+/* Tema, con la MISMA clave de almacenamiento que el panel, para que quien
+   llegue aqui desde el panel siga leyendo en el tema que eligio alli.
+   Si no ha elegido nada se sigue al sistema, tambien igual que en el panel:
+   quien tiene el movil en claro no quiere que una pagina le deslumbre. */
+let TEMA = (function(){
+  try{ const t = localStorage.getItem("bip110theme"); if(t === "light" || t === "dark") return t; }catch(e){}
+  return (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches)
+    ? "light" : "dark";
+})();
+function aplicarTema(){
+  document.documentElement.setAttribute("data-theme", TEMA);
+  const ico = document.getElementById("theme-ico");
+  // Se enseña el sitio al que se va, no donde se esta: sol para ir a claro.
+  if(ico) ico.innerHTML = TEMA === "dark" ? "&#9788;" : "&#9789;";
+}
+function toggleTema(){
+  TEMA = TEMA === "dark" ? "light" : "dark";
+  try{ localStorage.setItem("bip110theme", TEMA); }catch(e){}
+  aplicarTema();
+}
+aplicarTema();
+if(window.matchMedia){
+  const mq = window.matchMedia("(prefers-color-scheme: light)");
+  if(mq.addEventListener) mq.addEventListener("change", e => {
+    let guardado = null;
+    try{ guardado = localStorage.getItem("bip110theme"); }catch(err){}
+    if(!guardado){ TEMA = e.matches ? "light" : "dark"; aplicarTema(); }
+  });
+}
 
 let LANG = (function(){
   try{ const s = localStorage.getItem("bip110lang"); if(s === "en" || s === "es") return s; }catch(e){}
