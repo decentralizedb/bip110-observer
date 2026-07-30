@@ -317,6 +317,19 @@ const ESCENARIOS = {
       history: history([30, 45, 56, 61, 70]), pools: pools(["Foundry USA", "AntPool"]),
       chain: chain(), nodes: nodes() },
 
+  /* La ventana obligatoria, ya abierta. Es el escenario que llega solo, y
+     el dia que llegue no habra tiempo de arreglar la portada. Aqui la
+     primera altura ya ha pasado y la segunda no, asi que el contador tiene
+     que cambiar de destino sin que nadie lo toque. */
+  "dentro de la ventana obligatoria":
+    { params, miners: miners({ scanned: 800, sig: 300, extra: { tip: 962500, milestones: {
+        mandatory_signalling_start: { height: 961632, blocks_away: 0, approx_days: 0, passed: true },
+        forced_lockin: { height: 963648, blocks_away: 1148, approx_days: 8.0, passed: false },
+        rules_active: { height: 965664, blocks_away: 3164, approx_days: 22.0, passed: false },
+        in_mandatory_window: true } } }),
+      history: history([1.29, 3.4, 12.1, 28.0, 44.2]), pools: pools(["Ocean", "Foundry USA"]),
+      chain: chain(), nodes: nodes() },
+
   "sondeo de nodos sin resultados":
     { params, miners: miners(), history: history([0.35, 0.79, 0.45, 0.99, 1.29]),
       pools: pools(), chain: chain(),
@@ -479,6 +492,43 @@ function revisar(nombre, lang, vista, salida, datos, panel) {
 
   // Coherencia texto/dato: no afirmar cosas que los datos desmienten.
   const m = datos.miners, h = datos.history, p = datos.pools;
+
+  /* El contador de cabecera.
+     Es lo primero que se ve, asi que equivocarse ahi es equivocarse en lo
+     unico que mucha gente va a leer. Tres invariantes:
+       - apunta al PRIMER hito no alcanzado, no a uno escrito a mano;
+       - si ya han pasado los tres, no cuenta nada;
+       - nunca cuenta hacia atras. */
+  if (m && m.ok && m.milestones) {
+    const ms = m.milestones;
+    const orden = [["mandatory_signalling_start", "cdWhat1"],
+                   ["forced_lockin",              "cdWhat2"],
+                   ["rules_active",               "cdWhat3"]];
+    const sig = orden.find(([k]) => !((ms[k] || {}).passed));
+    const esperada = sig ? sig[1] : "cdAllPassed";
+    for (const k of ["cdWhat1", "cdWhat2", "cdWhat3", "cdAllPassed"]) {
+      const esta = usaClave(panel, salida, k);
+      if (k === esperada && !esta) err(`el contador deberia apuntar a ${k} y no lo hace`);
+      if (k !== esperada && esta) err(`el contador apunta a ${esperada} y ademas dice ${k}`);
+    }
+    if (sig && !(ms[sig[0]].blocks_away > 0)) {
+      err(`el contador apunta a ${sig[0]} con ${ms[sig[0]].blocks_away} bloques`);
+    }
+    // El aviso de que la ventana obligatoria puede no existir. Sale de
+    // deploymentstatus.h: si el umbral se cumple antes, no hay ventana.
+    const cumbral = m.threshold_blocks != null && m.signalling_blocks >= m.threshold_blocks;
+    const tocaAviso = !!sig && sig[0] === "mandatory_signalling_start" && cumbral;
+    const dice = usaClave(panel, salida, "cdLockNote");
+    if (tocaAviso && !dice) err("umbral cumplido y el contador no avisa de que la ventana puede no existir");
+    if (!tocaAviso && dice) err("avisa de que la ventana puede no existir sin que el umbral este cumplido");
+    // Estar DENTRO de la ventana obligatoria hay que decirlo: es el momento
+    // en que las cadenas pueden separarse, y es el unico de los tres que el
+    // lector nota mirando el panel y no el calendario.
+    const enVentana = usaClave(panel, salida, "cdInWindow");
+    if (ms.in_mandatory_window && !enVentana) err("estamos dentro de la ventana obligatoria y no lo dice");
+    if (!ms.in_mandatory_window && enVentana) err("dice que estamos dentro de la ventana obligatoria y no lo estamos");
+  }
+
   if (m && m.ok) {
     const cumplido = m.signalling_blocks >= m.threshold_blocks;
     const esperada = cumplido ? "reachMet" : (m.threshold_reachable ? "reachYes" : "reachNo");

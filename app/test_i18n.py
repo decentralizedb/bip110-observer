@@ -53,6 +53,41 @@ def sin_cadenas(texto):
     return "".join(out)
 
 
+def sin_comentarios(texto):
+    """Quita comentarios de bloque y de linea, conservando los saltos.
+
+    Los comentarios de este proyecto citan a proposito las cifras que la
+    regla prohibe ("el 55%, los 2016 bloques"), asi que mirarlos daria una
+    falsa alarma en cada explicacion de la propia regla.
+    """
+    texto = re.sub(r'/\*.*?\*/', lambda m: "\n" * m.group(0).count("\n"),
+                   texto, flags=re.S)
+    return re.sub(r'(?<!:)//[^\n]*', "", texto)
+
+
+def impresiones_de(texto):
+    """[(trozo, linea)] donde una cifra literal se esta pintando.
+
+    Dos formas, y solo dos: pegada a un '%' y suelta entre dos etiquetas.
+    Las dos son inequivocas, y ninguna necesita saber donde empieza y acaba
+    una cadena.
+
+    El primer intento si parseaba comillas, y no valia: este fichero mezcla
+    HTML, CSS y JS, la prosa esta llena de apostrofes, y cualquier comilla
+    descuadrada arrastraba el resto del fichero dentro de una cadena
+    imaginaria. Daba dos falsas alarmas seguidas apuntando a lineas que no
+    tenian ninguna cifra. Mas estrecho y fiable le gana a mas amplio y
+    ruidoso: una comprobacion con falsas alarmas se acaba ignorando.
+    """
+    salida = []
+    for n, linea in enumerate(texto.split("\n"), 1):
+        for m in re.finditer(r'([\d,.]+)\s*%', linea):
+            salida.append((m.group(1), n, linea))
+        for m in re.finditer(r'>\s*([\d,.]+)\s*<', linea):
+            salida.append((m.group(1), n, linea))
+    return salida
+
+
 def dict_keys(blob, lang):
     blob = sin_cadenas(blob)
     m = re.search(r'^\s*%s\s*:\s*\{' % lang, blob, re.M)
@@ -153,6 +188,23 @@ def check(path):
                 # cifras en los textos. La regla no servia para nada.
                 if re.search(r'(?<![\d,.]){}(?![\d,.])'.format(re.escape(num)), linea):
                     fails.append(f"cifra clavada {num!r} en la clave {clave!r} ({motivo})")
+
+        # Y lo mismo FUERA del diccionario. Esta parte faltaba, y por el
+        # hueco se colo un "55%" escrito a mano en el codigo que dibuja la
+        # barra del umbral: el diccionario estaba limpio y la pantalla no.
+        #
+        # Solo se miran las cadenas, que es lo unico que llega a pantalla.
+        # Un `|| 2016` de respaldo en una cuenta no es una cifra clavada en
+        # un texto, y tratarlo como tal llenaria esto de falsas alarmas
+        # hasta que alguien lo apagara.
+        fin = src.find("\n};", src.index("const DICT"))
+        fuera = src[:src.index("const DICT")] + (src[fin:] if fin > 0 else "")
+        for cifra, linea_n, linea in impresiones_de(sin_comentarios(fuera)):
+            motivo = prohibidas.get(cifra)
+            if motivo:
+                fails.append("cifra clavada %r fuera del diccionario, "
+                             "linea %d: %r (%s)"
+                             % (cifra, linea_n, linea.strip()[:70], motivo))
 
     # Marcadores {x} de los textos que se pintan con data-k.
     #

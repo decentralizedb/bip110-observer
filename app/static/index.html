@@ -228,6 +228,17 @@ h3{font-size:20px;font-weight:550}
 .gapnum{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-top:8px}
 .gapnum .n{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:64px;font-weight:700;line-height:1;color:var(--orange-t)}
 .gapnum .u{font-size:20px;color:var(--dim)}
+/* Contador de cabecera.
+   Las dos cifras van a la par y cada una con el color de su nivel: los
+   bloques en verde porque son un hecho, el plazo en azul porque es un
+   modelo. Ese contraste es lo unico que separa esto de una cuenta atras
+   cualquiera, asi que no unificar los colores por estetica. */
+.cdgrid{display:flex;flex-wrap:wrap;gap:16px 40px;margin-top:10px}
+.cdbox{min-width:0}
+.cdnum{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:56px;font-weight:700;line-height:1}
+.cdunit{font-size:17px;color:var(--dim);margin-top:8px}
+.cdfoot{font-size:15px;color:var(--dim);margin-top:18px;max-width:64ch}
+@media(max-width:520px){.cdnum{font-size:42px}}
 .bar{position:relative;height:34px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:20px 0 8px}
 .bar>div{height:100%;background:linear-gradient(90deg,var(--orange),var(--orange-2));transition:width .6s cubic-bezier(.4,0,.2,1)}
 .barlg{display:flex;justify-content:space-between;gap:12px;color:var(--dim2);font-size:13px;flex-wrap:wrap}
@@ -378,6 +389,17 @@ footer p+p{margin-top:8px}
     <p data-k="answerP1"></p>
     <p data-k="answerP2"></p>
   </div>
+</section>
+
+<!-- Lo primero medible de la pagina, y va antes de la leyenda a proposito:
+     es la pregunta con la que llega casi todo el mundo, y hasta ahora habia
+     que bajar hasta el recorrido de hitos para responderla.
+     Dos cifras juntas y etiquetadas distinto, porque una es un hecho y la
+     otra un modelo. Esa diferencia es el panel entero en pequeño, y es lo
+     que lo separa de una cuenta atras a secas. -->
+<section id="countdown">
+  <div class="shead"><h2 data-k="cdTitle"></h2></div>
+  <div id="cd"><div class="skel" style="margin-top:18px;height:120px"></div></div>
 </section>
 
 <section>
@@ -587,6 +609,15 @@ en: {
  answerMore:"Explain this to me", answerLess:"Show less",
  answerP1:"Your bitcoin does not move on its own and does not disappear. If you run a node it keeps validating exactly as it does today, and if you keep your coins in self-custody you do not have to touch your wallet either. The only thing that would ask a decision of you is wanting to sell coins from a new chain, and that is a decision you can take calmly, or not take at all.",
  answerP2:"Three things could actually cost you money, and all three depend on what you do. First, a scam asking for your seed phrase, usually dressed up as helping you protect your funds. Second, a transaction you sign on one chain being copied onto the other when you did not expect it. Third, handing your personal data to an exchange while chasing a prize that probably will not exist.",
+ cdTitle:"How far is the mandatory phase",
+ cdWhat1:"until signalling becomes mandatory",
+ cdWhat2:"until the mandatory window closes",
+ cdWhat3:"until the data rules take effect",
+ cdPaceNote:"if the chain kept one block every {sp}. The real pace varies, so this is a model, not a date.",
+ cdFoot:"The chain is at block {tip}. The height being counted to is {h}. Subtracting one from the other is the whole calculation, and anyone with a node gets the same number.",
+ cdInWindow:"Signalling is mandatory right now. Nodes running the BIP-110 rules are rejecting blocks that do not signal, which is the moment the chains can separate.",
+ cdLockNote:"Read this countdown with care. The mandatory window only happens if the threshold has not been met first: the check requires the deployment to still be counting. Signalling in the current period has already reached the threshold, so if the period closes this way it locks in earlier and this window never exists.",
+ cdAllPassed:"All three heights have been passed, so there is nothing left to count down to. What happened at each one is below.",
  legendTitle:"How to read every number here",
  tagData:"Verifiable data", tagEst:"Estimate", tagSample:"Biased sample",
  legendData:"Anyone with a full node gets the same figure. No sampling involved.",
@@ -656,8 +687,8 @@ en: {
  ms3q3:"How long do they last?",
  ms3a3:"About a year, and then they expire on their own without anyone doing anything. And they only apply on the chain whose nodes enforce them.",
  blocks:"blocks", daysAway:"≈{n} days", reached:"reached",
- minersTitle:"Are the miners backing it?",
- minersMethod:"For BIP-110 to go ahead, the miners have to back it: {thr}% of the blocks in a {periodSize} block stretch have to carry a mark saying so. We count those marks one by one on our own node. No explorer and no third-party API, so anyone with a full node can repeat the count and get the same number.",
+ minersTitle:"Are the miners signalling?",
+ minersMethod:"For BIP-110 to go ahead, {thr}% of the blocks in a {periodSize} block stretch have to carry the bit 4 mark. We count those marks one by one on our own node. No explorer and no third-party API, so anyone with a full node can repeat the count and get the same number. One thing almost nobody says: the mark is put there by the mining software itself while the deployment is counting, so it tells you which software built the block, not what whoever mined it thinks.",
  gapKicker:"How far it is from the {thr}% needed",
  gapUnit:"percentage points short of {thr}%",
  gapBody:"The number that matters is not the {n}% signalling so far in this period. It is how far that is from the {thr}% needed.",
@@ -806,6 +837,15 @@ es: {
  answerMore:"Explícamelo", answerLess:"Mostrar menos",
  answerP1:"Tus bitcoin no se mueven solos ni desaparecen. Si tienes un nodo, seguirá validando igual que hoy, y si tienes tus bitcoin en autocustodia, tampoco tienes que tocar tu cartera. Lo único que te pediría decidir algo es querer vender monedas de una cadena nueva, y esa decisión la puedes tomar con calma, o no tomarla.",
  answerP2:"Hay tres cosas que sí pueden costarte dinero, y las tres dependen de lo que hagas tú. La primera, una estafa que te pide la frase semilla, normalmente disfrazada de ayudarte a proteger tus fondos. La segunda, que una transacción que firmas en una cadena se copie en la otra sin que lo esperes. Y la tercera, entregarle tus datos a un exchange corriendo detrás de un premio que probablemente no exista.",
+ cdTitle:"Cuánto falta para la fase obligatoria",
+ cdWhat1:"para que señalizar sea obligatorio",
+ cdWhat2:"para que se cierre la ventana obligatoria",
+ cdWhat3:"para que entren en vigor las reglas de datos",
+ cdPaceNote:"si la cadena mantuviera un bloque cada {sp}. El ritmo real varía, así que esto es un modelo, no una fecha.",
+ cdFoot:"La cadena va por el bloque {tip}. La altura hacia la que se cuenta es la {h}. Restar una de otra es todo el cálculo, y cualquiera con un nodo obtiene el mismo número.",
+ cdInWindow:"Señalizar es obligatorio ahora mismo. Los nodos con las reglas del BIP-110 están rechazando los bloques que no señalicen, que es el momento en el que las cadenas pueden separarse.",
+ cdLockNote:"Esta cuenta atrás hay que leerla con cuidado. La ventana obligatoria solo ocurre si el umbral no se ha cumplido antes: la comprobación exige que el despliegue siga contando. La señalización del periodo en curso ya ha llegado al umbral, así que si el periodo cierra así se bloquea antes y esta ventana no llega a existir.",
+ cdAllPassed:"Las tres alturas ya han pasado, así que no queda ninguna cuenta atrás. Lo que ocurrió en cada una está más abajo.",
  legendTitle:"Cómo leer cada cifra de este panel",
  tagData:"Dato verificable", tagEst:"Estimación", tagSample:"Muestra sesgada",
  legendData:"Cualquiera con un nodo completo obtiene la misma cifra. Sin muestreo.",
@@ -875,8 +915,8 @@ es: {
  ms3q3:"¿Cuánto duran?",
  ms3a3:"Alrededor de un año, y después expiran solas sin que nadie haga nada. Y solo se aplican en la cadena cuyos nodos las hacen cumplir.",
  blocks:"bloques", daysAway:"≈{n} días", reached:"alcanzado",
- minersTitle:"¿Los mineros lo están apoyando?",
- minersMethod:"Para que el BIP-110 salga adelante, los mineros tienen que apoyarlo: el {thr}% de los bloques de una tanda de {periodSize} tiene que llevar una marca que lo diga. Esas marcas las contamos una a una en nuestro propio nodo. Sin exploradores ni APIs de terceros, así que cualquiera con un nodo completo puede repetir la cuenta y obtener el mismo número.",
+ minersTitle:"¿Los mineros están señalizando?",
+ minersMethod:"Para que el BIP-110 salga adelante, el {thr}% de los bloques de una tanda de {periodSize} tiene que llevar la marca del bit 4. Esas marcas las contamos una a una en nuestro propio nodo. Sin exploradores ni APIs de terceros, así que cualquiera con un nodo completo puede repetir la cuenta y obtener el mismo número. Un matiz que casi nadie cuenta: la marca la pone el propio programa de minado mientras el despliegue está contando, así que dice qué software armó el bloque, no lo que opina quien lo minó.",
  gapKicker:"Lo que falta para el {thr}% necesario",
  gapUnit:"puntos por debajo del {thr}%",
  gapBody:"La cifra que importa no es el {n}% que lleva señalizado este periodo. Es lo lejos que queda del {thr}% necesario.",
@@ -1397,6 +1437,64 @@ function renderChain(){
   paintStateButtons();
 }
 
+/* Cuanto falta para la fase obligatoria, arriba del todo.
+   Tres cosas que no se pueden perder al tocar esto:
+
+   1. La cuenta de bloques y el plazo NO son lo mismo. La primera sale de
+      restar dos alturas y cualquiera la reproduce; la segunda supone un
+      ritmo. Van con etiquetas distintas a proposito.
+   2. El hito no esta clavado: se coge el primero de los tres que no haya
+      pasado. Escribir "faltan X para el 961.632" se vuelve mentira el dia
+      que se pase esa altura, y nadie relee la portada buscando eso.
+   3. La ventana obligatoria solo existe si el umbral NO se cumple antes.
+      Esta en deploymentstatus.h: la comprobacion exige que el despliegue
+      siga en STARTED. Si el periodo en curso cierra cumpliendo el umbral,
+      pasa a LOCKED_IN y esta cuenta atras se queda sin destino. Por eso
+      hay un aviso en vez de seguir contando como si nada. */
+function renderCountdown(){
+  const d = DATA.miners, el = $("cd");
+  if(!d){ el.innerHTML = `<div class="skel" style="margin-top:18px;height:120px"></div>`; return; }
+  if(!d.ok){ el.innerHTML = `<p class="err" style="margin-top:18px">${esc(errTxt(d))}</p>`; return; }
+
+  const ms = d.milestones || {};
+  const orden = [["mandatory_signalling_start", "cdWhat1"],
+                 ["forced_lockin",              "cdWhat2"],
+                 ["rules_active",               "cdWhat3"]];
+  const sig = orden.find(([k]) => !((ms[k] || {}).passed));
+  if(!sig){
+    el.innerHTML = `<div class="panel t-data" style="margin-top:18px">
+      <div class="cdfoot" style="margin-top:0">${esc(t("cdAllPassed"))}</div></div>`;
+    return;
+  }
+
+  const [clave, whatKey] = sig;
+  const m = ms[clave] || {};
+  const avisos = [];
+  if(ms.in_mandatory_window) avisos.push(t("cdInWindow"));
+  // Solo tiene sentido avisar mientras la ventana siga por delante.
+  if(clave === "mandatory_signalling_start" &&
+     d.threshold_blocks != null && d.signalling_blocks >= d.threshold_blocks){
+    avisos.push(t("cdLockNote"));
+  }
+
+  el.innerHTML = `<div class="panel t-data" style="margin-top:18px">
+    <div class="cdgrid">
+      <div class="cdbox">
+        <div class="caveat-k g">${esc(t("tagData"))}</div>
+        <div class="cdnum g">${fmt(m.blocks_away)}</div>
+        <div class="cdunit">${esc(t("blocks"))} ${esc(t(whatKey))}</div>
+      </div>
+      <div class="cdbox">
+        <div class="caveat-k b">${esc(t("tagEst"))}</div>
+        <div class="cdnum b">${esc(strDur(m.approx_days))}</div>
+        <div class="cdunit">${esc(t("cdPaceNote", {sp: normalSpacing()}))}</div>
+      </div>
+    </div>
+    <div class="cdfoot">${esc(t("cdFoot", {tip: fmt(d.tip), h: fmt(m.height)}))}</div>
+    ${avisos.map(a => `<div class="cdfoot o">${esc(a)}</div>`).join("")}
+  </div>`;
+}
+
 function renderTimeline(){
   const d = DATA.miners, el = $("tl");
   if(!d){ el.innerHTML = `<div class="skel"></div>`; return; }
@@ -1573,7 +1671,7 @@ function renderMiners(){
     <div style="font-size:15px;color:var(--dim);margin-top:10px;max-width:64ch">${
       esc(t("gapBody", Object.assign({n: num(pct, 2)}, constVars())))} ${esc(trendText())}</div>
     <div class="bar"><div style="width:${barPct}%"></div></div>
-    <div class="barlg"><span class="mono">${num(pct, 2)}%</span><span>${esc(t("barLegend", constVars()))}</span><span class="mono">55%</span></div>
+    <div class="barlg"><span class="mono">${num(pct, 2)}%</span><span>${esc(t("barLegend", constVars()))}</span><span class="mono">${constVars().thr}%</span></div>
     <div class="grid" style="margin-top:22px">
       <div class="card"><div class="lbl">${esc(t("mSig"))}</div>
         <div class="val o">${fmt(d.signalling_blocks)}</div>
@@ -1860,7 +1958,7 @@ function renderStretch(){
 
 /* ===================== arranque ===================== */
 function renderAll(){
-  paintStatic(); paintDonate(); paintFresh(); renderChain(); renderTimeline(); renderMiners();
+  paintStatic(); paintDonate(); paintFresh(); renderCountdown(); renderChain(); renderTimeline(); renderMiners();
   renderPools(); renderNodes(); renderPresets(); renderSim(); renderStretch();
 }
 
