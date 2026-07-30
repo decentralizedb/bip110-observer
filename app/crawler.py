@@ -73,11 +73,19 @@ DEFAULT_PORT = 8333
 #    O sea que la propia fuente advierte de que esto no es verificable y de
 #    que puede colisionar. Los bits serios se asignan por el proceso BIP.
 #
-# 3. SE PUEDE DESACTIVAR. En src/init.cpp el bit entra por defecto
-#    (g_local_services incluye NODE_REDUCED_DATA), pero se quita si el
-#    usuario no consiente las reglas:
-#      g_local_services = ServiceFlags(g_local_services & ~NODE_REDUCED_DATA);
-#    Anunciarlo va atado a aplicar las reglas, no es independiente.
+# 3. NO SE QUITA CON LA CONFIGURACION. Esto estuvo mal escrito aqui hasta
+#    que se releyo el codigo entero, asi que va con cita. En src/init.cpp el
+#    bit entra por defecto (g_local_services incluye NODE_REDUCED_DATA) y
+#    solo se retira en una rama:
+#      } else if (g_rdts_consent == RDTSConsentFlag::UNSUPPORTED_UNSAFE_NO_ENFORCEMENT) {
+#          g_local_services = ServiceFlags(g_local_services & ~NODE_REDUCED_DATA);
+#    Esa rama depende de RDTS_CONSENT, que es una opcion de compilacion. Los
+#    binarios oficiales se compilan con RUNTIME_WARN
+#    (contrib/guix/libexec/build.sh:212), y con ese valor el nodo cae en la
+#    otra rama, que dice literalmente:
+#      "This node will STILL enforce them. Warning every hour."
+#    O sea: no poner consensusrules=rdts no quita el bit ni deja de aplicar
+#    las reglas. Solo deja de silenciar el aviso.
 #
 # 4. ES RECIENTE. No existe en v29.3.knots20260210 y si en
 #    v29.3.knots20260416rc1. Por eso un nodo con el parche antiguo

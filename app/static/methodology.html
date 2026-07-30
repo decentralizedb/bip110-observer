@@ -104,6 +104,20 @@ footer{margin-top:56px;padding-top:16px;border-top:1px solid #2b323d;color:#868f
 </section>
 
 <section>
+  <h2 data-k="tB"></h2>
+  <p data-k="pBa"></p>
+  <pre data-k="codeB1"></pre>
+  <p data-k="pBb"></p>
+  <pre data-k="codeB2"></pre>
+  <p data-k="pBc"></p>
+  <p data-k="pBd"></p>
+  <p data-k="pBe"></p>
+  <pre data-k="codeB3"></pre>
+  <p data-k="pBf"></p>
+  <div class="caveat"><div class="caveat-k" data-k="kB"></div><div class="caveat-b" data-k="bB"></div></div>
+</section>
+
+<section>
   <h2 data-k="t5"></h2>
   <p data-k="p5a"></p>
   <pre data-k="code5"></pre>
@@ -146,6 +160,9 @@ footer{margin-top:56px;padding-top:16px;border-top:1px solid #2b323d;color:#868f
     <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260508/src/init.cpp">bitcoinknots/bitcoin · src/init.cpp</a> <span data-k="s8d"></span></li>
     <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260508/src/deploymentstatus.h">bitcoinknots/bitcoin · src/deploymentstatus.h</a> <span data-k="s8e"></span></li>
     <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260508/src/versionbits.cpp">bitcoinknots/bitcoin · src/versionbits.cpp</a> <span data-k="s8f"></span></li>
+    <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260508/src/chainparams.cpp">bitcoinknots/bitcoin · src/chainparams.cpp</a> <span data-k="s8g"></span></li>
+    <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260508/contrib/guix/libexec/build.sh">bitcoinknots/bitcoin · contrib/guix/libexec/build.sh</a> <span data-k="s8h"></span></li>
+    <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260507/CMakeLists.txt">bitcoinknots/bitcoin · CMakeLists.txt (v29.3.knots20260507)</a> <span data-k="s8i"></span></li>
   </ul>
 </section>
 
@@ -197,6 +214,19 @@ en:{
  k4:"Measuring from a Knots node overstates the result",
  b4:"Knots limits how many automatic outbound peers it keeps that do not announce bit 27, and disconnects the rest (src/net_processing.cpp). A node running Knots therefore sees more BIP-110 peers than the network holds. The crawl is seeded preferentially from the Core node for this reason. It is an instrument bias, the kind that deceives most because the number still looks objective.",
 
+ tB:"Enforcing BIP-110 comes with the build, not with a setting",
+ pBa:"A widely repeated claim is that the consensusrules=rdts line switches BIP-110 enforcement on and off. In the official binaries it does not. It records consent and silences an hourly warning. The node applies the rules either way, and the source says so in as many words, in src/init.cpp:",
+ codeB1:"} else {\n    LogError(\"User has not consented to supported protocol\"\n             \" rules. This node will STILL enforce them.\"\n             \" Warning every hour.\");\n    g_rdts_warning = true;",
+ pBb:"Which branch a node takes is decided by RDTS_CONSENT, an option chosen when the software is compiled, not by anything in a configuration file. The reproducible build script that produces the official releases sets it to RUNTIME_WARN, which is the branch above, in contrib/guix/libexec/build.sh:",
+ codeB2:"CONFIGFLAGS=\"$CONFIGFLAGS -D RDTS_CONSENT=RUNTIME_WARN\"",
+ pBc:"So the two v29.3 builds are two different pieces of software, not one program with a switch. The 20260508 build carries the deployment and applies it on its schedule. The 20260507 build does not define the deployment at all, and refuses to start if consensusrules=rdts is present. Deciding whether to enforce is deciding which one to install.",
+ pBd:"One qualification, because it cuts the other way and is easy to miss. The standard binary does accept an undocumented debug option that disables enforcement, and in a node started that way the same consensusrules=rdts line turns enforcement back on, which is the reverse of what its name suggests. It is hidden from the help output and the build system labels it unsupported. Read in src/chainparams.cpp.",
+ pBe:"The same build also makes a miner signal. Bit 4 is added to the block template by ordinary BIP9 logic while the deployment is being counted, in src/versionbits.cpp, so blocks built from that node carry the mark without anyone deciding it separately:",
+ codeB3:"if (state == ThresholdState::LOCKED_IN ||\n    state == ThresholdState::STARTED) {\n    nVersion |= Mask(params, pos);\n}",
+ pBf:"Two consequences for reading this panel. Someone who never configured anything may be enforcing BIP-110 simply by having updated, so running a node and staying out of it are not the same decision. And the signalling figure counts blocks whose template came from software that signals, which is a choice about what to run rather than a statement of opinion. The count stays exact; what it means is narrower than approval.",
+ kB:"Read from the source, at a tag, on a date",
+ bB:"None of this is in BIP-110. The proposal defines consensus rules and says nothing about builds, consent options or service bits, so every claim in this section rests on reading code rather than a specification. It was read in tag v29.3.knots20260508 on 2026-07-30 and compared against tag v29.3.knots20260507. A later version can change it, so check the tag before quoting this.",
+
  t5:"Comparing the two chains",
  p5a:"The project runs two of its own nodes: Bitcoin Core, which does not enforce BIP-110, and Bitcoin Knots, which does. A split is detected by comparing block hashes at the same height, not by anyone's claim.",
  code5:"if hash_core(h) == hash_knots(h): one chain\nelse: binary search for the last common height",
@@ -213,7 +243,10 @@ en:{
  kH:"This is an estimate, not a measurement",
  bH:"It assumes today's signalling share holds and that whoever signals actually mines that chain. Signalling states an intention, it is not a commitment. The heights are verifiable and come from the source code; when they would be reached is a model.",
  s8e:"the mandatory signalling window, by height",
- s8f:"the deployment state machine",
+ s8f:"the deployment state machine, and how the block template is built",
+ s8g:"where the compiled-in consent value is read, and how it can be overridden",
+ s8h:"the value the official release build uses",
+ s8i:"the build without the deployment, for contrast",
  t6:"Pool attribution",
  p6a:"Each pool is identified by the tag it writes into the coinbase, read from an own node. Three things about that:",
  l6a:"The tag is not authenticated. A pool can omit it, change it, or imitate another's. It is a useful convention, not proof of authorship.",
@@ -235,7 +268,7 @@ en:{
  s8a:"— deployment parameters, version 1.0.0",
  s8b:"— service bit 27 definition and the experimental-range warning",
  s8c:"— outbound peer preference for nodes announcing bit 27",
- s8d:"— where the bit is set and where it is withdrawn",
+ s8d:"— where the bit is set, and the branch that enforces without consent",
  foot:"This page is updated whenever a measurement or a source changes. Anything not verified is labelled as such rather than presented as certain."
 },
 es:{
@@ -281,6 +314,19 @@ es:{
  k4:"Medir desde un nodo Knots sobreestima el resultado",
  b4:"Knots limita cuántos peers salientes automáticos mantiene que no anuncien el bit 27, y desconecta al resto (src/net_processing.cpp). Un nodo con Knots ve por tanto más peers BIP-110 de los que hay en la red. Por eso el sondeo se siembra preferentemente desde el nodo Core. Es un sesgo de instrumento, del tipo que más engaña porque la cifra sigue pareciendo objetiva.",
 
+ tB:"Aplicar el BIP-110 viene con la versión, no con una opción de configuración",
+ pBa:"Se repite mucho que la línea consensusrules=rdts enciende y apaga la aplicación del BIP-110. En los binarios oficiales no hace eso. Deja constancia del consentimiento y silencia un aviso que salta cada hora. El nodo aplica las reglas igual, y el código lo dice con esas palabras, en src/init.cpp:",
+ codeB1:"} else {\n    LogError(\"User has not consented to supported protocol\"\n             \" rules. This node will STILL enforce them.\"\n             \" Warning every hour.\");\n    g_rdts_warning = true;",
+ pBb:"Por qué rama entra un nodo lo decide RDTS_CONSENT, una opción que se elige al compilar el programa, no algo que esté en un fichero de configuración. El guion de compilación reproducible con el que se hacen las versiones oficiales la fija en RUNTIME_WARN, que es la rama de arriba, en contrib/guix/libexec/build.sh:",
+ codeB2:"CONFIGFLAGS=\"$CONFIGFLAGS -D RDTS_CONSENT=RUNTIME_WARN\"",
+ pBc:"Así que las dos versiones de la v29.3 son dos programas distintos, no uno con un interruptor. La 20260508 lleva el despliegue dentro y lo aplica en su calendario. La 20260507 no define el despliegue en absoluto, y se niega a arrancar si encuentra consensusrules=rdts. Decidir si se aplica es decidir cuál se instala.",
+ pBd:"Un matiz, porque va en sentido contrario y es fácil pasarlo por alto. El binario normal sí acepta una opción de depuración no documentada que desactiva la aplicación, y en un nodo arrancado así esa misma línea consensusrules=rdts la vuelve a activar, justo al revés de lo que su nombre sugiere. Está oculta de la ayuda y el sistema de compilación la marca como no soportada. Leído en src/chainparams.cpp.",
+ pBe:"Esa misma versión hace además que un minero señalice. El bit 4 lo añade a la plantilla del bloque la lógica normal del BIP-9 mientras el despliegue está contando, en src/versionbits.cpp, así que los bloques construidos desde ese nodo llevan la marca sin que nadie lo decida aparte:",
+ codeB3:"if (state == ThresholdState::LOCKED_IN ||\n    state == ThresholdState::STARTED) {\n    nVersion |= Mask(params, pos);\n}",
+ pBf:"Dos consecuencias para leer este panel. Alguien que no ha configurado nada puede estar aplicando el BIP-110 solo por haber actualizado, así que tener un nodo y quedarse al margen no son la misma decisión. Y la cifra de señalización cuenta bloques cuya plantilla salió de un programa que señaliza, que es una elección sobre qué ejecutar más que una declaración de opinión. La cuenta sigue siendo exacta; lo que significa es más estrecho que un respaldo.",
+ kB:"Leído del código, en una etiqueta y en una fecha",
+ bB:"Nada de esto está en el BIP-110. La propuesta define reglas de consenso y no dice nada de versiones, opciones de consentimiento ni bits de servicio, así que todo lo de esta sección se apoya en leer código y no una especificación. Se leyó en la etiqueta v29.3.knots20260508 el 2026-07-30 y se comparó con la etiqueta v29.3.knots20260507. Una versión posterior puede cambiarlo, así que conviene mirar la etiqueta antes de citar esto.",
+
  t5:"La comparación de las dos cadenas",
  p5a:"El proyecto tiene dos nodos propios: Bitcoin Core, que no aplica el BIP-110, y Bitcoin Knots, que sí. La separación se detecta comparando hashes de bloque a la misma altura, no por lo que diga nadie.",
  code5:"si hash_core(h) == hash_knots(h): una cadena\nsi no: búsqueda binaria de la última altura común",
@@ -297,7 +343,10 @@ es:{
  kH:"Esto es una estimación, no una medida",
  bH:"Da por supuesto que la cuota que señaliza hoy se mantiene y que quien señaliza acaba minando esa cadena. Señalizar es declarar una intención, no comprometerse. Las alturas son verificables y salen del código fuente; cuándo se alcanzarían es un modelo.",
  s8e:"la ventana de señalización obligatoria, por altura",
- s8f:"la máquina de estados del despliegue",
+ s8f:"la máquina de estados del despliegue, y cómo se arma la plantilla del bloque",
+ s8g:"dónde se lee el valor compilado, y cómo se puede sobrescribir",
+ s8h:"el valor con el que se compila la versión oficial",
+ s8i:"la versión sin el despliegue, para contrastar",
  t6:"Atribución de pools",
  p6a:"Cada pool se identifica por la etiqueta que escribe en la coinbase, leída de un nodo propio. Tres cosas sobre eso:",
  l6a:"La etiqueta no está autenticada. Un pool puede omitirla, cambiarla o imitar la de otro. Es una convención útil, no una prueba de autoría.",
@@ -319,7 +368,7 @@ es:{
  s8a:"— parámetros del despliegue, versión 1.0.0",
  s8b:"— definición del bit de servicio 27 y aviso del rango experimental",
  s8c:"— preferencia de peers salientes que anuncian el bit 27",
- s8d:"— dónde se activa el bit y dónde se retira",
+ s8d:"— dónde se activa el bit, y la rama que aplica las reglas sin consentimiento",
  foot:"Esta página se actualiza cada vez que cambia una medición o una fuente. Lo que no se ha podido verificar se marca como tal en vez de presentarse como cierto."
 }};
 

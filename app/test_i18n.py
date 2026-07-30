@@ -22,18 +22,52 @@ CITAS_OK = ("github.com/bitcoin/bips", "github.com/bitcoinknots",
             "bip110.dinerosinreglas.com", "bitcoinknots.org")
 
 
+def sin_cadenas(texto):
+    """El mismo texto, con el contenido de las cadenas puesto en blanco.
+
+    Contar llaves sobre el texto crudo se rompe en cuanto una cita de codigo
+    lleva { } dentro de una cadena. Paso de verdad: se anadio una cita que
+    empieza por '}' y el contador dio por cerrado el bloque 'en' justo ahi,
+    asi que el test leyo 44 claves en vez de 78 y acuso de faltar a la mitad
+    del diccionario. El fallo era del lector, no del texto.
+
+    Se conserva la longitud para que las posiciones sigan valiendo, y se
+    respetan las comillas escapadas.
+    """
+    out, dentro, i = [], False, 0
+    while i < len(texto):
+        c = texto[i]
+        if dentro:
+            if c == "\\" and i + 1 < len(texto):
+                out.append("  ")
+                i += 2
+                continue
+            out.append(c if c == '"' else " ")
+            if c == '"':
+                dentro = False
+        else:
+            out.append(c)
+            if c == '"':
+                dentro = True
+        i += 1
+    return "".join(out)
+
+
 def dict_keys(blob, lang):
+    blob = sin_cadenas(blob)
     m = re.search(r'^\s*%s\s*:\s*\{' % lang, blob, re.M)
     if not m:
         return None
     start = m.end()
     depth, i = 1, start
-    while depth:
+    while depth and i < len(blob):
         if blob[i] == '{':
             depth += 1
         elif blob[i] == '}':
             depth -= 1
         i += 1
+    if depth:
+        return None
     body = blob[start:i]
     return set(re.findall(r'(?:^|[,{])\s*([A-Za-z_][A-Za-z0-9_]*)\s*:', body, re.M))
 
