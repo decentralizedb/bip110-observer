@@ -337,6 +337,26 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 
 footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim2);font-size:13px;max-width:72ch}
 footer p+p{margin-top:8px}
+/* Los dos enlaces del pie eran dos lineas subrayadas y no los veia nadie.
+   Son las dos puertas que abren lo que el panel promete: la metodologia
+   demuestra y el codigo se lee. Van como tarjetas, con icono y una linea
+   que dice para que sirve cada una.
+   Los iconos son SVG en linea, no ficheros: la pagina no carga NADA de
+   fuera y hay un test que lo comprueba. */
+.flinks{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0 4px}
+.flink{display:flex;align-items:center;gap:13px;flex:1 1 250px;min-width:0;
+  padding:13px 15px;border:1px solid var(--line);border-radius:10px;
+  background:var(--panel);color:var(--txt);text-decoration:none;
+  transition:border-color .18s ease,background .18s ease}
+.flink:hover{border-color:var(--orange);background:var(--panel2);color:var(--txt)}
+.fico{width:22px;height:22px;flex:none;color:var(--orange-t)}
+.flink:hover .fico{color:var(--orange)}
+.fico.solid{fill:currentColor}
+.fico.line{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ftxt{display:flex;flex-direction:column;gap:3px;min-width:0}
+.ftxt b{font-size:14px;font-weight:600}
+.ftxt i{font-style:normal;font-size:12.5px;color:var(--dim2)}
+@media (prefers-reduced-motion:reduce){.flink{transition:none}}
 
 :focus-visible{outline:2px solid var(--orange-t);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -589,9 +609,23 @@ footer p+p{margin-top:8px}
 <footer>
   <p data-k="footerSrc"></p>
   <p data-k="footerOwn"></p>
-  <p><a href="/methodology" data-k="footerMethod"></a></p>
-  <p><a href="https://github.com/decentralizedb/bip110-observer"
-        target="_blank" rel="noopener noreferrer" data-k="footerCode"></a></p>
+  <div class="flinks">
+    <a class="flink" href="/methodology">
+      <svg class="fico line" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M13.5 2.75H6.5a2 2 0 0 0-2 2v14.5a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V8.75z"/>
+        <path d="M13.5 2.75v6h6"/>
+        <path d="M8 9.5h2.5M8 13h8M8 16.5h5.5"/>
+      </svg>
+      <span class="ftxt"><b data-k="footerMethod"></b><i data-k="footerMethodSub"></i></span>
+    </a>
+    <a class="flink" href="https://github.com/decentralizedb/bip110-observer"
+       target="_blank" rel="noopener noreferrer">
+      <svg class="fico solid" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+      </svg>
+      <span class="ftxt"><b data-k="footerCode"></b><i data-k="footerCodeSub"></i></span>
+    </a>
+  </div>
 </footer>
 
 </div>
@@ -818,6 +852,8 @@ en: {
  donatePrivacy:"The Lightning address issues a fresh invoice for every payment, and the silent payment address derives a different on chain address for each sender. Neither leaves a public trail linking donations to each other. It seemed the least I could do on a panel that spends its time telling you what can and cannot be observed.",
  navCode:"Code",
  footerCode:"Source code on GitHub, MIT licensed",
+ footerCodeSub:"Read the code that produces these numbers",
+ footerMethodSub:"Every claim, with the source it was read from",
  freshAt:"read at block {h} · {ago}",
  agoSec:"{n}s ago", agoMin:"{n} min ago", agoHour:"{n} h ago",
  footerMethod:"Full methodology, sources and limitations",
@@ -1046,6 +1082,8 @@ es: {
  donatePrivacy:"La dirección de Lightning genera una factura nueva en cada pago, y la dirección de pago silencioso deriva una dirección distinta en cadena para cada persona que envía. Ninguna de las dos deja un rastro público que enlace unas donaciones con otras. Me parecía lo mínimo en un panel que se pasa el rato explicando qué se puede observar y qué no.",
  navCode:"Código",
  footerCode:"Código fuente en GitHub, con licencia MIT",
+ footerCodeSub:"Lee el código que produce estas cifras",
+ footerMethodSub:"Cada afirmación, con la fuente de la que salió",
  freshAt:"leído en el bloque {h} · {ago}",
  agoSec:"hace {n}s", agoMin:"hace {n} min", agoHour:"hace {n} h",
  footerMethod:"Metodología completa, fuentes y limitaciones",
