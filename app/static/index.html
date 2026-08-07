@@ -151,6 +151,26 @@ h3{font-size:20px;font-weight:550}
 .qa+.qa{margin-top:10px}
 .qa .q{font-size:14px;font-weight:600;color:var(--txt)}
 .qa .a{font-size:14px;color:var(--dim);margin-top:2px;max-width:64ch}
+/* Estado y cuenta atras dentro del heroe. Cada tarjeta lleva SU etiqueta:
+   los bloques que faltan son dato verificable, la estimacion en dias vive
+   en su seccion y no sube aqui. Juntarlas bajo una sola etiqueta habria
+   promocionado de nivel la estimacion, que es la linea roja del proyecto. */
+.hgrid{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.hcard{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.hcard .hrow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.hcard .hlab{font-size:15px;color:var(--dim);flex:1;min-width:0}
+.hcard .hval{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:15px;color:var(--green);margin-top:6px}
+.hcard .hnum{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:30px;font-weight:700;line-height:1.05;margin-top:4px}
+.hcard .hunit{font-size:14px;color:var(--dim);margin-top:2px}
+.bound{margin-top:18px;font-size:15px;color:var(--dim)}
+.heroacts{display:flex;gap:8px;flex-wrap:wrap}
+.heroacts .more{margin-top:10px}
+@media (max-width:520px){
+  /* Medido: a 369 px de ancho el heroe entra con 55 px de margen. Estas
+     dos bajadas son las que lo consiguen; sin ellas se sale. */
+  .answer .a{font-size:34px}
+  .hcard .hnum{font-size:26px}
+}
 .more{margin-top:16px;min-height:44px;padding:0 14px;background:transparent;color:var(--orange-t);border:1px solid var(--line2);border-radius:8px;cursor:pointer;font:inherit;font-size:15px}
 .more:hover{border-color:var(--orange)}
 .more[aria-expanded="true"]{color:var(--dim)}
@@ -400,6 +420,15 @@ footer p+p{margin-top:8px}
   <p class="q" data-k="answerQ"></p>
   <p class="a" data-k="answerA"></p>
   <p class="lead" data-k="answerLead"></p>
+
+  <!-- Las otras dos preguntas con las que llega el visitante: si ya ha
+       pasado algo, y cuando es lo siguiente. Estaban repartidas por la
+       pagina y habia que bajar a buscarlas.
+       Medido en un movil real el 2026-08-07: con esto el heroe cabe en el
+       alto visible (778 px) con 55 de margen. No queda sitio para nada
+       mas aqui arriba: lo siguiente que entre tiene que sacar algo. -->
+  <div id="herostat"><div class="skel" style="margin-top:16px;height:96px"></div></div>
+
   <!-- El aviso de estafas NO se pliega. Es lo unico de esta pagina que
        puede costarle dinero al lector, y quien llega asustado es el mas
        expuesto. Lo que se pliega es la explicacion, no la advertencia. -->
@@ -407,8 +436,15 @@ footer p+p{margin-top:8px}
     <div class="caveat-k" data-k="riskKicker"></div>
     <div class="caveat-b" style="font-size:15px" data-k="riskShort"></div>
   </div>
-  <button type="button" class="more" id="answer-toggle" aria-expanded="false"
-          aria-controls="answer-more" onclick="toggleAnswer()"></button>
+
+  <!-- Decir donde puede terminar la visita. Para la mayoria la respuesta
+       ya esta dada, y sin esto la pagina parece pedir que se lea entera. -->
+  <p class="bound" data-k="boundary"></p>
+  <div class="heroacts">
+    <button type="button" class="more" id="answer-toggle" aria-expanded="false"
+            aria-controls="answer-more" onclick="toggleAnswer()"></button>
+    <button type="button" class="more" id="share-btn" data-k="share" onclick="compartir()"></button>
+  </div>
   <div id="answer-more" hidden>
     <p data-k="answerP1"></p>
     <p data-k="answerP2"></p>
@@ -641,7 +677,9 @@ footer p+p{margin-top:8px}
 const DICT = {
 en: {
  answerQ:"Do I need to do anything with my bitcoin?", answerA:"No.",
- answerLead:"If you keep your bitcoin in self-custody, meaning you hold your own keys, you don't need to move anything, upgrade anything, or pick a side.",
+ answerLead:"If you keep your bitcoin in self-custody, with your own keys, you don't need to move anything or pick a side.",
+ boundary:"You are done here. Everything below is only if you want to go deeper.",
+ share:"Share", shareOk:"Link copied",
  riskKicker:"The real risk in the coming weeks",
  riskShort:"It is not the fork. It is the rush around it. Nobody legitimate will ever ask you for your seed phrase, for any reason.",
  answerMore:"Explain this to me", answerLess:"Show less",
@@ -874,7 +912,9 @@ en: {
 },
 es: {
  answerQ:"¿Tengo que hacer algo con mi bitcoin?", answerA:"No.",
- answerLead:"Si guardas tus bitcoin en autocustodia, es decir con tus propias llaves, no tienes que mover nada, ni actualizar nada, ni elegir bando.",
+ answerLead:"Si guardas tus bitcoin en autocustodia, con tus propias llaves, no tienes que mover nada ni elegir bando.",
+ boundary:"Con esto ya has terminado. Lo de abajo es solo si quieres profundizar.",
+ share:"Compartir", shareOk:"Enlace copiado",
  riskKicker:"El riesgo real de estas semanas",
  riskShort:"No es la bifurcación, son las prisas que genera. Nadie legítimo te va a pedir nunca tu frase semilla, por ningún motivo.",
  answerMore:"Explícamelo", answerLess:"Mostrar menos",
@@ -1184,7 +1224,7 @@ function setLang(l){
   document.title = "BIP-110 Observer";
   renderAll();
 }
-function setView(v){ VIEW = v; renderChain(); paintStateButtons(); }
+function setView(v){ VIEW = v; renderChain(); renderHeroStatus(); paintStateButtons(); }
 
 function toggleBox(idCaja, idBoton){
   const box = $(idCaja), btn = $(idBoton);
@@ -1496,6 +1536,94 @@ function chainPanelReuni(d, preview){
     </div></div>`;
 }
 
+/* El siguiente hito por delante, o null si ya pasaron todos. Lo usan la
+   seccion de la cuenta atras y el heroe, y tiene que ser el MISMO calculo:
+   dos sitios de la pagina enseñando hitos distintos seria peor que no
+   enseñarlos. */
+function siguienteHito(d){
+  const ms = (d && d.milestones) || {};
+  const orden = [["mandatory_signalling_start", "cdWhat1"],
+                 ["forced_lockin",              "cdWhat2"],
+                 ["rules_active",               "cdWhat3"]];
+  const sig = orden.find(([k]) => !((ms[k] || {}).passed));
+  if(!sig) return null;
+  return {clave: sig[0], whatKey: sig[1], m: ms[sig[0]] || {}};
+}
+
+/* Una linea corta que diga en que estado esta la cadena. Sigue al
+   conmutador de escenarios (shownState), asi que al mirar "como quedaria"
+   el heroe cambia con el resto de la pagina en vez de contradecirla. */
+function heroStateLine(){
+  const d = DATA.chain;
+  if(!d || !d.ok) return null;
+  if(d.single_node) return t("singleKicker");
+  const shown = shownState();
+  if(shown === "split")     return d.split_height ? t("splitAt", {n: fmt(d.split_height)})
+                                                  : t("stateSplit");
+  if(shown === "reunified") return t("reuniKicker");
+  return t("oneChainKicker");
+}
+
+/* Las otras dos preguntas del heroe.
+   Ninguna fila se desmonta cuando falta el dato: se queda el esqueleto, o
+   el error si fallo. La altura del primer viewport es parte del diseño, y
+   una fila que aparece y desaparece la cambia bajo los pies del lector
+   justo mientras esta leyendo. */
+function renderHeroStatus(){
+  const el = $("herostat");
+  if(!el) return;
+  const c = DATA.chain, mi = DATA.miners;
+  const skel = h => `<div class="skel" style="height:${h}px"></div>`;
+
+  let f1;
+  if(!c)          f1 = `<div class="hcard">${skel(56)}</div>`;
+  else if(!c.ok)  f1 = `<div class="hcard"><div class="hlab">${esc(t("chainTitle"))}</div>
+                          <p class="err" style="margin-top:6px">${esc(errTxt(c))}</p></div>`;
+  else            f1 = `<div class="hcard">
+      <div class="hrow"><span class="hlab">${esc(t("chainTitle"))}</span>
+        <span class="pill p-data">${esc(t("tagData"))}</span></div>
+      <div class="hval">${esc(heroStateLine() || "—")}</div></div>`;
+
+  let f2;
+  const hito = mi && mi.ok ? siguienteHito(mi) : undefined;
+  if(!mi)               f2 = `<div class="hcard">${skel(70)}</div>`;
+  else if(!mi.ok)       f2 = `<div class="hcard"><div class="hlab">${esc(t("cdTitle"))}</div>
+                                <p class="err" style="margin-top:6px">${esc(errTxt(mi))}</p></div>`;
+  else if(hito === null) f2 = `<div class="hcard">
+      <div class="hlab">${esc(t("cdTitle"))}</div>
+      <div class="hval">${esc(t("cdAllPassed"))}</div></div>`;
+  else                  f2 = `<div class="hcard">
+      <div class="hrow"><span class="hlab">${esc(t("cdTitle"))}</span>
+        <span class="pill p-data">${esc(t("tagData"))}</span></div>
+      <div class="hnum">${fmt(hito.m.blocks_away)}</div>
+      <div class="hunit">${esc(t("blocks"))} ${esc(t(hito.whatKey))}</div></div>`;
+
+  el.innerHTML = `<div class="hgrid">${f1}${f2}</div>`;
+}
+
+/* Compartir sin terceros y sin botones de red social, que son justo los
+   que traen scripts ajenos. Se usa lo que trae el navegador, y si no trae
+   nada se copia el enlace. */
+async function compartir(){
+  const btn = $("share-btn");
+  const url = location.origin + location.pathname;
+  try{
+    if(navigator.share){ await navigator.share({title: document.title, url: url}); return; }
+    if(navigator.clipboard){
+      await navigator.clipboard.writeText(url);
+      const antes = btn.textContent;
+      btn.textContent = t("shareOk");
+      setTimeout(() => { btn.textContent = antes; }, 2000);
+      return;
+    }
+  }catch(e){
+    // Cancelar el dialogo de compartir no es un fallo y no se reporta.
+    return;
+  }
+  // Sin API de compartir ni portapapeles: que al menos se vea el enlace.
+  prompt(t("share"), url);
+}
+
 function renderChain(){
   const d = DATA.chain, el = $("chain");
   if(!d){ el.innerHTML = `<div class="skel" style="margin-top:18px"></div>`; return; }
@@ -1540,18 +1668,14 @@ function renderCountdown(){
   if(!d.ok){ el.innerHTML = `<p class="err" style="margin-top:18px">${esc(errTxt(d))}</p>`; return; }
 
   const ms = d.milestones || {};
-  const orden = [["mandatory_signalling_start", "cdWhat1"],
-                 ["forced_lockin",              "cdWhat2"],
-                 ["rules_active",               "cdWhat3"]];
-  const sig = orden.find(([k]) => !((ms[k] || {}).passed));
+  const sig = siguienteHito(d);
   if(!sig){
     el.innerHTML = `<div class="panel t-data" style="margin-top:18px">
       <div class="cdfoot" style="margin-top:0">${esc(t("cdAllPassed"))}</div></div>`;
     return;
   }
 
-  const [clave, whatKey] = sig;
-  const m = ms[clave] || {};
+  const clave = sig.clave, whatKey = sig.whatKey, m = sig.m;
   const avisos = [];
   if(ms.in_mandatory_window) avisos.push(t("cdInWindow"));
   // Solo tiene sentido avisar mientras la ventana siga por delante.
@@ -2041,7 +2165,8 @@ function renderStretch(){
 
 /* ===================== arranque ===================== */
 function renderAll(){
-  paintStatic(); paintDonate(); paintFresh(); renderCountdown(); renderChain(); renderTimeline(); renderMiners();
+  paintStatic(); paintDonate(); paintFresh(); renderHeroStatus();
+  renderCountdown(); renderChain(); renderTimeline(); renderMiners();
   renderPools(); renderNodes(); renderPresets(); renderSim(); renderStretch();
 }
 

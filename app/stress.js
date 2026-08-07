@@ -522,8 +522,54 @@ function vecesClave(panel, salida, clave) {
   return salida.split(aguja).length - 1;
 }
 
-function revisar(nombre, lang, vista, salida, datos, panel) {
+function revisar(nombre, lang, vista, salida, datos, panel, dom) {
   const err = m => { console.log(`  FALLO [${nombre} | ${lang} | ${vista}] ${m}`); fallos++; };
+
+  /* El heroe.
+     Es la parte de la pagina que mucha gente va a leer entera y sin bajar,
+     asi que se comprueba aparte y no basta con que el resto pase.
+     Tres cosas: que exista siempre, que no contradiga al resto de la
+     pagina, y que no promocione de nivel una estimacion. */
+  const hero = (dom.els.herostat && dom.els.herostat._html) || "";
+  if (!hero.trim()) {
+    err("el heroe se ha quedado vacio");
+  } else {
+    // Ninguna fila se desmonta: o hay dato, o esqueleto, o error dicho.
+    if (!/hcard/.test(hero)) err("el heroe ha perdido sus tarjetas");
+
+    /* La estimacion en dias vive en su seccion, no aqui. Si esta etiqueta
+       aparece en el heroe es que alguien ha subido un dato de otro nivel
+       al sitio donde nadie va a leer la letra pequeña. */
+    if (hero.includes(panel.t("tagEst")))
+      err("el heroe etiqueta algo como estimacion; ahi solo va dato verificable");
+
+    const c = datos.chain;
+    if (c && c.ok && !c.single_node) {
+      const una = panel.t("oneChainKicker");
+      if (vista === "split" && hero.includes(una))
+        err("el heroe dice que hay una sola cadena mirando las cadenas separadas");
+      if (vista === "pre_split" && !hero.includes(una))
+        err("el heroe no dice en que estado esta la cadena");
+    }
+
+    /* La cifra del heroe y la de la seccion de la cuenta atras salen del
+       mismo calculo a proposito. Dos numeros distintos en la misma pagina
+       para el mismo hito seria peor que no enseñar ninguno. */
+    const mi = datos.miners;
+    if (mi && mi.ok && mi.milestones) {
+      const orden = ["mandatory_signalling_start", "forced_lockin", "rules_active"];
+      const clave = orden.find(k => !((mi.milestones[k] || {}).passed));
+      if (clave) {
+        const n = (mi.milestones[clave] || {}).blocks_away;
+        /* Sin separadores de millar: el panel escribe 1.733 en castellano y
+           1,733 en ingles, asi que comparar el numero crudo fallaba siempre.
+           Se comparan digitos con digitos. */
+        const soloDigitos = hero.replace(/[.,  \s]/g, "");
+        if (n != null && !soloDigitos.includes(String(n)))
+          err(`el heroe no enseña los ${n} bloques que faltan para el proximo hito`);
+      }
+    }
+  }
 
   const marc = salida.match(/\{[a-zA-Z][a-zA-Z0-9_]*\}/g);
   if (marc) err(`marcadores sin rellenar: ${[...new Set(marc)].join(", ")}`);
@@ -699,6 +745,15 @@ for (const [nombre, datos] of Object.entries(ESCENARIOS)) {
         Object.assign(panel.DATA, datos);
         panel.setLang(lang);
         panel.setView(vista);
+        /* El heroe se borra aqui a proposito.
+           setView() tambien lo pinta, asi que sin esta linea la comprobacion
+           del heroe pasaba aunque renderAll() dejara de pintarlo. Y ese es
+           justo el fallo que llega a produccion: en la pagina real setView()
+           solo se ejecuta si el visitante pulsa el conmutador de escenarios,
+           mientras que renderAll() es el camino de todos los demas.
+           Comprobado rompiendolo: sin esta linea, quitar el heroe de
+           renderAll() no falla ni un escenario. */
+        if (dom.els.herostat) dom.els.herostat._html = "";
         panel.renderAll();
       } catch (e) {
         console.log(`  FALLO [${nombre} | ${lang} | ${vista}] excepcion: ${e.message}`);
@@ -709,7 +764,7 @@ for (const [nombre, datos] of Object.entries(ESCENARIOS)) {
         ...Object.values(dom.els).map(e => e._html + " " + e._text),
         ...dom.conDataK.map(e => e._text),
       ].join("\n");
-      revisar(nombre, lang, vista, salida, datos, panel);
+      revisar(nombre, lang, vista, salida, datos, panel, dom);
     }
   }
   console.log(`  probado: ${nombre}`);
