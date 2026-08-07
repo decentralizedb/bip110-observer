@@ -111,7 +111,65 @@ else
 fi
 
 echo
-echo "== 5. inventario de lo que se publicaria =="
+echo "== 5. la lista blanca, en los dos sentidos =="
+# Los apartados 1 a 4 miran lo que YA se subio. Este mira lo que se subiria
+# manana, que es lo unico que todavia se puede evitar.
+#
+# Y se comprueba en los dos sentidos a proposito. Una lista blanca que
+# ignora de menos deja escapar una credencial; una que ignora de mas deja
+# fuera un fichero del proyecto y eso no lo denuncia nadie, porque git no
+# avisa de lo que no sube. El fallo silencioso es el segundo.
+NUNCA="CLAUDE.md CUADERNO.md dev.sh .env .env.dev romper.py estado.py
+vigilar.py vigilar.env canales.json vigilar-estado.json hallazgos.json
+BRIEFING-x.md notas.borrador.md x.dc.html mocks/Panel.dc.html
+mocks/IMPLEMENTACION-ux.md app/vigilar.py app/data/periods.json
+torrc hostname rpcauth.txt clave.pem .env.kate-swp"
+SIEMPRE="app/main.py app/rpc.py app/signaling.py app/pools.py app/crawler.py
+app/audit.py app/stress.js app/test_i18n.py app/test_contrast.py
+app/test_pace.py app/static/index.html app/static/methodology.html
+app/static/robots.txt deploy/verify-live.sh deploy/scan-secrets.sh
+deploy/nginx-proxy.conf.example Dockerfile docker-compose.yml entrypoint.sh
+requirements.txt .env.example .gitignore README.md LICENSE"
+
+ESCAPA=""
+for f in $NUNCA; do
+  git check-ignore -q "$f" || ESCAPA="$ESCAPA $f"
+done
+if [ -n "$ESCAPA" ]; then
+  for f in $ESCAPA; do mal "NO esta ignorado y deberia: $f"; done
+else
+  bien "todo lo que nunca debe subir esta ignorado"
+fi
+
+# --no-index NO es un detalle. git check-ignore ignora las reglas para los
+# ficheros que ya estan rastreados, asi que sin esto responde "no ignorado"
+# para todo el proyecto y este bucle no puede fallar jamas. Comprobado
+# rompiendolo: metiendo test_pace.py en la lista de denegaciones, la primera
+# version de esta comprobacion daba OK.
+#
+# En el bucle de arriba se usa a proposito SIN --no-index: alli un fichero
+# prohibido que ademas este rastreado tiene que salir marcado, y es justo lo
+# que pasa cuando no se le pasa la opcion.
+PERDIDO=""
+for f in $SIEMPRE; do
+  if [ -e "$f" ] && git check-ignore -q --no-index "$f"; then PERDIDO="$PERDIDO $f"; fi
+done
+if [ -n "$PERDIDO" ]; then
+  for f in $PERDIDO; do mal "esta ignorado y es del proyecto: $f"; done
+else
+  bien "ningun fichero del proyecto queda fuera por error"
+fi
+
+SUELTO=$(git status --porcelain --untracked-files=all)
+if [ -n "$SUELTO" ]; then
+  echo "$SUELTO" | sed 's/^/            sin comitear: /'
+  bien "hay cambios sin comitear (no es un fallo, pero mira que son)"
+else
+  bien "el arbol esta limpio"
+fi
+
+echo
+echo "== 6. inventario de lo que se publicaria =="
 git ls-files | sed 's/^/            /'
 echo "            ($(git ls-files | wc -l) ficheros, $NCOM commits)"
 
