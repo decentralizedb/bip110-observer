@@ -164,10 +164,15 @@ h3{font-size:20px;font-weight:550}
    dentro del heroe compite por el alto del primer viewport, asi que se
    encoge aqui y solo aqui. 56 px de cifra estaban bien en una seccion
    propia y aqui se comen el margen entero. */
-#herostat .cdgrid{gap:12px 28px;margin-top:8px}
-#herostat .cdnum{font-size:34px}
-#herostat .cdunit{font-size:14px;margin-top:4px}
-#herostat .cdfoot{font-size:14px;margin-top:12px}
+/* Los DOS contenedores, no solo el primero. Al partir el heroe en dos para
+   meter el aviso de estafas en medio, la cuenta atras se quedo fuera de
+   estos ajustes y volvio a los 56 px de su seccion original, que en el
+   movil se comen el margen entero. Un selector por id se rompe en silencio
+   cuando el nodo cambia de sitio. */
+#herostat .cdgrid, #herocd .cdgrid{gap:12px 48px;margin-top:8px}
+#herostat .cdnum, #herocd .cdnum{font-size:34px}
+#herostat .cdunit, #herocd .cdunit{font-size:14px;margin-top:4px}
+#herostat .cdfoot, #herocd .cdfoot{font-size:14px;margin-top:12px}
 .bound{margin-top:18px;font-size:15px;color:var(--dim)}
 .heroacts{display:flex;gap:8px;flex-wrap:wrap}
 .heroacts .more{margin-top:10px}
@@ -176,7 +181,7 @@ h3{font-size:20px;font-weight:550}
      antes de subirle la cuenta atras entera. Estas bajadas son las que
      mantienen el margen; sin ellas se sale. */
   .answer .a{font-size:34px}
-  #herostat .cdnum{font-size:28px}
+  #herostat .cdnum, #herocd .cdnum{font-size:28px}
 }
 .more{margin-top:16px;min-height:44px;padding:0 14px;background:transparent;color:var(--orange-t);border:1px solid var(--line2);border-radius:8px;cursor:pointer;font:inherit;font-size:15px}
 .more:hover{border-color:var(--orange)}
@@ -691,8 +696,8 @@ en: {
  cdWhat1:"until signalling becomes mandatory",
  cdWhat2:"until the mandatory window closes",
  cdWhat3:"until the data rules take effect",
- cdPaceNote:"if the pace held at one block every {sp}. A model, not a date.",
- cdFoot:"The chain is at block {tip}, counting to {h}. The subtraction is the whole calculation.",
+ cdPaceNote:"if it held at one block every {sp}. Not a date.",
+ cdFoot:"The chain is at block {tip}, counting to {h}.",
  cdInWindow:"Signalling is mandatory right now. Nodes running the BIP-110 rules are rejecting blocks that do not signal, which is the moment the chains can separate.",
  cdLockNote:"Read this countdown with care. The mandatory window only happens if the threshold has not been met first: the check requires the deployment to still be counting. Signalling in the current period has already reached the threshold, so if the period closes this way it locks in earlier and this window never exists.",
  cdAllPassed:"All three heights have been passed, so there is nothing left to count down to. What happened at each one is below.",
@@ -927,8 +932,8 @@ es: {
  cdWhat1:"para que señalizar sea obligatorio",
  cdWhat2:"para que se cierre la ventana obligatoria",
  cdWhat3:"para que entren en vigor las reglas de datos",
- cdPaceNote:"si el ritmo se mantuviera en un bloque cada {sp}. Es un modelo, no una fecha.",
- cdFoot:"Va por el bloque {tip} y se cuenta hasta el {h}. La resta es todo el cálculo.",
+ cdPaceNote:"si se mantuviera en un bloque cada {sp}. No es una fecha.",
+ cdFoot:"Va por el bloque {tip} y se cuenta hasta el {h}.",
  cdInWindow:"Señalizar es obligatorio ahora mismo. Los nodos con las reglas del BIP-110 están rechazando los bloques que no señalicen, que es el momento en el que las cadenas pueden separarse.",
  cdLockNote:"Esta cuenta atrás hay que leerla con cuidado. La ventana obligatoria solo ocurre si el umbral no se ha cumplido antes: la comprobación exige que el despliegue siga contando. La señalización del periodo en curso ya ha llegado al umbral, así que si el periodo cierra así se bloquea antes y esta ventana no llega a existir.",
  cdAllPassed:"Las tres alturas ya han pasado, así que no queda ninguna cuenta atrás. Lo que ocurrió en cada una está más abajo.",

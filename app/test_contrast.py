@@ -19,8 +19,15 @@ Los umbrales:
 
 Uso: python3 test_contrast.py
 """
+import os
 import re
 import sys
+
+# Las rutas se resuelven contra ESTE fichero, no contra el directorio desde
+# el que se llame. Antes solo funcionaba ejecutandolo desde app/, asi que
+# lanzarlo desde la raiz del repo fallaba con un FileNotFoundError que no
+# tiene nada que ver con lo que la herramienta comprueba.
+AQUI = os.path.dirname(os.path.abspath(__file__))
 
 # Las DOS paginas. Solo se miraba el panel, y por eso paso desapercibido que
 # la metodologia tenia los colores escritos a mano y existia unicamente en
@@ -75,7 +82,7 @@ FONDOS = ["bg", "panel", "panel2", "panel3"]
 
 
 def revisar(ruta, casos):
-    src = open(ruta, encoding="utf-8").read()
+    src = open(os.path.join(AQUI, ruta), encoding="utf-8").read()
     temas = {
         "oscuro": paleta(src, ":root"),
         "claro": paleta(src, ':root[data-theme="light"]'),
