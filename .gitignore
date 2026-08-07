@@ -63,6 +63,16 @@ dev.sh
 .env.dev
 romper.py
 estado.py
+#
+#    Vigilancia de canales Lightning. Nunca se publica: la lista de
+#    outpoints vigilados es el mapa de los canales del operador, incluidos
+#    los privados, que no aparecen en el gossip de la red.
+vigilar.py
+vigilar.env
+canales.json
+vigilar-estado.json
+hallazgos.json
+BRIEFING-*.md
 .env
 .env.*
 !.env.example
