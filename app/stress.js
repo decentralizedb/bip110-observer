@@ -530,7 +530,8 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
      asi que se comprueba aparte y no basta con que el resto pase.
      Tres cosas: que exista siempre, que no contradiga al resto de la
      pagina, y que no promocione de nivel una estimacion. */
-  const hero = (dom.els.herostat && dom.els.herostat._html) || "";
+  const hero = ((dom.els.herostat && dom.els.herostat._html) || "") +
+               ((dom.els.herocd   && dom.els.herocd._html)   || "");
   if (!hero.trim()) {
     err("el heroe se ha quedado vacio");
   } else {
@@ -762,6 +763,7 @@ for (const [nombre, datos] of Object.entries(ESCENARIOS)) {
            Comprobado rompiendolo: sin esta linea, quitar el heroe de
            renderAll() no falla ni un escenario. */
         if (dom.els.herostat) dom.els.herostat._html = "";
+        if (dom.els.herocd) dom.els.herocd._html = "";
         panel.renderAll();
       } catch (e) {
         console.log(`  FALLO [${nombre} | ${lang} | ${vista}] excepcion: ${e.message}`);

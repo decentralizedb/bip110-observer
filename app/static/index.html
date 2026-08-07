@@ -428,21 +428,26 @@ footer p+p{margin-top:8px}
   <p class="a" data-k="answerA"></p>
   <p class="lead" data-k="answerLead"></p>
 
-  <!-- Las otras dos preguntas con las que llega el visitante: si ya ha
-       pasado algo, y cuando es lo siguiente. Estaban repartidas por la
-       pagina y habia que bajar a buscarlas.
-       Medido en un movil real el 2026-08-07: con esto el heroe cabe en el
-       alto visible (778 px) con 55 de margen. No queda sitio para nada
-       mas aqui arriba: lo siguiente que entre tiene que sacar algo. -->
-  <div id="herostat"><div class="skel" style="margin-top:16px;height:96px"></div></div>
+  <!-- Si ya ha pasado algo. Va pegado a la respuesta porque es la misma
+       conversacion, y antes habia que bajar a buscarlo. -->
+  <div id="herostat"><div class="skel" style="margin-top:16px;height:56px"></div></div>
 
   <!-- El aviso de estafas NO se pliega. Es lo unico de esta pagina que
        puede costarle dinero al lector, y quien llega asustado es el mas
-       expuesto. Lo que se pliega es la explicacion, no la advertencia. -->
+       expuesto. Lo que se pliega es la explicacion, no la advertencia.
+       Va DELANTE de la cuenta atras, y esto no es cosmetico: medido en un
+       movil real el 2026-08-07, subir la cuenta atras entera empujo el
+       aviso por debajo del pliegue. Cuando el orden de arriba deja de
+       caber, lo que cae es lo ultimo, asi que lo que no puede caer se
+       pone antes. Saber cuanto falta puede esperar un scroll; saber que
+       nadie te va a pedir la frase semilla, no. -->
   <div class="caveat caveat--sample">
     <div class="caveat-k" data-k="riskKicker"></div>
     <div class="caveat-b" style="font-size:15px" data-k="riskShort"></div>
   </div>
+
+  <!-- Y cuando es lo siguiente. -->
+  <div id="herocd"><div class="skel" style="margin-top:16px;height:150px"></div></div>
 
   <!-- Decir donde puede terminar la visita. Para la mayoria la respuesta
        ya esta dada, y sin esto la pagina parece pedir que se lea entera. -->
@@ -1568,8 +1573,8 @@ function heroStateLine(){
    una fila que aparece y desaparece la cambia bajo los pies del lector
    justo mientras esta leyendo. */
 function renderHeroStatus(){
-  const el = $("herostat");
-  if(!el) return;
+  const el = $("herostat"), elcd = $("herocd");
+  if(!el || !elcd) return;
   const c = DATA.chain, mi = DATA.miners;
   const skel = h => `<div class="skel" style="height:${h}px"></div>`;
 
@@ -1623,7 +1628,9 @@ function renderHeroStatus(){
     </div>`;
   }
 
-  el.innerHTML = `<div class="hgrid">${f1}${f2}</div>`;
+  // Dos contenedores, no uno, porque el aviso de estafas va entre medias.
+  el.innerHTML   = `<div class="hgrid">${f1}</div>`;
+  elcd.innerHTML = `<div class="hgrid">${f2}</div>`;
 }
 
 /* Compartir sin terceros y sin botones de red social, que son justo los
