@@ -678,6 +678,7 @@ const DICT = {
 en: {
  answerQ:"Do I need to do anything with my bitcoin?", answerA:"No.",
  answerLead:"If you keep your bitcoin in self-custody, with your own keys, you don't need to move anything or pick a side.",
+ heroChainQ:"Are there two chains?",
  boundary:"You are done here. Everything below is only if you want to go deeper.",
  share:"Share", shareOk:"Link copied",
  riskKicker:"The real risk in the coming weeks",
@@ -913,6 +914,7 @@ en: {
 es: {
  answerQ:"¿Tengo que hacer algo con mi bitcoin?", answerA:"No.",
  answerLead:"Si guardas tus bitcoin en autocustodia, con tus propias llaves, no tienes que mover nada ni elegir bando.",
+ heroChainQ:"¿Hay dos cadenas?",
  boundary:"Con esto ya has terminado. Lo de abajo es solo si quieres profundizar.",
  share:"Compartir", shareOk:"Enlace copiado",
  riskKicker:"El riesgo real de estas semanas",
@@ -1577,10 +1579,10 @@ function renderHeroStatus(){
 
   let f1;
   if(!c)          f1 = `<div class="hcard">${skel(56)}</div>`;
-  else if(!c.ok)  f1 = `<div class="hcard"><div class="hlab">${esc(t("chainTitle"))}</div>
+  else if(!c.ok)  f1 = `<div class="hcard"><div class="hlab">${esc(t("heroChainQ"))}</div>
                           <p class="err" style="margin-top:6px">${esc(errTxt(c))}</p></div>`;
   else            f1 = `<div class="hcard">
-      <div class="hrow"><span class="hlab">${esc(t("chainTitle"))}</span>
+      <div class="hrow"><span class="hlab">${esc(t("heroChainQ"))}</span>
         <span class="pill p-data">${esc(t("tagData"))}</span></div>
       <div class="hval">${esc(heroStateLine() || "—")}</div></div>`;
 
