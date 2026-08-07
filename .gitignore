@@ -67,6 +67,13 @@ estado.py
 #    Vigilancia de canales Lightning. Nunca se publica: la lista de
 #    outpoints vigilados es el mapa de los canales del operador, incluidos
 #    los privados, que no aparecen en el gossip de la red.
+#
+#    Maquetas y material de trabajo de diseño. La lista blanca ya las deja
+#    fuera por ser un directorio de la raiz, pero se nombran igual: traen
+#    ficheros de herramientas de terceros y no son parte del producto.
+mocks/
+*.dc.html
+IMPLEMENTACION-*.md
 vigilar.py
 vigilar.env
 canales.json
