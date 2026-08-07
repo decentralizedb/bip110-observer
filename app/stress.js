@@ -537,11 +537,16 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
     // Ninguna fila se desmonta: o hay dato, o esqueleto, o error dicho.
     if (!/hcard/.test(hero)) err("el heroe ha perdido sus tarjetas");
 
-    /* La estimacion en dias vive en su seccion, no aqui. Si esta etiqueta
-       aparece en el heroe es que alguien ha subido un dato de otro nivel
-       al sitio donde nadie va a leer la letra pequeña. */
-    if (hero.includes(panel.t("tagEst")))
-      err("el heroe etiqueta algo como estimacion; ahi solo va dato verificable");
+    /* Las dos cifras de la cuenta atras son de niveles distintos y cada una
+       lleva la suya. La regla no es "en el heroe no hay estimaciones", que
+       es como estaba escrita antes de subir la cuenta atras entera: es que
+       ninguna cifra se quede sin etiqueta ni herede la de al lado. Una
+       estimacion sin el dato al lado significa que alguien enseño los dias
+       sin decir que son un modelo. */
+    const hayEst = hero.includes(panel.t("tagEst"));
+    const hayDato = hero.includes(panel.t("tagData"));
+    if (hayEst && !hayDato)
+      err("el heroe enseña una estimacion sin el dato verificable al lado");
 
     const c = datos.chain;
     if (c && c.ok && !c.single_node) {
@@ -567,6 +572,9 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
         const soloDigitos = hero.replace(/[.,  \s]/g, "");
         if (n != null && !soloDigitos.includes(String(n)))
           err(`el heroe no enseña los ${n} bloques que faltan para el proximo hito`);
+        // Con la cuenta atras arriba, las dos etiquetas tienen que estar.
+        if (!hayEst || !hayDato)
+          err("la cuenta atras del heroe no lleva sus dos etiquetas epistemicas");
       }
     }
   }
