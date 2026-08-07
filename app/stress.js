@@ -391,6 +391,20 @@ const ESCENARIOS = {
       nodes: nodes({ total: 0, extra: { by_client: {}, pct: {}, by_network: {},
         by_rules: {}, pct_rules: {}, seeds_used: 0 } }) },
 
+  /* El hito a un dia y a un año.
+     Existe la comprobacion de "1 días" desde hace tiempo y nunca habia
+     saltado, porque ningun escenario producia exactamente uno. Se vio en
+     produccion, en pantalla, a dos dias del hito: "1 días". Una
+     comprobacion sin un escenario que la dispare no protege de nada. */
+  "el proximo hito esta a un dia, y otro a un año":
+    { params, miners: miners({ scanned: 1900, sig: 40, extra: { milestones: {
+        mandatory_signalling_start: { height: 961632, blocks_away: 190, approx_days: 1.3, passed: false },
+        forced_lockin: { height: 963648, blocks_away: 2206, approx_days: 365.25, passed: false },
+        rules_active: { height: 965664, blocks_away: 4222, approx_days: 730.5, passed: false },
+        in_mandatory_window: false } } }),
+      history: history([0.3, 0.7, 0.4, 0.9, 1.2]),
+      pools: pools(["Ocean"]), chain: chain(), nodes: nodes() },
+
   "umbral ya cumplido en este periodo":
     { params, miners: miners({ scanned: 1500, sig: 1200,
         byPool: { "Foundry USA": 700, AntPool: 500 } }),

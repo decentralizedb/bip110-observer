@@ -170,6 +170,12 @@ h3{font-size:20px;font-weight:550}
    movil se comen el margen entero. Un selector por id se rompe en silencio
    cuando el nodo cambia de sitio. */
 #herostat .cdgrid, #herocd .cdgrid{gap:12px 48px;margin-top:8px}
+/* Las dos cajas se reparten la fila en vez de ocupar lo que mida su texto.
+   Subir mas la separacion habria funcionado en ingles y habria partido el
+   castellano en dos filas otra vez, porque ahi el ancho lo decide la frase
+   mas larga. Repartiendo, la separacion no depende del idioma. El minimo de
+   220 px es lo que las hace apilarse solas en el movil. */
+#herostat .cdbox, #herocd .cdbox{flex:1 1 220px}
 #herostat .cdnum, #herocd .cdnum{font-size:34px}
 #herostat .cdunit, #herocd .cdunit{font-size:14px;margin-top:4px}
 #herostat .cdfoot, #herocd .cdfoot{font-size:14px;margin-top:12px}
@@ -910,6 +916,7 @@ en: {
  agoSec:"{n}s ago", agoMin:"{n} min ago", agoHour:"{n} h ago",
  footerMethod:"Full methodology, sources and limitations",
  hours:"hours", minutes:"minutes", days:"days", years:"years", current:"current",
+ hour:"hour", minute:"minute", day:"day", year:"year",
  ofNormal:"{n}% of normal pace", loading:"Loading…",
  computing:"Working this out for the first time. It reads the blocks one by one from an own node, and over Tor that takes a few minutes. This updates on its own, no need to reload.",
  staleNote:"Figures from {n} min ago. A fresh reading is being taken right now.",
@@ -1146,6 +1153,7 @@ es: {
  agoSec:"hace {n}s", agoMin:"hace {n} min", agoHour:"hace {n} h",
  footerMethod:"Metodología completa, fuentes y limitaciones",
  hours:"horas", minutes:"minutos", days:"días", years:"años", current:"actual",
+ hour:"hora", minute:"minuto", day:"día", year:"año",
  ofNormal:"{n}% del ritmo normal", loading:"Cargando…",
  computing:"Calculándolo por primera vez. Lee los bloques uno a uno de un nodo propio, y por Tor eso tarda unos minutos. Esto se actualiza solo, no hace falta recargar.",
  staleNote:"Cifras de hace {n} min. Se está tomando una lectura nueva ahora mismo.",
@@ -2054,9 +2062,17 @@ function renderSim(){
 /* Las fechas del BIP son alturas, y en una cadena lenta llegan tarde.
    Los plazos NO se calculan aqui: vienen de signaling.milestone_projection
    por /api/miners. El navegador solo reparte anchuras. */
+/* La unidad se elige por la cifra QUE SE IMPRIME, no por la de dentro.
+   0,6 dias se imprime como "1" y pedia singular; 1,4 tambien. Mirar el
+   numero crudo habria dado "1 dias" en el primero y "1 dia" en el segundo,
+   con el mismo texto en pantalla. */
+function unidad(mostrado, sing, plu){ return t(Math.abs(mostrado) === 1 ? sing : plu); }
+
 function strDur(dias){
   if(dias === null || dias === undefined) return t("strNeverRow");
-  return dias < 365 ? num(dias, 0) + " " + t("days") : num(dias/365.25, 2) + " " + t("years");
+  if(dias < 365) return num(dias, 0) + " " + unidad(Math.round(dias), "day", "days");
+  const a = dias / 365.25;
+  return num(a, 2) + " " + unidad(Math.round(a * 100) / 100, "year", "years");
 }
 /* La marca existe para que el banco de pruebas pueda comprobar que un hito
    inalcanzable NO imprime un plazo. Atarlo a la palabra "nunca" no valia:
@@ -2067,7 +2083,9 @@ function strDur(dias){
    nadie relee los textos buscando cantidades escritas con letras. */
 function normalSpacing(){
   const sp = (DATA.params && DATA.params.target_spacing) || 600;
-  return sp < 3600 ? num(sp/60, 0) + " " + t("minutes") : num(sp/3600, 1) + " " + t("hours");
+  if(sp < 3600) return num(sp/60, 0) + " " + unidad(Math.round(sp/60), "minute", "minutes");
+  const h = sp / 3600;
+  return num(h, 1) + " " + unidad(Math.round(h * 10) / 10, "hour", "hours");
 }
 function strNeverCls(dias){ return (dias === null || dias === undefined) ? " is-never" : ""; }
 function renderStretch(){
