@@ -214,8 +214,10 @@ function chain(o = {}) {
                chainwork: "0a", via: "tor", enforces: true },
     },
     majority: { node: "core", tip: 961700, hash: HASH_A, enforces: false, avg_interval_sec: 612,
+                interval_blocks: 144, seconds_since_last_block: 300,
                 blocks_since_split: st === "split" ? 68 : null },
     minority: { node: "knots", tip: 961650, hash: HASH_B, enforces: true, avg_interval_sec: 21600,
+                interval_blocks: 18, seconds_since_last_block: 26000,
                 blocks_since_split: st === "split" ? 18 : null },
     same_chain: st !== "split",
   }, o.extra || {});
@@ -275,6 +277,37 @@ const ESCENARIOS = {
   "cadenas separadas":
     { params, miners: miners(), history: history([0.35, 0.79, 0.45, 0.99, 1.29]),
       pools: pools(), chain: chain({ state: "split" }), nodes: nodes() },
+
+  // La rama minoritaria acaba de nacer: un solo bloque propio, asi que la
+  // media sale de un unico intervalo y hay que decirlo en pantalla.
+  "rama minoritaria recien nacida":
+    { params, miners: miners(), history: history([0.35, 0.79, 0.45, 0.99, 1.29]),
+      pools: pools(), nodes: nodes(),
+      chain: chain({ state: "split", extra: { minority: {
+        node: "knots", tip: 961633, hash: HASH_B, enforces: true,
+        avg_interval_sec: 25200, interval_blocks: 1,
+        seconds_since_last_block: 25200, blocks_since_split: 1 } } }) },
+
+  // La rama existe pero lleva semanas sin producir. El intervalo medio
+  // conserva el valor que tenia, asi que lo unico que delata la parada es
+  // cuanto hace del ultimo bloque.
+  "rama minoritaria parada":
+    { params, miners: miners(), history: history([0.35, 0.79, 0.45, 0.99, 1.29]),
+      pools: pools(), nodes: nodes(),
+      chain: chain({ state: "split", extra: { minority: {
+        node: "knots", tip: 961650, hash: HASH_B, enforces: true,
+        avg_interval_sec: 21600, interval_blocks: 18,
+        seconds_since_last_block: 2419200, blocks_since_split: 18 } } }) },
+
+  // Separadas, pero la rama no ha producido ni un bloque todavia: no hay
+  // ritmo que medir y el panel no puede inventarse uno.
+  "rama minoritaria sin bloques propios":
+    { params, miners: miners(), history: history([0.35, 0.79, 0.45, 0.99, 1.29]),
+      pools: pools(), nodes: nodes(),
+      chain: chain({ state: "split", extra: { minority: {
+        node: "knots", tip: 961632, hash: HASH_B, enforces: true,
+        avg_interval_sec: null, interval_blocks: 0,
+        seconds_since_last_block: 604800, blocks_since_split: 0 } } }) },
 
   "cadenas reunificadas":
     { params, miners: miners(), history: history([0.35, 0.79, 0.45, 0.99, 1.29]),
@@ -478,6 +511,17 @@ function usaClave(panel, salida, clave) {
   return salida.includes(trozos[0]);
 }
 
+// Cuantas veces sale el texto de una clave. Hace falta cuando la misma
+// frase se pinta en las dos tarjetas: buscar si "aparece" daba por bueno un
+// panel al que le faltaba la suya, porque la del otro tapaba el hueco.
+function vecesClave(panel, salida, clave) {
+  const plantilla = panel.t(clave);
+  const trozos = plantilla.split(/\{[a-zA-Z][a-zA-Z0-9_]*\}/)
+                          .map(x => x.trim()).filter(x => x.length > 8);
+  const aguja = trozos.length ? trozos.sort((a, b) => b.length - a.length)[0] : plantilla;
+  return salida.split(aguja).length - 1;
+}
+
 function revisar(nombre, lang, vista, salida, datos, panel) {
   const err = m => { console.log(`  FALLO [${nombre} | ${lang} | ${vista}] ${m}`); fallos++; };
 
@@ -492,6 +536,38 @@ function revisar(nombre, lang, vista, salida, datos, panel) {
 
   // Coherencia texto/dato: no afirmar cosas que los datos desmienten.
   const m = datos.miners, h = datos.history, p = datos.pools;
+
+  /* El ritmo de cada cadena, y su base.
+     Un intervalo medio no distingue "va despacio" de "esta parada": una rama
+     que dejo de producir hace un mes conserva intacta la media que tenia. Y
+     recien separadas las cadenas esa media sale de uno o dos intervalos, que
+     no es lo mismo que sacarla de 144. Las dos cosas tienen que llegar a la
+     pantalla o el panel esta dando una cifra por mas solida de lo que es. */
+  if (vista === "split" && datos.chain && datos.chain.ok) {
+    const min = datos.chain.minority || {}, maj = datos.chain.majority || {};
+    // Se cuenta, no se busca: la misma frase va en las dos tarjetas, y con
+    // buscar bastaba que la pintara una para dar por buena la otra.
+    const conFecha = [min, maj].filter(s => s.seconds_since_last_block != null).length;
+    if (vecesClave(panel, salida, "lastBlock") < conFecha) {
+      err(`${conFecha} cadenas tienen fecha de ultimo bloque y solo se pinta ` +
+          `${vecesClave(panel, salida, "lastBlock")} vez/veces`);
+    }
+    const sinBloques = usaClave(panel, salida, "paceNoBlocks");
+    const conBase = usaClave(panel, salida, "paceBase");
+    if (min.interval_blocks === 0) {
+      if (!sinBloques) err("la rama no tiene bloques propios y no lo dice");
+      if (min.avg_interval_sec != null) err("sin bloques propios y aun asi da un ritmo");
+    } else {
+      // Con 144 bloques detras no hay que disculparse por la base, y decir
+      // que no hay bloques propios cuando los hay seria mentir al reves.
+      if (sinBloques && maj.interval_blocks >= 12) {
+        err("dice que no hay bloques propios cuando la mayoritaria tiene 144");
+      }
+      if (min.interval_blocks != null && min.interval_blocks < 12 && !conBase) {
+        err(`la media va sobre ${min.interval_blocks} bloques y no lo dice`);
+      }
+    }
+  }
 
   /* El contador de cabecera.
      Es lo primero que se ve, asi que equivocarse ahi es equivocarse en lo

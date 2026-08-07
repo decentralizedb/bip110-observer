@@ -216,6 +216,10 @@ h3{font-size:20px;font-weight:550}
 @media (max-width:46rem){.chains{grid-template-columns:1fr}}
 .chain-min{background:var(--panel3)}
 .pair{display:flex;gap:20px;flex-wrap:wrap;margin-top:18px}
+/* Va pegada al ritmo porque lo matiza: cuando fue el ultimo bloque y sobre
+   cuantos va la media. Sin color propio: no es otro nivel epistemico, es la
+   misma cifra contada con su base. */
+.pacenote{margin-top:10px;font-size:13px;color:var(--dim);line-height:1.5}
 
 .tlrow{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:0 10px 10px 0;padding:16px}
 .tlrow .h{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;min-width:6.5rem}
@@ -685,6 +689,9 @@ en: {
  asymKicker:"Not symmetric",
  asymBody:"These two panels are different sizes on purpose. Showing them side by side as equals would suggest an equivalence nobody has measured.",
  hashShare:"Share of mining", blockPace:"A block every",
+ lastBlock:"last block {t} ago",
+ paceBase:"average over {n} blocks of this chain",
+ paceNoBlocks:"no blocks of its own yet, so there is no pace to measure",
  reuniKicker:"One chain again",
  reuniBody:"Either the minority chain stopped producing blocks, or the BIP-110 time limit ran out. There is one chain to report again, so the split view is gone.",
  reuniHistKicker:"What is kept",
@@ -915,6 +922,9 @@ es: {
  asymKicker:"No son simétricas",
  asymBody:"Estos dos paneles tienen tamaños distintos a propósito. Ponerlos lado a lado como iguales sugeriría una equivalencia que nadie ha medido.",
  hashShare:"Cuota de minado", blockPace:"Un bloque cada",
+ lastBlock:"último bloque hace {t}",
+ paceBase:"media sobre {n} bloques de esta cadena",
+ paceNoBlocks:"todavía no tiene bloques propios, así que no hay ritmo que medir",
  reuniKicker:"Una sola cadena otra vez",
  reuniBody:"O la cadena minoritaria dejó de producir bloques, o se agotó el plazo del BIP-110. Vuelve a haber una sola cadena que contar, así que la vista partida desaparece.",
  reuniHistKicker:"Qué se conserva",
@@ -1394,11 +1404,44 @@ function pace(sec){
   return num(sec/3600, 1) + " " + t("hours");
 }
 
+// Cuanto hace de algo. Sube a dias porque una rama parada se cuenta en
+// dias, y "312,0 horas" no se lee.
+function hace(sec){
+  if(sec == null) return null;
+  if(sec < 3600) return num(sec/60, 0) + " " + t("minutes");
+  if(sec < 86400) return num(sec/3600, 1) + " " + t("hours");
+  return num(sec/86400, 1) + " " + t("days");
+}
+
+// La linea de debajo del ritmo. Dice cuando fue el ultimo bloque y sobre
+// cuantos bloques va la media, y las dos cosas hacen falta:
+//
+//   - Una rama que dejo de producir hace un mes conserva intacta la media
+//     que tenia. El intervalo medio no distingue "va despacio" de "esta
+//     parada", y esa distincion es la que cambia el calculo entero.
+//   - Recien separadas las cadenas la media sale de uno o dos intervalos.
+//     Enseñar ese numero igual que uno sacado de 144 bloques seria hacerlo
+//     pasar por mas solido de lo que es.
+function paceNote(s){
+  const partes = [];
+  const desde = hace(s.seconds_since_last_block);
+  if(desde) partes.push(t("lastBlock", {t: desde}));
+  if(s.interval_blocks === 0) partes.push(t("paceNoBlocks"));
+  else if(s.interval_blocks != null && s.interval_blocks < 12)
+    partes.push(t("paceBase", {n: fmt(s.interval_blocks)}));
+  if(!partes.length) return "";
+  return `<div class="pacenote">${esc(partes.join(" · "))}</div>`;
+}
+
 function chainPanelSplit(d, preview){
   // En vista previa no hay medida: se usan valores ilustrativos y se dice.
-  const maj = preview ? {tip:(d.nodes&&d.nodes.core?d.nodes.core.tip:0)+212, avg_interval_sec:618}
+  const maj = preview ? {tip:(d.nodes&&d.nodes.core?d.nodes.core.tip:0)+212,
+                         avg_interval_sec:618, interval_blocks:144,
+                         seconds_since_last_block:420}
                       : (d.majority || {});
-  const min = preview ? {tip:(d.nodes&&d.nodes.core?d.nodes.core.tip:0)+7, avg_interval_sec:20160}
+  const min = preview ? {tip:(d.nodes&&d.nodes.core?d.nodes.core.tip:0)+7,
+                         avg_interval_sec:20160, interval_blocks:7,
+                         seconds_since_last_block:33000}
                       : (d.minority || {});
   // En vista previa la cuota se deriva de lo que se mide hoy, no se inventa.
   const cv = coalitionVars();
@@ -1417,6 +1460,7 @@ function chainPanelSplit(d, preview){
         <div><div class="lbl">${esc(t("blockPace"))}</div>
           <div class="mono" style="font-size:24px;font-weight:700">${esc(pace(maj.avg_interval_sec))}</div></div>
       </div>
+      ${paceNote(maj)}
     </div>
     <div class="panel t-sample chain-min" style="padding:20px">
       <div class="caveat-k o">${esc(t("minKicker"))}</div>
@@ -1428,6 +1472,7 @@ function chainPanelSplit(d, preview){
         <div><div class="lbl">${esc(t("blockPace"))}</div>
           <div class="mono" style="font-size:20px;font-weight:700">${esc(pace(min.avg_interval_sec))}</div></div>
       </div>
+      ${paceNote(min)}
       <div class="caveat caveat--sample">
         <div class="caveat-k">${esc(t("asymKicker"))}</div>
         <div class="caveat-b">${esc(t("asymBody"))}</div>
