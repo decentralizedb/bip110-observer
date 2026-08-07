@@ -145,6 +145,16 @@ footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);color:v
 </section>
 
 <section>
+  <h2 data-k="tC"></h2>
+  <p data-k="pCa"></p>
+  <p data-k="pCb"></p>
+  <pre data-k="codeC1"></pre>
+  <p data-k="pCc"></p>
+  <p data-k="pCd"></p>
+  <div class="caveat"><div class="caveat-k" data-k="kC"></div><div class="caveat-b" data-k="bC"></div></div>
+</section>
+
+<section>
   <h2 data-k="t5"></h2>
   <p data-k="p5a"></p>
   <pre data-k="code5"></pre>
@@ -190,6 +200,7 @@ footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);color:v
     <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260508/src/chainparams.cpp">bitcoinknots/bitcoin · src/chainparams.cpp</a> <span data-k="s8g"></span></li>
     <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260508/contrib/guix/libexec/build.sh">bitcoinknots/bitcoin · contrib/guix/libexec/build.sh</a> <span data-k="s8h"></span></li>
     <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260507/CMakeLists.txt">bitcoinknots/bitcoin · CMakeLists.txt (v29.3.knots20260507)</a> <span data-k="s8i"></span></li>
+    <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260508/src/validation.cpp">bitcoinknots/bitcoin · src/validation.cpp</a> <span data-k="s8j"></span></li>
   </ul>
 </section>
 
@@ -252,6 +263,14 @@ en:{
  codeB3:"if (state == ThresholdState::LOCKED_IN ||\n    state == ThresholdState::STARTED) {\n    nVersion |= Mask(params, pos);\n}",
  pBf:"Two consequences for reading this panel. Someone who never configured anything may be enforcing BIP-110 simply by having updated, so running a node and staying out of it are not the same decision. And the signalling figure counts blocks whose template came from software that signals, which is a choice about what to run rather than a statement of opinion. The count stays exact; what it means is narrower than approval.",
  kB:"Read from the source, at a tag, on a date",
+ tC:"What this panel can see, and what it could never see",
+ pCa:"This panel compares two nodes, so it sees any chain those two nodes can follow. A BIP-110 chain is one of them: BIP-110 is a soft fork, it only narrows rules, so its blocks are valid under the older rules too and a node can weigh both branches. That is why a split shows up here as two heights that stop matching, and why the fork point can be found by comparing block hashes.",
+ pCb:"A chain that changed its proof of work would be a different matter. It would not look like a weaker branch, it would not look like a branch at all. Checking the proof of work is the first thing a node does with a block it receives, before it looks at anything else, and a block that fails it is discarded there:",
+ codeC1:"src/validation.cpp:4321   v29.3.knots20260508\n\n  static bool CheckBlockHeader(const CBlockHeader& block, BlockValidationState& state,\n                               const Consensus::Params& consensusParams, bool fCheckPOW = true)\n  {\n      // Check proof of work matches claimed amount\n      if (fCheckPOW && !CheckProofOfWork(block.GetHash(), block.nBits, consensusParams))\n          return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER,\n                               \"high-hash\", \"proof of work failed\");",
+ pCc:"So such a chain never enters the index, never appears in getchaintips, and no amount of connecting to its nodes would change that. This is not a shortcut taken by this panel: it is what being a different chain means. Any tool built on Bitcoin nodes would be equally blind, including the ones that do not say so.",
+ pCd:"There is talk of preparing exactly that, as a contingency, and there is code for it in a personal fork. There is no release, no chosen algorithm and no announced date. If it ever ships, the honest thing this panel can do is say that it stopped being able to see everything, not pretend otherwise.",
+ kC:"Where the line falls",
+ bC:"Not seeing a chain is not the same as that chain not existing. This panel measures what its own nodes can validate, which is a narrower claim than what is happening in the world, and the difference matters most in exactly the case where it is hardest to check.",
  bB:"None of this is in BIP-110. The proposal defines consensus rules and says nothing about builds, consent options or service bits, so every claim in this section rests on reading code rather than a specification. It was read in tag v29.3.knots20260508 on 2026-07-30 and compared against tag v29.3.knots20260507. A later version can change it, so check the tag before quoting this.",
 
  t5:"Comparing the two chains",
@@ -274,6 +293,7 @@ en:{
  s8g:"where the compiled-in consent value is read, and how it can be overridden",
  s8h:"the value the official release build uses",
  s8i:"the build without the deployment, for contrast",
+ s8j:"— where a block with the wrong proof of work is discarded",
  t6:"Pool attribution",
  p6a:"Each pool is identified by the tag it writes into the coinbase, read from an own node. Three things about that:",
  l6a:"The tag is not authenticated. A pool can omit it, change it, or imitate another's. It is a useful convention, not proof of authorship.",
@@ -352,6 +372,14 @@ es:{
  codeB3:"if (state == ThresholdState::LOCKED_IN ||\n    state == ThresholdState::STARTED) {\n    nVersion |= Mask(params, pos);\n}",
  pBf:"Dos consecuencias para leer este panel. Alguien que no ha configurado nada puede estar aplicando el BIP-110 solo por haber actualizado, así que tener un nodo y quedarse al margen no son la misma decisión. Y la cifra de señalización cuenta bloques cuya plantilla salió de un programa que señaliza, que es una elección sobre qué ejecutar más que una declaración de opinión. La cuenta sigue siendo exacta; lo que significa es más estrecho que un respaldo.",
  kB:"Leído del código, en una etiqueta y en una fecha",
+ tC:"Qué puede ver este panel, y qué no podría ver nunca",
+ pCa:"Este panel compara dos nodos, así que ve cualquier cadena que esos dos nodos puedan seguir. La del BIP-110 es una de ellas: el BIP-110 es un soft fork, solo estrecha reglas, así que sus bloques son válidos también con las reglas de antes y un nodo puede sopesar las dos ramas. Por eso una separación se nota aquí como dos alturas que dejan de coincidir, y por eso el punto de bifurcación se encuentra comparando hashes de bloque.",
+ pCb:"Una cadena que cambiara la prueba de trabajo sería otra cosa. No se vería como una rama más débil, no se vería como una rama en absoluto. Comprobar la prueba de trabajo es lo primero que hace un nodo con un bloque que le llega, antes de mirar nada más, y un bloque que no la pasa se descarta ahí mismo:",
+ codeC1:"src/validation.cpp:4321   v29.3.knots20260508\n\n  static bool CheckBlockHeader(const CBlockHeader& block, BlockValidationState& state,\n                               const Consensus::Params& consensusParams, bool fCheckPOW = true)\n  {\n      // Check proof of work matches claimed amount\n      if (fCheckPOW && !CheckProofOfWork(block.GetHash(), block.nBits, consensusParams))\n          return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER,\n                               \"high-hash\", \"proof of work failed\");",
+ pCc:"Así que una cadena de ese tipo no entra en el índice, no aparece en getchaintips, y conectarse a sus nodos no cambiaría nada. Esto no es un atajo de este panel: es lo que significa ser otra cadena. Cualquier herramienta construida sobre nodos de Bitcoin estaría igual de ciega, incluidas las que no lo dicen.",
+ pCd:"Se habla de preparar justo eso, como contingencia, y hay código para ello en un fork personal. No hay versión publicada, ni algoritmo elegido, ni fecha anunciada. Si algún día llega, lo honesto por parte de este panel es decir que dejó de poder verlo todo, no disimularlo.",
+ kC:"Dónde está el límite",
+ bC:"No ver una cadena no es lo mismo que esa cadena no exista. Este panel mide lo que sus propios nodos pueden validar, que es una afirmación más estrecha que lo que está pasando en el mundo, y la diferencia importa justo en el caso en el que es más difícil de comprobar.",
  bB:"Nada de esto está en el BIP-110. La propuesta define reglas de consenso y no dice nada de versiones, opciones de consentimiento ni bits de servicio, así que todo lo de esta sección se apoya en leer código y no una especificación. Se leyó en la etiqueta v29.3.knots20260508 el 2026-07-30 y se comparó con la etiqueta v29.3.knots20260507. Una versión posterior puede cambiarlo, así que conviene mirar la etiqueta antes de citar esto.",
 
  t5:"La comparación de las dos cadenas",
@@ -374,6 +402,7 @@ es:{
  s8g:"dónde se lee el valor compilado, y cómo se puede sobrescribir",
  s8h:"el valor con el que se compila la versión oficial",
  s8i:"la versión sin el despliegue, para contrastar",
+ s8j:"— dónde se descarta un bloque con la prueba de trabajo equivocada",
  t6:"Atribución de pools",
  p6a:"Cada pool se identifica por la etiqueta que escribe en la coinbase, leída de un nodo propio. Tres cosas sobre eso:",
  l6a:"La etiqueta no está autenticada. Un pool puede omitirla, cambiarla o imitar la de otro. Es una convención útil, no una prueba de autoría.",
