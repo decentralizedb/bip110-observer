@@ -971,21 +971,47 @@ def _save_state(state):
         pass
 
 
-def _pace(rpc, tip, window=144):
+def _pace(rpc, tip, window=144, suelo=None):
     """
-    Segundos por bloque en los ultimos `window` bloques. Dos llamadas, no
-    `window`: solo hacen falta las marcas de tiempo de los dos extremos.
+    Segundos por bloque en los ultimos `window` bloques, y hora del ultimo.
+    Dos llamadas, no `window`: solo hacen falta las marcas de tiempo de los
+    dos extremos.
+
+    OJO CON `suelo`, que aqui no es un detalle. Sin el, la ventana de 144
+    bloques se sale hacia atras de la rama: el dia de la separacion la rama
+    minoritaria tiene tres o cuatro bloques propios, y los otros 140 serian
+    bloques ANTERIORES a la bifurcacion, comunes a las dos cadenas y minados
+    a diez minutos. Se estaria midiendo el ritmo de la cadena mayoritaria y
+    enseñandolo como el de la minoritaria, o sea la rama pareceria sana
+    durante semanas justo cuando lo que importa es ver que no lo esta.
+
+    Con `suelo` puesto en la altura de bifurcacion, el intervalo sale de
+    bloques que son solo de esa rama, y si todavia no hay ninguno, se dice
+    que no se puede medir en vez de inventar un numero.
+
+    Devuelve (segundos por bloque, hora del ultimo, bloques medidos). El
+    tercero no sobra: recien separadas las cadenas la media sale de uno o dos
+    intervalos, y un numero con esa base no se puede enseñar igual que uno
+    sacado de 144. La interfaz dice sobre cuantos bloques va.
     """
     lo = max(0, tip - window)
-    if lo == tip:
-        return None
+    if suelo is not None:
+        lo = max(lo, suelo)
     try:
         t_hi = rpc.call("getblockheader", rpc.call("getblockhash", tip))["time"]
+    except Exception:
+        return None, None, 0
+    if lo >= tip:
+        # Ningun bloque propio todavia. La hora del ultimo si vale, y es
+        # justo la que dice si la rama esta parada.
+        return None, t_hi, 0
+    try:
         t_lo = rpc.call("getblockheader", rpc.call("getblockhash", lo))["time"]
     except Exception:
-        return None
+        return None, t_hi, 0
     span = t_hi - t_lo
-    return round(span / (tip - lo), 1) if span > 0 else None
+    n = tip - lo
+    return (round(span / n, 1) if span > 0 else None), t_hi, n
 
 
 def _build_chains():
@@ -1133,14 +1159,24 @@ def _build_chains():
 
     def side(name):
         tip = out["nodes"][name]["tip"]
+        ritmo, ultima, medidos = None, None, 0
+        if out["state"] == "split":
+            # Cuatro viajes mas por Tor. Solo se enseña en la vista de dos
+            # cadenas, asi que antes de la separacion no se calcula.
+            ritmo, ultima, medidos = _pace(rpcs[name], tip,
+                                           suelo=out.get("split_height"))
         return {
             "node": name,
             "tip": tip,
             "hash": out["nodes"][name]["hash"],
             "enforces": out["nodes"][name]["enforces"],
-            # Cuatro viajes mas por Tor. Solo se enseña en la vista de dos
-            # cadenas, asi que antes de la separacion no se calcula.
-            "avg_interval_sec": _pace(rpcs[name], tip) if out["state"] == "split" else None,
+            "avg_interval_sec": ritmo,
+            "interval_blocks": medidos,
+            # Cuanto hace del ultimo bloque. Es lo que separa "va despacio"
+            # de "esta parada", y el intervalo medio no lo dice: una rama que
+            # dejo de producir hace un mes conserva la media que tenia.
+            "last_block_time": ultima,
+            "seconds_since_last_block": (int(time.time()) - ultima) if ultima else None,
             "blocks_since_split": (tip - out["split_height"]
                                    if out["split_height"] is not None else None),
         }
