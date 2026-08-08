@@ -1654,7 +1654,7 @@ function renderHeroStatus(){
   let f1;
   if(!c)          f1 = `<div class="hcard">${skel(56)}</div>`;
   else if(!c.ok)  f1 = `<div class="hcard"><div class="hlab">${esc(t("heroChainQ"))}</div>
-                          <p class="err" style="margin-top:6px">${esc(errTxt(c))}</p></div>`;
+                          ${estadoNoOk(c, "margin-top:6px")}</div>`;
   else            f1 = `<div class="hcard">
       <div class="hrow"><span class="hlab">${esc(t("heroChainQ"))}</span>
         ${(c.degraded || c.single_node) ? "" :
@@ -1674,7 +1674,7 @@ function renderHeroStatus(){
   const hito = mi && mi.ok ? siguienteHito(mi) : undefined;
   if(!mi)                f2 = `<div class="hcard">${skel(150)}</div>`;
   else if(!mi.ok)        f2 = `<div class="hcard"><div class="hlab">${esc(t("cdTitle"))}</div>
-                                 <p class="err" style="margin-top:6px">${esc(errTxt(mi))}</p></div>`;
+                                 ${estadoNoOk(mi, "margin-top:6px")}</div>`;
   else if(hito === null) f2 = `<div class="hcard"><div class="hlab">${esc(t("cdTitle"))}</div>
                                  <div class="cdfoot">${esc(t("cdAllPassed"))}</div></div>`;
   else {
@@ -1735,7 +1735,7 @@ async function compartir(){
 function renderChain(){
   const d = DATA.chain, el = $("chain");
   if(!d){ el.innerHTML = `<div class="skel" style="margin-top:18px"></div>`; return; }
-  if(!d.ok){ el.innerHTML = `<p class="err" style="margin-top:18px">${esc(errTxt(d))}</p>`; return; }
+  if(!d.ok){ el.innerHTML = estadoNoOk(d, "margin-top:18px"); return; }
 
   const real = realState(), shown = shownState(), preview = (shown !== real);
   let html = "";
@@ -1774,7 +1774,7 @@ function renderChain(){
 function renderTimeline(){
   const d = DATA.miners, el = $("tl");
   if(!d){ el.innerHTML = `<div class="skel"></div>`; return; }
-  if(!d.ok){ el.innerHTML = `<p class="err">${esc(errTxt(d))}</p>`; return; }
+  if(!d.ok){ el.innerHTML = estadoNoOk(d); return; }
   const ms = d.milestones || {};
   const rows = [
     ["mandatory_signalling_start", "ms1", "ms1d", "var(--orange)"],
@@ -1931,7 +1931,7 @@ function trendText(){
 function renderMiners(){
   const d = DATA.miners, el = $("miners");
   if(!d){ el.innerHTML = `<div class="skel" style="margin-top:20px;height:220px"></div>`; return; }
-  if(!d.ok){ el.innerHTML = `<p class="err" style="margin-top:20px">${esc(errTxt(d))}</p>`; return; }
+  if(!d.ok){ el.innerHTML = estadoNoOk(d, "margin-top:20px"); return; }
 
   const pct = d.pct_of_scanned || 0;
   const thr = d.threshold_pct || thrPct();

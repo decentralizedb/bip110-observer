@@ -559,6 +559,19 @@ function vecesClave(panel, salida, clave) {
 function revisar(nombre, lang, vista, salida, datos, panel, dom) {
   const err = m => { console.log(`  FALLO [${nombre} | ${lang} | ${vista}] ${m}`); fallos++; };
 
+  /* "Se esta calculando" NO es un error, y no puede verse como uno.
+     El servidor manda su mensaje en castellano y con ok:false. Cinco
+     renderizadores miraban solo ok y lo pintaban en rojo con el texto crudo,
+     asi que un arranque en frio se veia como averia y en el idioma
+     equivocado. Visto en produccion el 2026-08-08. */
+  for (const [cual, p] of Object.entries(datos)) {
+    if (!p || !p.computing) continue;
+    if (!usaClave(panel, salida, "computing"))
+      err(`${cual} esta calculando y no se dice con el texto traducido`);
+    if (p.error && salida.includes(p.error))
+      err(`${cual} esta calculando y sale el mensaje crudo del servidor`);
+  }
+
   /* El heroe.
      Es la parte de la pagina que mucha gente va a leer entera y sin bajar,
      asi que se comprueba aparte y no basta con que el resto pase.
