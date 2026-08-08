@@ -696,6 +696,8 @@ en: {
  answerQ:"Do I need to do anything with my bitcoin?", answerA:"No.",
  answerLead:"If you keep your bitcoin in self-custody, with your own keys, you don't need to move anything or pick a side.",
  heroChainQ:"Are there two chains?",
+ mSplitKicker:"Read this count knowing the chains have separated",
+ mSplitBody:"It is counted on the chain with today's rules, block by block on our own node. Since the split, a miner that signals builds on the other chain, so its blocks are not here and this figure heads towards zero on its own. It is still exact and still verifiable, but it now answers how much of THIS chain signals, not how many miners are signalling.",
  lagBip110:"The node with the BIP-110 rules is {n} blocks behind",
  lagToday:"The node with today's rules is {n} blocks behind",
  lagFor:"and has not added one for {t}",
@@ -937,6 +939,8 @@ es: {
  answerQ:"¿Tengo que hacer algo con mi bitcoin?", answerA:"No.",
  answerLead:"Si guardas tus bitcoin en autocustodia, con tus propias llaves, no tienes que mover nada ni elegir bando.",
  heroChainQ:"¿Hay dos cadenas?",
+ mSplitKicker:"Lee esta cuenta sabiendo que las cadenas se han separado",
+ mSplitBody:"Se cuenta sobre la cadena con las reglas de hoy, bloque a bloque en nuestro propio nodo. Desde la separación, un minero que señaliza construye en la otra cadena, así que sus bloques no están aquí y esta cifra tiende a cero por sí sola. Sigue siendo exacta y verificable, pero ahora contesta cuánto señaliza ESTA cadena, no cuántos mineros están señalizando.",
  lagBip110:"El nodo con las reglas del BIP-110 va {n} bloques por detrás",
  lagToday:"El nodo con las reglas de hoy va {n} bloques por detrás",
  lagFor:"y lleva {t} sin añadir ninguno",
@@ -1921,7 +1925,20 @@ function renderMiners(){
   const p = d.period || {};
   const left = (p.remaining == null) ? "—" : fmt(p.remaining);
 
-  el.innerHTML = `<div class="panel t-data" style="margin-top:20px">
+  /* DESDE LA SEPARACION, ESTA CIFRA CAMBIA DE SIGNIFICADO.
+     Se cuenta sobre la cadena del nodo canonico, que es la de las reglas de
+     hoy. Y a partir del corte, un minero que señaliza construye en la OTRA
+     rama, asi que sus bloques no estan aqui: esta cuenta tiende a cero por
+     construccion. El numero sigue siendo verdad y sigue siendo verificable,
+     pero contesta a otra pregunta que antes del corte, y sin decirlo se lee
+     como "ya no señaliza nadie", que es falso. */
+  const partido = (DATA.chain && DATA.chain.ok && realState() === "split");
+  const avisoPartido = partido ? `<div class="caveat caveat--sample" style="margin-top:20px">
+      <div class="caveat-k">${esc(t("mSplitKicker"))}</div>
+      <div class="caveat-b" style="font-size:15px;max-width:68ch">${esc(t("mSplitBody"))}</div>
+    </div>` : "";
+
+  el.innerHTML = avisoPartido + `<div class="panel t-data" style="margin-top:20px">
     <div class="caveat-k">${esc(t("gapKicker", constVars()))}</div>
     <div class="gapnum"><span class="n">${num(gap, 2)}</span><span class="u">${esc(t("gapUnit", constVars()))}</span></div>
     <div style="font-size:15px;color:var(--dim);margin-top:10px;max-width:64ch">${

@@ -619,6 +619,14 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
         err("el heroe etiqueta como dato verificable una comparacion que no ha podido hacer");
     }
 
+    /* Con las cadenas separadas, la cuenta de señalizacion cambia de
+       significado: se mide sobre la cadena de hoy, y quien señaliza mina en
+       la otra, asi que tiende a cero sola. Sin decirlo se lee como "ya no
+       señaliza nadie", que es falso. */
+    if (datos.chain && datos.chain.ok && datos.chain.state === "split" &&
+        !usaClave(panel, salida, "mSplitBody"))
+      err("cadenas separadas y la cuenta de señalizacion no dice sobre cual se mide");
+
     const c = datos.chain;
     if (c && c.ok && !c.single_node && !c.degraded) {
       const una = panel.t("oneChainKicker");
