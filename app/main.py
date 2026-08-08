@@ -1217,6 +1217,25 @@ def _build_chains():
             out["split_hashes"] = saved["split_hashes"]
             out["reunified_height"] = None
 
+    # CUANDO se abrio la separacion, no solo a que altura.
+    #
+    # "Se abrio en el bloque 961.631" no le dice nada a quien no cuenta el
+    # tiempo en bloques, y esa es casi toda la gente que entra. La hora sale
+    # de la cabecera del primer bloque divergente, se guarda una vez y no se
+    # vuelve a pedir: es un hecho historico y no cambia.
+    if out["state"] == "split":
+        if not saved.get("split_time"):
+            h = (saved.get("split_hashes") or {}).get("core")
+            if h:
+                try:
+                    saved["split_time"] = a.call("getblockheader", h)["time"]
+                    _save_state(saved)
+                except Exception:                            # noqa: BLE001
+                    pass
+        if saved.get("split_time"):
+            out["split_time"] = saved["split_time"]
+            out["split_seconds_ago"] = int(time.time()) - saved["split_time"]
+
     # Mayoritaria y minoritaria por trabajo acumulado, no por reglas.
     work = {n: int(out["nodes"][n].get("chainwork") or "0", 16) for n in rpcs}
     maj_node = max(work, key=work.get)

@@ -632,6 +632,10 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
       const una = panel.t("oneChainKicker");
       if (vista === "split" && hero.includes(una))
         err("el heroe dice que hay una sola cadena mirando las cadenas separadas");
+      /* Y con dos cadenas, la calma va pegada al susto: quien lee que se ha
+         partido necesita saber ahi mismo que a el no le cambia nada. */
+      if (vista === "split" && !hero.includes(panel.t("splitStillYours")))
+        err("el heroe dice que hay dos cadenas y no dice que no hay que hacer nada");
       if (vista === "pre_split" && !hero.includes(una))
         err("el heroe no dice en que estado esta la cadena");
     }

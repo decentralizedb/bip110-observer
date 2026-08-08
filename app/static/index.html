@@ -183,6 +183,10 @@ h3{font-size:20px;font-weight:550}
    color tambien esta diciendo algo, y decir "todo bien" con un nodo mudo
    es afirmar dos veces lo que no se sabe. */
 .hcard .hval.apagado{color:var(--dim)}
+/* La calma va pegada al susto. Quien lee "hay dos cadenas" necesita saber
+   ahi mismo que a el no le cambia nada; el "No" de la respuesta le queda
+   cuatro lineas arriba y para entonces ya se ha asustado. */
+.hcalm{margin-top:6px;font-size:15px;color:var(--txt2);line-height:1.5}
 .lagnote{margin-top:8px;font-size:14px;color:var(--orange-t);line-height:1.5}
 .bound{margin-top:18px;font-size:15px;color:var(--dim)}
 .heroacts{display:flex;gap:8px;flex-wrap:wrap}
@@ -696,6 +700,9 @@ en: {
  answerQ:"Do I need to do anything with my bitcoin?", answerA:"No.",
  answerLead:"If you keep your bitcoin in self-custody, with your own keys, you don't need to move anything or pick a side.",
  heroChainQ:"Are there two chains?",
+ splitYes:"Yes, there are two chains now",
+ splitYesFor:"Yes, there have been two chains for {t}",
+ splitStillYours:"Your bitcoin are still where they were, on both of them. You do not have to do anything.",
  mSplitKicker:"Read this count knowing the chains have separated",
  mSplitBody:"It is counted on the chain with today's rules, block by block on our own node. Since the split, a miner that signals builds on the other chain, so its blocks are not here and this figure heads towards zero on its own. It is still exact and still verifiable, but it now answers how much of THIS chain signals, not how many miners are signalling.",
  lagBip110:"The node with the BIP-110 rules is {n} blocks behind",
@@ -939,6 +946,9 @@ es: {
  answerQ:"¿Tengo que hacer algo con mi bitcoin?", answerA:"No.",
  answerLead:"Si guardas tus bitcoin en autocustodia, con tus propias llaves, no tienes que mover nada ni elegir bando.",
  heroChainQ:"¿Hay dos cadenas?",
+ splitYes:"Sí, ahora hay dos cadenas",
+ splitYesFor:"Sí, hay dos cadenas desde hace {t}",
+ splitStillYours:"Tus bitcoin siguen donde estaban, en las dos. No tienes que hacer nada.",
  mSplitKicker:"Lee esta cuenta sabiendo que las cadenas se han separado",
  mSplitBody:"Se cuenta sobre la cadena con las reglas de hoy, bloque a bloque en nuestro propio nodo. Desde la separación, un minero que señaliza construye en la otra cadena, así que sus bloques no están aquí y esta cifra tiende a cero por sí sola. Sigue siendo exacta y verificable, pero ahora contesta cuánto señaliza ESTA cadena, no cuántos mineros están señalizando.",
  lagBip110:"El nodo con las reglas del BIP-110 va {n} bloques por detrás",
@@ -1619,8 +1629,13 @@ function heroStateLine(){
      obligatoria recien alcanzada. */
   if(d.degraded) return t("degradedKicker");
   const shown = shownState();
-  if(shown === "split")     return d.split_height ? t("splitAt", {n: fmt(d.split_height)})
-                                                  : t("stateSplit");
+  /* Se pregunta si o no, asi que se contesta si o no. La altura del corte
+     es la prueba, no la respuesta, y vive en la seccion de mas abajo para
+     quien quiera comprobarla. */
+  if(shown === "split"){
+    const desde = hace(d.split_seconds_ago);
+    return desde ? t("splitYesFor", {t: desde}) : t("splitYes");
+  }
   if(shown === "reunified") return t("reuniKicker");
   return t("oneChainKicker");
 }
@@ -1645,6 +1660,8 @@ function renderHeroStatus(){
         ${(c.degraded || c.single_node) ? "" :
           `<span class="pill p-data">${esc(t("tagData"))}</span>`}</div>
       <div class="hval${(c.degraded || c.single_node) ? " apagado" : ""}">${esc(heroStateLine() || "—")}</div>
+      ${(!c.degraded && !c.single_node && shownState() === "split")
+        ? `<div class="hcalm">${esc(t("splitStillYours"))}</div>` : ""}
       ${lagNote(c)}</div>`;
 
   /* La cuenta atras entera, aqui y en ningun otro sitio.
