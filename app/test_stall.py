@@ -83,11 +83,18 @@ def escenario(tip_core, tip_knots, hora_punta_knots=None):
     return main._build_chains()
 
 
-# --- 1. Operacion normal: un bloque de diferencia es propagacion, no averia.
-d = escenario(961700, 961699)
-comprobar("un bloque de hueco no se reporta como retraso",
+# --- 1. Operacion normal: un bloque recien minado es propagacion, no averia.
+d = escenario(961700, 961699, AHORA - 120)
+comprobar("un bloque de hueco reciente no se reporta como retraso",
           d["state"] == "pre_split" and not d.get("lagging"),
           "hueco=%s" % d.get("height_gap"))
+
+# --- 1b. EL CASO DEL 2026-08-08: un solo bloque de hueco, pero congelado.
+#         Mirando solo el tamaño, esto pasaba por "coinciden".
+d = escenario(961632, 961631, AHORA - 2400)
+comprobar("un hueco de UN bloque que lleva 40 min cuenta como paron",
+          d.get("lagging") == "knots", "lagging=%s" % d.get("lagging"))
+comprobar("y sigue sin ser una separacion", d["state"] == "pre_split")
 
 # --- 2. Los dos a la misma altura: nada que decir.
 d = escenario(961700, 961700)

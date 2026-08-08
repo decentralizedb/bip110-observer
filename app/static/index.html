@@ -179,6 +179,10 @@ h3{font-size:20px;font-weight:550}
 #herostat .cdnum, #herocd .cdnum{font-size:34px}
 #herostat .cdunit, #herocd .cdunit{font-size:14px;margin-top:4px}
 #herostat .cdfoot, #herocd .cdfoot{font-size:14px;margin-top:12px}
+/* El verde afirma. Cuando no se puede afirmar, no se pinta de verde: el
+   color tambien esta diciendo algo, y decir "todo bien" con un nodo mudo
+   es afirmar dos veces lo que no se sabe. */
+.hcard .hval.apagado{color:var(--dim)}
 .lagnote{margin-top:8px;font-size:14px;color:var(--orange-t);line-height:1.5}
 .bound{margin-top:18px;font-size:15px;color:var(--dim)}
 .heroacts{display:flex;gap:8px;flex-wrap:wrap}
@@ -1603,6 +1607,13 @@ function heroStateLine(){
   const d = DATA.chain;
   if(!d || !d.ok) return null;
   if(d.single_node) return t("singleKicker");
+  /* Con un nodo mudo NO se puede decir que coinciden. Sin esta linea el
+     heroe caia al caso por defecto y afirmaba "los dos nodos coinciden"
+     mientras uno no contestaba, que es una afirmacion que nadie ha medido.
+     La seccion de mas abajo si lo avisaba; el heroe, que es lo que lee todo
+     el mundo, no. Visto en produccion el 2026-08-08, con la altura
+     obligatoria recien alcanzada. */
+  if(d.degraded) return t("degradedKicker");
   const shown = shownState();
   if(shown === "split")     return d.split_height ? t("splitAt", {n: fmt(d.split_height)})
                                                   : t("stateSplit");
@@ -1628,7 +1639,7 @@ function renderHeroStatus(){
   else            f1 = `<div class="hcard">
       <div class="hrow"><span class="hlab">${esc(t("heroChainQ"))}</span>
         <span class="pill p-data">${esc(t("tagData"))}</span></div>
-      <div class="hval">${esc(heroStateLine() || "—")}</div>
+      <div class="hval${(c.degraded || c.single_node) ? " apagado" : ""}">${esc(heroStateLine() || "—")}</div>
       ${lagNote(c)}</div>`;
 
   /* La cuenta atras entera, aqui y en ningun otro sitio.

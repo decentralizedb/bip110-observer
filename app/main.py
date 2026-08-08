@@ -976,6 +976,16 @@ def _save_state(state):
 # normal y pasa varias veces al dia; tres seguidos, ya no.
 STALL_GAP = 3
 
+# Y un hueco pequeño que NO se mueve tambien cuenta.
+#
+# El 2026-08-08, con la altura obligatoria recien alcanzada, el nodo BIP-110
+# se quedo congelado con un solo bloque de diferencia. Mirando solo el tamaño
+# del hueco, el panel habria dicho "coinciden" durante la media hora larga
+# que tardo el segundo bloque en aparecer, que es justo el rato que habia que
+# contar. Lo que distingue propagacion de paron no es cuanto se separan, es
+# cuanto tiempo llevan separados.
+STALL_SECONDS = 1800
+
 
 def _tip_time(rpc, tip):
     """Hora del bloque en la punta, o None. Dos llamadas."""
@@ -1159,16 +1169,21 @@ def _build_chains():
         # "las dos cadenas coinciden" con un nodo congelado desde hace horas
         # es verdad y engaña, que es peor que equivocarse. La distancia se
         # mide y se dice.
-        if out["height_gap"] >= STALL_GAP:
+        if out["height_gap"] >= 1:
             atras = "core" if ha < hb else "knots"
-            out["lagging"] = atras
-            # Solo se le pregunta al nodo rezagado, y solo cuando el hueco ya
-            # es raro. Son dos llamadas mas, no cuatro, y no se pagan nunca
-            # en la operacion normal.
+            # Solo se le pregunta al nodo rezagado, nunca a los dos.
             t = _tip_time(rpcs[atras], out["nodes"][atras]["tip"])
+            quieto = False
             if t:
                 out["nodes"][atras]["last_block_time"] = t
-                out["nodes"][atras]["seconds_since_last_block"] = int(time.time()) - t
+                parado = int(time.time()) - t
+                out["nodes"][atras]["seconds_since_last_block"] = parado
+                quieto = parado >= STALL_SECONDS
+            # Por tamaño o por tiempo. Cualquiera de los dos basta: un hueco
+            # grande es raro aunque sea reciente, y un hueco de un bloque que
+            # lleva media hora sin moverse no es propagacion.
+            if out["height_gap"] >= STALL_GAP or quieto:
+                out["lagging"] = atras
         if out["state"] == "reunified" and not saved.get("reunified_height"):
             saved["reunified_height"] = common
             saved["state"] = "reunified"

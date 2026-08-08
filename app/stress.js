@@ -603,8 +603,16 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
     if (hayEst && !hayDato)
       err("el heroe enseña una estimacion sin el dato verificable al lado");
 
+    /* Con un nodo mudo, el heroe NO puede decir que coinciden.
+       Nadie lo ha medido. La seccion de mas abajo si avisaba, pero el heroe
+       es lo que lee todo el mundo y afirmaba lo contrario. */
+    const cd = datos.chain;
+    if (cd && cd.ok && (cd.degraded || cd.single_node) &&
+        hero.includes(panel.t("oneChainKicker")))
+      err("el heroe afirma que los nodos coinciden sin poder compararlos");
+
     const c = datos.chain;
-    if (c && c.ok && !c.single_node) {
+    if (c && c.ok && !c.single_node && !c.degraded) {
       const una = panel.t("oneChainKicker");
       if (vista === "split" && hero.includes(una))
         err("el heroe dice que hay una sola cadena mirando las cadenas separadas");
