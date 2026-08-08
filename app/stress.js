@@ -405,6 +405,26 @@ const ESCENARIOS = {
       history: history([0.3, 0.7, 0.4, 0.9, 1.2]),
       pools: pools(["Ocean"]), chain: chain(), nodes: nodes() },
 
+  /* El nodo BIP-110 congelado SIN separacion.
+     Es lo que ocurre primero al llegar la altura obligatoria: ese nodo solo
+     acepta bloques que señalicen, no hay ninguno, y se queda quieto mientras
+     el otro avanza. El hash a la altura comun sigue coincidiendo, asi que el
+     estado es pre_split y es correcto. Lo que no puede pasar es que la
+     pantalla se quede en "los dos nodos coinciden" y nada mas. */
+  "el nodo BIP-110 congelado, pero sin separacion":
+    { params, miners: miners({ scanned: 1990, sig: 51 }),
+      history: history([0.3, 0.7, 0.4, 0.9, 1.2]),
+      pools: pools(["Ocean"]), nodes: nodes(),
+      chain: chain({ extra: {
+        height_gap: 70, common_height: 961631, lagging: "knots",
+        nodes: {
+          core: { ok: true, subversion: "/Satoshi:31.1.0/", tip: 961701,
+                  hash: HASH_A, chainwork: "0f", via: "tor", enforces: false },
+          knots: { ok: true, subversion: "/Satoshi:29.4.0/Knots:20260508/",
+                   tip: 961631, hash: HASH_A, chainwork: "0a", via: "tor",
+                   enforces: true, seconds_since_last_block: 41400 },
+        } } }) },
+
   "umbral ya cumplido en este periodo":
     { params, miners: miners({ scanned: 1500, sig: 1200,
         byPool: { "Foundry USA": 700, AntPool: 500 } }),
@@ -546,6 +566,26 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
      pagina, y que no promocione de nivel una estimacion. */
   const hero = ((dom.els.herostat && dom.els.herostat._html) || "") +
                ((dom.els.herocd   && dom.els.herocd._html)   || "");
+
+  /* Un nodo parado no puede pasar por "todo coincide".
+     Cuando el backend marca `lagging`, el hueco ya no es ruido de
+     propagacion, y la pantalla tiene que decirlo. Sin esto, la fase en la
+     que el nodo BIP-110 se queda congelado antes de separarse se ve
+     exactamente igual que un dia normal, que es el peor momento posible
+     para que el panel no diga nada. */
+  /* Solo en la vista que coincide con la realidad. En las otras el visitante
+     esta mirando un escenario inventado, y meter ahi un dato medido seria
+     justo lo que el panel no hace: mezclar niveles sin decirlo. */
+  const ch = datos.chain;
+  if (ch && ch.ok && ch.lagging && vista === ch.state) {
+    const clave = ch.lagging === "knots" ? "lagBip110" : "lagToday";
+    if (!usaClave(panel, salida, clave))
+      err("un nodo va por detras y la pantalla no lo dice");
+    if (!usaClave(panel, salida, "lagWhy"))
+      err("se dice el retraso pero no se explica que no es una separacion");
+    if (!hero.includes(panel.t(clave).split("{")[0].trim()))
+      err("el retraso no llega al heroe, solo a la seccion de mas abajo");
+  }
   if (!hero.trim()) {
     err("el heroe se ha quedado vacio");
   } else {

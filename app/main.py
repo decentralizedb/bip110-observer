@@ -971,6 +971,20 @@ def _save_state(state):
         pass
 
 
+# A partir de cuantos bloques de diferencia entre los dos nodos deja de ser
+# ruido de propagacion y pasa a ser algo que contar. Uno o dos de hueco es
+# normal y pasa varias veces al dia; tres seguidos, ya no.
+STALL_GAP = 3
+
+
+def _tip_time(rpc, tip):
+    """Hora del bloque en la punta, o None. Dos llamadas."""
+    try:
+        return rpc.call("getblockheader", rpc.call("getblockhash", tip))["time"]
+    except Exception:
+        return None
+
+
 def _pace(rpc, tip, window=144, suelo=None):
     """
     Segundos por bloque en los ultimos `window` bloques, y hora del ultimo.
@@ -1131,6 +1145,30 @@ def _build_chains():
         out["state"] = "reunified" if saved.get("split_height") else "pre_split"
         out["common_height"] = common
         out["height_gap"] = abs(ha - hb)
+
+        # UN NODO PARADO NO ES UNA SEPARACION, Y AQUI ESTA EL HUECO.
+        #
+        # A partir de la altura obligatoria, un nodo BIP-110 solo acepta
+        # bloques que señalicen Y cuyos antepasados desde esa altura tambien
+        # señalicen. Con una señalizacion baja, lo primero que hace no es
+        # bifurcarse: es quedarse quieto, porque no hay ningun bloque valido
+        # para el. Su tip se congela mientras el otro avanza.
+        #
+        # El hash a la altura comun sigue coincidiendo, asi que `same` es
+        # True y el estado es correcto: no hay separacion. Pero decir solo
+        # "las dos cadenas coinciden" con un nodo congelado desde hace horas
+        # es verdad y engaña, que es peor que equivocarse. La distancia se
+        # mide y se dice.
+        if out["height_gap"] >= STALL_GAP:
+            atras = "core" if ha < hb else "knots"
+            out["lagging"] = atras
+            # Solo se le pregunta al nodo rezagado, y solo cuando el hueco ya
+            # es raro. Son dos llamadas mas, no cuatro, y no se pagan nunca
+            # en la operacion normal.
+            t = _tip_time(rpcs[atras], out["nodes"][atras]["tip"])
+            if t:
+                out["nodes"][atras]["last_block_time"] = t
+                out["nodes"][atras]["seconds_since_last_block"] = int(time.time()) - t
         if out["state"] == "reunified" and not saved.get("reunified_height"):
             saved["reunified_height"] = common
             saved["state"] = "reunified"
