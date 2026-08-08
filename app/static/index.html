@@ -561,7 +561,7 @@ footer p+p{margin-top:8px}
     <div class="caveat caveat--est">
       <div class="caveat-k" data-k="strAssumeKicker"></div>
       <ul class="str-assume">
-        <li data-k="strAssume1"></li>
+        <li id="strAssume1"></li>
         <li data-k="strAssume2"></li>
         <li id="strassume3"></li>
       </ul>
@@ -879,6 +879,8 @@ en: {
  strNoSplit:"At this share there would be no split: the whole network would follow those rules and the milestones would arrive at their normal pace. What follows is an exercise, not a forecast.",
  strAssumeKicker:"What this calculation is taking for granted",
  strAssume1:"That today's signalling share holds. This is the shakiest of the three.",
+ strLeadObs:"Since the split, the BIP-110 chain has produced {share}% of the blocks: one every {interval} instead of one every {normal}. That share is measured, not assumed. Its milestones are heights, not dates, so each one takes as long as its own chain takes to reach it.",
+ strAssume1Obs:"That the share each chain has produced since the split holds. It is measured rather than assumed, but it is measured over few blocks and it can move.",
  strAssume2:"That whoever signals ends up mining that chain. Signalling states an intention, it is not a commitment: you can signal and then follow the other chain.",
  strAssume3:"That difficulty retargets every {periodSize} blocks and can be divided by at most {cap} each time, which is Bitcoin's own cap. Without that cap the waits would be far longer.",
  strNote:"A soft fork does not touch the difficulty mechanism, so the small chain starts out with the difficulty of the whole network. That is why the first leg is the slow one and the rest get shorter: once difficulty has finished falling, the chain goes back to its normal pace. What stretches is the beginning.",
@@ -1128,6 +1130,8 @@ es: {
  strNoSplit:"Con esta cuota no habría separación: la red entera seguiría esas reglas y los hitos llegarían a su ritmo normal. Lo de abajo se queda como ejercicio, no como pronóstico.",
  strAssumeKicker:"Qué está dando por supuesto este cálculo",
  strAssume1:"Que la cuota que señaliza hoy se mantiene. Es lo más frágil de los tres.",
+ strLeadObs:"Desde la separación, la cadena con BIP-110 ha hecho el {share}% de los bloques: uno cada {interval} en vez de uno cada {normal}. Esa cuota está medida, no supuesta. Sus hitos son alturas, no fechas, así que cada uno tarda lo que tarde su propia cadena en llegar.",
+ strAssume1Obs:"Que se mantenga la proporción de bloques que ha hecho cada cadena desde el corte. Está medida y no supuesta, pero se mide sobre pocos bloques y puede moverse.",
  strAssume2:"Que quien señaliza acaba minando esa cadena. Señalizar es declarar una intención, no comprometerse: se puede señalizar y luego seguir la otra.",
  strAssume3:"Que la dificultad se reajusta cada {periodSize} bloques y en cada reajuste puede dividirse como mucho entre {cap}, que es el tope del propio Bitcoin. Sin ese tope las esperas serían mucho mayores.",
  strNote:"Un soft fork no toca el mecanismo de dificultad, así que la cadena pequeña arranca con la dificultad de toda la red. Por eso el primer tramo es el lento y los siguientes se van acortando: cuando la dificultad termina de bajar, la cadena vuelve a su ritmo. Lo que se estira es el principio.",
@@ -2225,11 +2229,19 @@ function renderStretch(){
 
   const mc = d.minority_chain || {};
   const iv = mc.interval_hours;
-  lead.textContent = share <= 0 ? t("strNever")
+  /* Con la separacion ya ocurrida, la cuota no se supone: se mide, y el
+     texto tiene que decirlo. Antes esta seccion llegaba a afirmar que no
+     habria cadena minoritaria mientras la seccion de arriba la estaba
+     midiendo. */
+  const medida = d.share_source === "observed";
+  const vars = {splitHeight: num(p.fork_height, 0), share: num(share, 2),
+                interval: iv ? num(iv, 1) + " " + t("hours") : "…",
+                normal: normalSpacing()};
+  const a1 = $("strAssume1");
+  if(a1) a1.textContent = t(medida ? "strAssume1Obs" : "strAssume1");
+  lead.textContent = (share <= 0 && !medida) ? t("strNever")
                    : share >= thr ? t("strNoSplit")
-                   : t("strLead", {splitHeight: num(p.fork_height, 0), share: num(share, 2),
-                                   interval: iv ? num(iv, 1) + " " + t("hours") : "…",
-                                   normal: normalSpacing()});
+                   : t(medida ? "strLeadObs" : "strLead", vars);
 
   // Escala del eje: el hito lento mas lejano. Con cuota 0 no hay escala y
   // el rail se dibuja abierto, sin punto final ni eje.

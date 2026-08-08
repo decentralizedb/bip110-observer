@@ -373,6 +373,26 @@ def _sin_direcciones(txt):
     return _RE_ONION.sub("<nodo>", txt)
 
 
+def _cuota_observada():
+    """Cuota de la rama minoritaria MEDIDA, o None si no hay separacion.
+
+    Bloques propios de cada rama desde el corte. No se consulta a ningun
+    nodo: se lee lo que ya calculo /api/chains, asi que no cuesta ni una
+    llamada mas. Si esa comparacion todavia no existe, se devuelve None y
+    todo sigue como antes.
+    """
+    with _lock:
+        e = _cache.get("chains:" + DEFAULT_NODE)
+    d = e[0] if e else None
+    if not d or not d.get("ok") or d.get("state") != "split":
+        return None
+    a = (d.get("majority") or {}).get("blocks_since_split")
+    b = (d.get("minority") or {}).get("blocks_since_split")
+    if not isinstance(a, int) or not isinstance(b, int) or (a + b) <= 0:
+        return None
+    return b / float(a + b)
+
+
 def _cached_bg(key, builder, node=DEFAULT_NODE):
     """Como _cached, pero sin hacer esperar nunca a quien pregunta."""
     ck = f"{key}:{node}"
@@ -502,9 +522,29 @@ def _build_miners(node=DEFAULT_NODE):
             by_pool[a["pool"]] = by_pool.get(a["pool"], 0) + 1
 
         share = signaling.signalling_share(data)
+        fuente_cuota = "signalling"
+
+        # DESDE LA SEPARACION, LA SEÑALIZACION YA NO SIRVE PARA ESTIMAR ESTO.
+        #
+        # La cuota se contaba sobre la cadena canonica, y a partir del corte
+        # quien señaliza mina en la OTRA, asi que aqui sale cero por
+        # construccion. Con cero, la proyeccion decia que la cadena
+        # minoritaria "no produciria ni un bloque" y que los hitos no
+        # llegarian "nunca", mientras la seccion de arriba de la misma pagina
+        # enseñaba esa cadena con sus bloques y su ritmo. Dos secciones
+        # contradiciendose es peor que cualquiera de las dos por separado.
+        #
+        # Con las cadenas ya separadas no hay que estimar la cuota: se mide.
+        # Bloques propios de cada rama desde el corte, que es un hecho
+        # observado y no una intencion declarada.
+        obs = _cuota_observada()
+        if obs is not None:
+            share = obs
+            fuente_cuota = "observed"
 
         return {
             "ok": True,
+            "share_source": fuente_cuota,
             "node": node,
             "node_subversion": rpc.get_network_info().get("subversion"),
             "via": transport_of(_active_url(node)),

@@ -429,6 +429,17 @@ const ESCENARIOS = {
                    enforces: true, seconds_since_last_block: 41400 },
         } } }) },
 
+  /* Separadas, y en ESTA cadena ya no señaliza nadie.
+     Es lo que pasa siempre despues del corte: quien señaliza mina en la otra
+     rama, asi que la cuenta de esta baja a cero sola. Con cero, el recorrido
+     llegaba a decir que no habria cadena minoritaria que medir mientras la
+     seccion de arriba la estaba midiendo. Visto en produccion el 2026-08-08. */
+  "separadas, y en esta cadena ya no señaliza nadie":
+    { params, miners: miners({ scanned: 20, sig: 0, extra: {
+        share_source: "observed", milestone_projection: proyeccion(0.0248) } }),
+      history: history([0.3, 0.7, 0.4, 0.9, 1.2]),
+      pools: pools(["Ocean"]), nodes: nodes(), chain: chain({ state: "split" }) },
+
   "umbral ya cumplido en este periodo":
     { params, miners: miners({ scanned: 1500, sig: 1200,
         byPool: { "Foundry USA": 700, AntPool: 500 } }),
@@ -657,6 +668,12 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
          Son la unica prueba de que hay dos cadenas y lo que permite a
          cualquiera comprobarlo contra su nodo. Sin ellas el panel pide que
          le crean. */
+      /* Y con una separacion medida, la pagina NO puede decir en ningun
+         sitio que no hay cadena minoritaria que medir. La habia cuatro
+         secciones mas arriba, con sus bloques y su ritmo. */
+      if (cd.state === "split" && usaClave(panel, salida, "strNever"))
+        err("hay dos cadenas medidas y el recorrido dice que no hay ninguna que medir");
+
       if (vista === "split" && cd.state === "split" && cd.split_hashes) {
         const trozo = (cd.split_hashes.knots || "").slice(-10);
         if (trozo && !salida.includes(trozo))
@@ -781,8 +798,12 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
     const pr = m.milestone_projection;
     if (pr) {
       const sh = pr.share_pct, thr = m.threshold_pct;
-      const cual = sh <= 0 ? "strNever" : (sh >= thr ? "strNoSplit" : "strLead");
-      for (const k of ["strNever", "strNoSplit", "strLead"]) {
+      // Con la cuota MEDIDA (ya hay separacion) el texto es otro: no se
+      // supone la cuota, se cuenta, y decirlo cambia lo que la frase afirma.
+      const medida = m.share_source === "observed";
+      const normal = medida ? "strLeadObs" : "strLead";
+      const cual = (sh <= 0 && !medida) ? "strNever" : (sh >= thr ? "strNoSplit" : normal);
+      for (const k of ["strNever", "strNoSplit", "strLead", "strLeadObs"]) {
         const esta = usaClave(panel, salida, k);
         if (k === cual && !esta) err(`la cuota es ${sh}% y no usa ${k}`);
         if (k !== cual && esta) err(`la cuota es ${sh}% y ademas usa ${k}`);
