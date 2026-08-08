@@ -55,7 +55,10 @@ services:
       NODES_TTL: "${NODES_TTL:-3600}"
       CHAINS_TTL: "${CHAINS_TTL:-60}"
       HEALTH_TIMEOUT: "${HEALTH_TIMEOUT:-12}"
-      HEALTH_TIMEOUT_TOR: "${HEALTH_TIMEOUT_TOR:-35}"
+      # Por ENCIMA de los 120s que Tor insiste antes de rendirse. Con 35 se
+      # daba por caido un nodo que estaba contestando, solo que despacio.
+      HEALTH_TIMEOUT_TOR: "${HEALTH_TIMEOUT_TOR:-150}"
+      CHAIN_TIMEOUT: "${CHAIN_TIMEOUT:-240}"
       HISTORY_TTL: "${HISTORY_TTL:-3600}"
 
       # Explicito a proposito. Aqui viven los periodos cerrados y la altura
@@ -71,8 +74,8 @@ services:
       # Margen por encima de HEALTH_TIMEOUT (12s por defecto): el endpoint
       # ya corta por su cuenta, asi que el healthcheck no deberia llegar
       # nunca a su propio limite. Si llega, es que algo va muy mal.
-      interval: 60s
-      timeout: 45s
+      interval: 300s
+      timeout: 170s
       start_period: 240s   # arrancar Tor y construir circuitos tarda
       retries: 3
 

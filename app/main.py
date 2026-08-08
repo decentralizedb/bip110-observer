@@ -49,10 +49,22 @@ POOLS_SAMPLE = int(os.environ.get("POOLS_SAMPLE", "500"))
 # una peticion a otra, asi que un tope pensado para la red local marca como
 # caido un nodo que solo iba lento ese rato.
 HEALTH_TIMEOUT_CLEARNET = int(os.environ.get("HEALTH_TIMEOUT", "12"))
-HEALTH_TIMEOUT_TOR = int(os.environ.get("HEALTH_TIMEOUT_TOR", "60"))
+HEALTH_TIMEOUT_TOR = int(os.environ.get("HEALTH_TIMEOUT_TOR", "150"))
 # Intentos por nodo antes de darlo por caido. Ver el comentario de mirar().
 HEALTH_INTENTOS = int(os.environ.get("HEALTH_INTENTOS", "2"))
-CHAIN_TIMEOUT = int(os.environ.get("CHAIN_TIMEOUT", "90"))
+# OJO CON ESTE NUMERO, que ya nos costo una noche.
+#
+# El 2026-08-08, con la ventana obligatoria recien abierta, el panel dijo
+# durante horas que el nodo BIP-110 no respondia. Respondia perfectamente: lo
+# que pasaba es que por el servicio oculto tardaba mas de lo que le
+# dabamos. El propio Tor avisa de que insiste "120 seconds ... giving up",
+# asi que cualquier plazo por debajo de eso convierte una conexion lenta en
+# un nodo caido, y el panel acaba publicando que no ve algo que si ve.
+#
+# Regla: estos plazos van POR ENCIMA de los 120 s de Tor, nunca por debajo.
+# No cuesta latencia al visitante porque el calculo va en un hilo aparte y
+# la peticion devuelve lo que haya en cache.
+CHAIN_TIMEOUT = int(os.environ.get("CHAIN_TIMEOUT", "240"))
 
 
 def _health_timeout():
