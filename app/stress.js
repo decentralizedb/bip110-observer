@@ -440,6 +440,18 @@ const ESCENARIOS = {
       history: history([0.3, 0.7, 0.4, 0.9, 1.2]),
       pools: pools(["Ocean"]), nodes: nodes(), chain: chain({ state: "split" }) },
 
+  /* El desfase entre las dos caches.
+     La cuota medida entra al recalcular /api/miners, y su cache dura
+     minutos. Recien arrancado el contenedor llega con la cuota señalizada
+     (cero, porque quien señaliza mina en la otra rama) y con la separacion
+     ya detectada. Esa combinacion es la que imprimia "no habria cadena
+     minoritaria" teniendola medida arriba. Visto en produccion el
+     2026-08-09, cinco minutos despues de un despliegue. */
+  "separadas, pero la proyeccion todavia va con la cuota vieja":
+    { params, miners: miners({ scanned: 20, sig: 0 }),
+      history: history([0.3, 0.7, 0.4, 0.9, 1.2]),
+      pools: pools(["Ocean"]), nodes: nodes(), chain: chain({ state: "split" }) },
+
   "umbral ya cumplido en este periodo":
     { params, miners: miners({ scanned: 1500, sig: 1200,
         byPool: { "Foundry USA": 700, AntPool: 500 } }),
@@ -802,8 +814,16 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
       // supone la cuota, se cuenta, y decirlo cambia lo que la frase afirma.
       const medida = m.share_source === "observed";
       const normal = medida ? "strLeadObs" : "strLead";
-      const cual = (sh <= 0 && !medida) ? "strNever" : (sh >= thr ? "strNoSplit" : normal);
-      for (const k of ["strNever", "strNoSplit", "strLead", "strLeadObs"]) {
+      /* Y hay un cuarto estado: separacion ya detectada pero la proyeccion
+         todavia con la cuota vieja. Ahi no se afirma nada, se dice que se
+         esta rehaciendo. Decir "nunca" seria contradecir a la seccion de
+         arriba, que tiene la cadena minoritaria medida. */
+      const desfase = datos.chain && datos.chain.ok &&
+                      datos.chain.state === "split" && sh <= 0 && !medida;
+      const cual = desfase ? "strRecalc"
+                 : (sh <= 0 && !medida) ? "strNever"
+                 : (sh >= thr ? "strNoSplit" : normal);
+      for (const k of ["strNever", "strNoSplit", "strLead", "strLeadObs", "strRecalc"]) {
         const esta = usaClave(panel, salida, k);
         if (k === cual && !esta) err(`la cuota es ${sh}% y no usa ${k}`);
         if (k !== cual && esta) err(`la cuota es ${sh}% y ademas usa ${k}`);
@@ -811,7 +831,7 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
       // Se cuenta la MARCA, no la palabra: "nunca" sale en otros textos de
       // la pagina, asi que buscarla daba positivo siempre y la comprobacion
       // pasaba aunque el plazo se imprimiera como un numero.
-      const sinPlazo = pr.milestones.filter(x => !x.reachable).length;
+      const sinPlazo = desfase ? 0 : pr.milestones.filter(x => !x.reachable).length;
       const marcados = (salida.match(/class="v is-never"/g) || []).length;
       if (marcados !== sinPlazo) {
         err(`${sinPlazo} hitos inalcanzables pero ${marcados} marcados sin plazo`);

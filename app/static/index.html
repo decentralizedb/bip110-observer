@@ -189,8 +189,16 @@ h3{font-size:20px;font-weight:550}
 .hcalm{margin-top:6px;font-size:15px;color:var(--txt2);line-height:1.5}
 /* Las dos huellas, una encima de otra y a la misma anchura, para que la
    diferencia se vea sin leer: es una comparacion, no dos datos sueltos. */
-.proof{display:flex;flex-direction:column;gap:12px;margin-top:16px}
-.proof .proofh{font-size:17px;font-weight:700;margin-top:4px;word-break:break-all}
+/* Dos columnas en pantalla ancha, apiladas en el movil. Es una comparacion,
+   asi que las dos cajas miden lo mismo (1fr y 1fr): si una fuera mas ancha
+   que la otra, la maqueta estaria sugiriendo una jerarquia que aqui no
+   existe. Cada una con su marco, para que se vea de un vistazo donde acaba
+   una huella y empieza la otra. */
+.proof{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.proof > div{background:var(--panel2);border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;min-width:0}
+.proof .proofh{font-size:17px;font-weight:700;margin-top:6px;word-break:break-all;line-height:1.35}
+@media (max-width:640px){ .proof{grid-template-columns:1fr} }
 .lagnote{margin-top:8px;font-size:14px;color:var(--orange-t);line-height:1.5}
 .bound{margin-top:18px;font-size:15px;color:var(--dim)}
 .heroacts{display:flex;gap:8px;flex-wrap:wrap}
@@ -751,7 +759,7 @@ en: {
  previewNote:"You are looking at a scenario, not at what is happening now. The figures here are made up to show the layout. The panel works out the real state on its own by comparing the two nodes, with nobody touching anything.",
  oneChainKicker:"One chain · both nodes agree",
  oneChainBody:"Both nodes are on the same chain and see exactly the same latest block. There is nothing to compare yet, so you see one figure here instead of two.",
- nodeCore:"Our node with today's rules", nodeKnots:"Our node with the BIP-110 rules",
+ nodeCore:"Our Core node · rules in force today", nodeKnots:"Our Knots node · BIP-110 rules",
  hashLabel:"Fingerprint of its latest block",
  hashMatch:"Both fingerprints match, so both nodes are on the same block.",
  hashDiffer:"The fingerprints do not match: each node is on a different block.",
@@ -879,6 +887,7 @@ en: {
  strNoSplit:"At this share there would be no split: the whole network would follow those rules and the milestones would arrive at their normal pace. What follows is an exercise, not a forecast.",
  strAssumeKicker:"What this calculation is taking for granted",
  strAssume1:"That today's signalling share holds. This is the shakiest of the three.",
+ strRecalc:"The chains have already separated, so this projection is being redone with the measured share instead of the signalled one. It updates on its own when it finishes.",
  strLeadObs:"Since the split, the BIP-110 chain has produced {share}% of the blocks: one every {interval} instead of one every {normal}. That share is measured, not assumed. Its milestones are heights, not dates, so each one takes as long as its own chain takes to reach it.",
  strAssume1Obs:"That the share each chain has produced since the split holds. It is measured rather than assumed, but it is measured over few blocks and it can move.",
  strAssume2:"That whoever signals ends up mining that chain. Signalling states an intention, it is not a commitment: you can signal and then follow the other chain.",
@@ -1002,7 +1011,7 @@ es: {
  previewNote:"Esto es un escenario, no lo que está pasando ahora. Las cifras están inventadas para enseñar cómo quedaría. El estado real lo saca el panel solo, comparando los dos nodos, sin que nadie toque nada.",
  oneChainKicker:"Una cadena · los dos nodos coinciden",
  oneChainBody:"Los dos nodos van por la misma cadena y ven exactamente el mismo último bloque. Todavía no hay nada que comparar, así que aquí ves una sola cifra en vez de dos.",
- nodeCore:"Nuestro nodo con las reglas de hoy", nodeKnots:"Nuestro nodo con las reglas del BIP-110",
+ nodeCore:"Nuestro nodo Core · reglas vigentes hoy", nodeKnots:"Nuestro nodo Knots · reglas del BIP-110",
  hashLabel:"Huella de su último bloque",
  hashMatch:"Las dos huellas coinciden, así que los dos nodos van por el mismo bloque.",
  hashDiffer:"Las huellas no coinciden: cada nodo va por un bloque distinto.",
@@ -1130,6 +1139,7 @@ es: {
  strNoSplit:"Con esta cuota no habría separación: la red entera seguiría esas reglas y los hitos llegarían a su ritmo normal. Lo de abajo se queda como ejercicio, no como pronóstico.",
  strAssumeKicker:"Qué está dando por supuesto este cálculo",
  strAssume1:"Que la cuota que señaliza hoy se mantiene. Es lo más frágil de los tres.",
+ strRecalc:"Las cadenas ya se han separado, así que esta proyección se está rehaciendo con la cuota medida en lugar de la señalizada. Se actualiza sola en cuanto termine.",
  strLeadObs:"Desde la separación, la cadena con BIP-110 ha hecho el {share}% de los bloques: uno cada {interval} en vez de uno cada {normal}. Esa cuota está medida, no supuesta. Sus hitos son alturas, no fechas, así que cada uno tarda lo que tarde su propia cadena en llegar.",
  strAssume1Obs:"Que se mantenga la proporción de bloques que ha hecho cada cadena desde el corte. Está medida y no supuesta, pero se mide sobre pocos bloques y puede moverse.",
  strAssume2:"Que quien señaliza acaba minando esa cadena. Señalizar es declarar una intención, no comprometerse: se puede señalizar y luego seguir la otra.",
@@ -2236,6 +2246,20 @@ function renderStretch(){
      habria cadena minoritaria mientras la seccion de arriba la estaba
      midiendo. */
   const medida = d.share_source === "observed";
+
+  /* HUECO DE SINCRONIA, Y NO PUEDE LLENARSE CON UNA MENTIRA.
+     La cuota medida entra cuando se recalcula esta seccion, y su cache dura
+     minutos. Justo despues de arrancar el contenedor, la comparacion de
+     cadenas todavia no existia cuando se calculo esto, asi que llega con
+     cuota cero y con la separacion ya ocurrida: la combinacion que imprimia
+     "no habria cadena minoritaria" con la cadena minoritaria medida arriba.
+     Mientras dure ese desfase no se afirma nada: se dice que se esta
+     rehaciendo. */
+  if(realState() === "split" && share <= 0 && !medida){
+    lead.textContent = t("strRecalc");
+    rails.innerHTML = ""; rows.innerHTML = "";
+    return;
+  }
   const vars = {splitHeight: num(p.fork_height, 0), share: num(share, 2),
                 interval: iv ? num(iv, 1) + " " + t("hours") : "…",
                 normal: normalSpacing()};
