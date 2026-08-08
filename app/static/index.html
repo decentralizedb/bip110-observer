@@ -187,6 +187,10 @@ h3{font-size:20px;font-weight:550}
    ahi mismo que a el no le cambia nada; el "No" de la respuesta le queda
    cuatro lineas arriba y para entonces ya se ha asustado. */
 .hcalm{margin-top:6px;font-size:15px;color:var(--txt2);line-height:1.5}
+/* Las dos huellas, una encima de otra y a la misma anchura, para que la
+   diferencia se vea sin leer: es una comparacion, no dos datos sueltos. */
+.proof{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+.proof .proofh{font-size:17px;font-weight:700;margin-top:4px;word-break:break-all}
 .lagnote{margin-top:8px;font-size:14px;color:var(--orange-t);line-height:1.5}
 .bound{margin-top:18px;font-size:15px;color:var(--dim)}
 .heroacts{display:flex;gap:8px;flex-wrap:wrap}
@@ -700,6 +704,9 @@ en: {
  answerQ:"Do I need to do anything with my bitcoin?", answerA:"No.",
  answerLead:"If you keep your bitcoin in self-custody, with your own keys, you don't need to move anything or pick a side.",
  heroChainQ:"Are there two chains?",
+ proofKicker:"The proof, so you do not have to take our word for it",
+ proofBody:"At height {h} there are two different blocks, one on each chain. They are the same chain up to block {n}, and not after it. These are their fingerprints, read from our two nodes.",
+ proofCheck:"Check it on your own node: bitcoin-cli getblockhash {h}. Whichever of the two you get back tells you which chain your node is on.",
  splitYes:"Yes, there are two chains now",
  splitYesFor:"Yes, there have been two chains for {t}",
  splitStillYours:"Your bitcoin are still where they were, on both of them. You do not have to do anything.",
@@ -946,6 +953,9 @@ es: {
  answerQ:"¿Tengo que hacer algo con mi bitcoin?", answerA:"No.",
  answerLead:"Si guardas tus bitcoin en autocustodia, con tus propias llaves, no tienes que mover nada ni elegir bando.",
  heroChainQ:"¿Hay dos cadenas?",
+ proofKicker:"La prueba, para que no tengas que creerte nada",
+ proofBody:"A la altura {h} hay dos bloques distintos, uno en cada cadena. Son la misma cadena hasta el bloque {n}, y a partir de ahí no. Estas son sus huellas, leídas de nuestros dos nodos.",
+ proofCheck:"Compruébalo en tu propio nodo: bitcoin-cli getblockhash {h}. La que te devuelva de las dos te dice en qué cadena estás.",
  splitYes:"Sí, ahora hay dos cadenas",
  splitYesFor:"Sí, hay dos cadenas desde hace {t}",
  splitStillYours:"Tus bitcoin siguen donde estaban, en las dos. No tienes que hacer nada.",
@@ -1534,7 +1544,29 @@ function chainPanelSplit(d, preview){
   const sh = (cv.share && cv.share !== "—") ? cv.share : null;
   const mShare = preview && sh ? num(100 - parseFloat(sh.replace(",",".")), 2) + "%" : "—";
   const nShare = preview && sh ? sh + "%" : "—";
-  return `${preview ? `<div style="margin-top:18px">${previewBox()}</div>` : ""}
+  /* LA PRUEBA, ARRIBA DEL TODO.
+     Lo que demuestra una separacion no son las puntas, que se mueven cada
+     diez minutos, sino el primer bloque divergente: dos huellas distintas a
+     la MISMA altura. Eso no cambia nunca y lo comprueba cualquiera contra su
+     propio nodo, que es la unica forma de que esto no haya que creerselo.
+     En vista previa no se pinta: ahi no hay nada medido. */
+  const hcorte = (!preview && d.split_hashes) ? d.split_hashes : null;
+  const corta = h => (h && h.length > 24) ? h.slice(0, 12) + "…" + h.slice(-10) : (h || "—");
+  const prueba = hcorte ? `<div class="panel" style="margin-top:18px">
+      <div class="caveat-k">${esc(t("proofKicker"))}</div>
+      <div style="font-size:15px;color:var(--dim);margin-top:6px;max-width:66ch">${
+        esc(t("proofBody", {h: fmt(d.split_height + 1), n: fmt(d.split_height)}))}</div>
+      <div class="proof">
+        <div><div class="lbl">${esc(t("nodeCore"))}</div>
+          <div class="mono proofh">${esc(corta(hcorte.core))}</div></div>
+        <div><div class="lbl">${esc(t("nodeKnots"))}</div>
+          <div class="mono proofh o">${esc(corta(hcorte.knots))}</div></div>
+      </div>
+      <div style="font-size:14px;color:var(--dim2);margin-top:12px;max-width:66ch">${
+        esc(t("proofCheck", {h: fmt(d.split_height + 1)}))}</div>
+    </div>` : "";
+
+  return prueba + `${preview ? `<div style="margin-top:18px">${previewBox()}</div>` : ""}
   <div class="chains">
     <div class="panel t-data">
       <div class="caveat-k g">${esc(t("majKicker"))}</div>

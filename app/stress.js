@@ -205,6 +205,10 @@ function chain(o = {}) {
   return Object.assign({
     ok: true, state: st, degraded: false, single_node: false,
     split_height: st === "pre_split" ? null : 961632,
+    // Las huellas del primer bloque divergente. Sin esto en el escenario, la
+    // comprobacion que exige enseñarlas no se dispara nunca y da via libre a
+    // un panel que afirma una separacion sin la prueba delante.
+    split_hashes: st === "pre_split" ? null : { core: HASH_A, knots: HASH_B },
     reunified_height: st === "reunified" ? 962500 : null,
     nodes: {
       core: { ok: true, subversion: "/Satoshi:31.0.0/", tip: 961700, hash: HASH_A,
@@ -649,6 +653,15 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
          partido necesita saber ahi mismo que a el no le cambia nada. */
       if (vista === "split" && !hero.includes(panel.t("splitStillYours")))
         err("el heroe dice que hay dos cadenas y no dice que no hay que hacer nada");
+      /* Y con una separacion medida, las dos huellas del corte se enseñan.
+         Son la unica prueba de que hay dos cadenas y lo que permite a
+         cualquiera comprobarlo contra su nodo. Sin ellas el panel pide que
+         le crean. */
+      if (vista === "split" && cd.state === "split" && cd.split_hashes) {
+        const trozo = (cd.split_hashes.knots || "").slice(-10);
+        if (trozo && !salida.includes(trozo))
+          err("hay separacion medida y no se enseña la huella del bloque divergente");
+      }
       if (vista === "pre_split" && !hero.includes(una))
         err("el heroe no dice en que estado esta la cadena");
     }
