@@ -706,7 +706,7 @@ en: {
  heroChainQ:"Are there two chains?",
  proofKicker:"The proof, so you do not have to take our word for it",
  proofBody:"At height {h} there are two different blocks, one on each chain. They are the same chain up to block {n}, and not after it. These are their fingerprints, read from our two nodes.",
- proofCheck:"Check it on your own node: bitcoin-cli getblockhash {h}. Whichever of the two you get back tells you which chain your node is on.",
+ proofCheck:"Check it on your own node: bitcoin-cli getblockhash {hraw}. Whichever of the two you get back tells you which chain your node is on.",
  splitYes:"Yes, there are two chains now",
  splitYesFor:"Yes, there have been two chains for {t}",
  splitStillYours:"Your bitcoin are still where they were, on both of them. You do not have to do anything.",
@@ -739,8 +739,8 @@ en: {
  legendSample:"Does not represent the population. The reasons why are on screen, never hidden.",
  chainTitle:"Has Bitcoin split in two?",
  chainMethod:"To answer that we run two nodes of our own, two computers that verify Bitcoin by themselves. One follows the rules in force today, the other follows the BIP-110 rules. While both see the same blocks there is one chain. The day they stop matching, there are two. Nobody has to announce it: it can be checked directly.",
- trackEyebrow:"See it before it happens",
- trackLead:"Today Bitcoin is one single chain. At block {splitHeight} it could split in two, and later it could become one again. Tap each point to see this same page in each case.",
+ trackEyebrow:"See how it looks in each case",
+ trackLead:"Bitcoin can be in three states: one chain, two chains from block {splitHeight} on, or one again after having split. Tap each point to see this same page in each case.",
  whenPre:"until block {splitHeight}", whenSplit:"at block {splitHeight}",
  whenReuni:"if the minority chain stops",
  chainStateLabel:"See how it would look",
@@ -780,7 +780,7 @@ en: {
  tlTitle:"BIP-110's dates are not dates, and they mark three different moments",
  tlMethod:"Most coverage has talked about August 8th as if it were a single date. But what matters here is not set by the calendar: there are three separate moments, and each one arrives at a block height. Treating them as one is the most common mistake in the whole debate. The one that can split the chain is the first, and it has nothing to do with the data rules, which come later. And that later can be far longer than it looks.",
  ms1:"BIP-110 nodes start rejecting blocks",
- ms1d:"From this block on, a node running the BIP-110 rules throws out any block that does not carry the mark. Nobody is obliged to anything: it only changes what those nodes accept. This is where the chains can separate.",
+ ms1d:"From this block on, a node running the BIP-110 rules throws out any block that does not carry the mark. Nobody is obliged to anything: it only changes what those nodes accept. This is the height where the chains part.",
  ms1q1:"What changes exactly?",
  ms1a1:"Until this block, carrying the mark is voluntary and only counts toward the tally. From here on, a block without it is invalid for the nodes running these rules, while it stays perfectly valid for everyone else.",
  ms1q2:"Who switches it on?",
@@ -835,7 +835,7 @@ en: {
  coinbaseKicker:"Coinbase tags are not authenticated",
  coinbaseBody:"A pool can omit its tag, change it, or imitate another's. Useful for reading the map, not proof of authorship.",
  simTitle:"What happens to a chain with little mining power?",
- simMethod:"If some miners went their own way, they would have to keep mining with the difficulty of the whole network, but with only a fraction of the machines. Blocks would take far longer to appear. Move the control and see how long.",
+ simMethod:"A chain followed by only a fraction of the miners keeps the difficulty of the whole network, so its blocks take far longer to appear. Move the control and see how long.",
  simLabel:"Hashrate following the BIP-110 chain",
  simInterval:"One block every", simPerDay:"Blocks per day",
  simPerDayNote:"vs {bpd} on the main chain",
@@ -940,7 +940,7 @@ en: {
  footerCodeSub:"Read the code that produces these numbers",
  footerMethodSub:"Every claim, with the source it was read from",
  freshAt:"read at block {h} · {ago}",
- agoSec:"{n}s ago", agoMin:"{n} min ago", agoHour:"{n} h ago",
+ agoSec:"{n}s ago", agoMin:"{n} min ago", agoHour:"{n} h ago", agoDay:"{n} days ago",
  footerMethod:"Full methodology, sources and limitations",
  hours:"hours", minutes:"minutes", days:"days", years:"years", current:"current",
  hour:"hour", minute:"minute", day:"day", year:"year",
@@ -957,7 +957,7 @@ es: {
  heroChainQ:"¿Hay dos cadenas?",
  proofKicker:"La prueba, para que no tengas que creerte nada",
  proofBody:"A la altura {h} hay dos bloques distintos, uno en cada cadena. Son la misma cadena hasta el bloque {n}, y a partir de ahí no. Estas son sus huellas, leídas de nuestros dos nodos.",
- proofCheck:"Compruébalo en tu propio nodo: bitcoin-cli getblockhash {h}. La que te devuelva de las dos te dice en qué cadena estás.",
+ proofCheck:"Compruébalo en tu propio nodo: bitcoin-cli getblockhash {hraw}. La que te devuelva de las dos te dice en qué cadena estás.",
  splitYes:"Sí, ahora hay dos cadenas",
  splitYesFor:"Sí, hay dos cadenas desde hace {t}",
  splitStillYours:"Tus bitcoin siguen donde estaban, en las dos. No tienes que hacer nada.",
@@ -990,8 +990,8 @@ es: {
  legendSample:"No representa a la población. Los motivos están en pantalla, nunca escondidos.",
  chainTitle:"¿Se ha partido Bitcoin en dos?",
  chainMethod:"Para responder tenemos dos nodos propios, dos ordenadores que verifican Bitcoin por su cuenta. Uno lleva las reglas que están en vigor hoy y el otro las del BIP-110. Mientras los dos vean los mismos bloques, hay una sola cadena. El día que dejen de coincidir, habrá dos. No hace falta que nadie lo anuncie: se puede comprobar directamente.",
- trackEyebrow:"Míralo antes de que pase",
- trackLead:"Hoy Bitcoin es una sola cadena. En el bloque {splitHeight} podría partirse en dos, y más adelante podría volver a ser una. Pulsa cada punto y verás esta misma página en cada caso.",
+ trackEyebrow:"Míralo en cada caso",
+ trackLead:"Bitcoin puede estar en tres estados: una cadena, dos a partir del bloque {splitHeight}, o una otra vez tras haberse partido. Pulsa cada punto y verás esta misma página en cada caso.",
  whenPre:"hasta el bloque {splitHeight}", whenSplit:"en el bloque {splitHeight}",
  whenReuni:"si la minoritaria se queda sin bloques",
  chainStateLabel:"Ver cómo quedaría",
@@ -1031,7 +1031,7 @@ es: {
  tlTitle:"Las fechas del BIP-110 no son fechas, y hablan de tres momentos distintos",
  tlMethod:"Casi toda la cobertura ha hablado del 8 de agosto como si fuera una fecha única. Pero lo que hay que mirar no lo marca el calendario: son tres momentos distintos, y cada uno llega a una altura de bloque. Confundirlos como uno solo es el error más extendido de todo el debate. El que puede partir la cadena es el primero, y no tiene nada que ver con las reglas de datos, que llegan después. Y ese después puede ser mucho más largo de lo que parece.",
  ms1:"Los nodos con BIP-110 empiezan a rechazar bloques",
- ms1d:"Desde este bloque, un nodo que lleve las reglas del BIP-110 tira cualquier bloque que no traiga la marca. Nadie queda obligado a nada: solo cambia lo que esos nodos aceptan. Aquí es donde se pueden separar las cadenas.",
+ ms1d:"Desde este bloque, un nodo que lleve las reglas del BIP-110 tira cualquier bloque que no traiga la marca. Nadie queda obligado a nada: solo cambia lo que esos nodos aceptan. Esta es la altura donde las cadenas se separan.",
  ms1q1:"¿Qué cambia exactamente?",
  ms1a1:"Hasta este bloque, llevar la marca es voluntario y solo cuenta para el recuento. A partir de aquí, un bloque sin ella es inválido para los nodos que llevan esas reglas, mientras sigue siendo perfectamente válido para todos los demás.",
  ms1q2:"¿Quién lo activa?",
@@ -1086,7 +1086,7 @@ es: {
  coinbaseKicker:"Las etiquetas de coinbase no están autenticadas",
  coinbaseBody:"Un pool puede omitirla, cambiarla o imitar la de otro. Sirve para leer el mapa, no como prueba de autoría.",
  simTitle:"¿Qué le pasa a una cadena con poca potencia de minado?",
- simMethod:"Si unos cuantos mineros se fueran por su cuenta, tendrían que seguir minando con la dificultad de toda la red pero con una fracción de las máquinas. Los bloques tardarían muchísimo más en aparecer. Mueve el control y mira cuánto.",
+ simMethod:"Una cadena que siguen solo una parte de los mineros conserva la dificultad de toda la red, así que sus bloques tardan muchísimo más en aparecer. Mueve el control y mira cuánto.",
  simLabel:"Potencia de minado que sigue la cadena BIP-110",
  simInterval:"Un bloque cada", simPerDay:"Bloques al día",
  simPerDayNote:"frente a {bpd} en la cadena principal",
@@ -1191,7 +1191,7 @@ es: {
  footerCodeSub:"Lee el código que produce estas cifras",
  footerMethodSub:"Cada afirmación, con la fuente de la que salió",
  freshAt:"leído en el bloque {h} · {ago}",
- agoSec:"hace {n}s", agoMin:"hace {n} min", agoHour:"hace {n} h",
+ agoSec:"hace {n}s", agoMin:"hace {n} min", agoHour:"hace {n} h", agoDay:"hace {n} días",
  footerMethod:"Metodología completa, fuentes y limitaciones",
  hours:"horas", minutes:"minutos", days:"días", years:"años", current:"actual",
  hour:"hora", minute:"minuto", day:"día", year:"año",
@@ -1387,11 +1387,17 @@ function paintFresh(){
   }
 }
 
+/* Cuanto hace, en una sola funcion.
+   Habia DOS declaradas con este nombre, y la segunda pisaba a la primera sin
+   dar ningun error: se perdio el tramo de segundos y el singular, y la
+   cabecera acabo diciendo "1 minutes". Una funcion repetida no falla, se
+   sustituye en silencio. */
 function hace(seg){
   if(seg == null) return "";
   if(seg < 60) return t("agoSec", {n: fmt(seg)});
   if(seg < 3600) return t("agoMin", {n: fmt(Math.round(seg/60))});
-  return t("agoHour", {n: num(seg/3600, 1)});
+  if(seg < 86400) return t("agoHour", {n: num(seg/3600, 1)});
+  return t("agoDay", {n: num(seg/86400, 1)});
 }
 
 function paintDonate(){
@@ -1506,13 +1512,6 @@ function pace(sec){
 
 // Cuanto hace de algo. Sube a dias porque una rama parada se cuenta en
 // dias, y "312,0 horas" no se lee.
-function hace(sec){
-  if(sec == null) return null;
-  if(sec < 3600) return num(sec/60, 0) + " " + t("minutes");
-  if(sec < 86400) return num(sec/3600, 1) + " " + t("hours");
-  return num(sec/86400, 1) + " " + t("days");
-}
-
 // La linea de debajo del ritmo. Dice cuando fue el ultimo bloque y sobre
 // cuantos bloques va la media, y las dos cosas hacen falta:
 //
@@ -1567,7 +1566,10 @@ function chainPanelSplit(d, preview){
           <div class="mono proofh o">${esc(corta(hcorte.knots))}</div></div>
       </div>
       <div style="font-size:14px;color:var(--dim2);margin-top:12px;max-width:66ch">${
-        esc(t("proofCheck", {h: fmt(d.split_height + 1)}))}</div>
+        /* SIN separador de miles: es un comando para copiar y pegar, y
+           "getblockhash 961,632" no funciona. Un numero formateado para
+           leerse no vale para ejecutarse. */
+        esc(t("proofCheck", {hraw: String(d.split_height + 1)}))}</div>
     </div>` : "";
 
   return prueba + `${preview ? `<div style="margin-top:18px">${previewBox()}</div>` : ""}

@@ -14,7 +14,14 @@ import os
 import re
 import sys
 
-DEFAULT = ["static/index.html", "static/methodology.html"]
+# Rutas contra ESTE fichero, no contra el directorio desde el que se llame.
+# Con rutas relativas, ejecutarlo desde fuera de app/ no encontraba ningun
+# fichero, la lista quedaba vacia y el bucle no daba ni una vuelta: imprimia
+# "OK" sin haber mirado nada. Una herramienta que aprueba en vacio es peor
+# que no tenerla, porque da por revisado lo que nadie ha revisado.
+AQUI = os.path.dirname(os.path.abspath(__file__))
+DEFAULT = [os.path.join(AQUI, "static", "index.html"),
+           os.path.join(AQUI, "static", "methodology.html")]
 
 # Se permiten enlaces salientes a estas fuentes: son citas, no recursos que
 # el navegador cargue. Lo prohibido es src/href de recursos externos.
@@ -121,6 +128,27 @@ def bloque_de(blob, lang):
 def check(path):
     src = open(path, encoding="utf-8").read()
     fails = []
+
+    # UNA FUNCION DECLARADA DOS VECES NO DA ERROR: LA SEGUNDA PISA A LA
+    # PRIMERA EN SILENCIO.
+    #
+    # El 2026-08-08 habia dos `hace()` en index.html. La segunda, escrita
+    # meses despues para otra cosa, sustituyo a la original sin que fallara
+    # nada: se perdio el tramo de segundos y el singular, y la cabecera
+    # llevaba quien sabe cuanto diciendo "1 minutes". En un fichero de dos
+    # mil lineas con el JS dentro, esto no se ve leyendo.
+    nombres = re.findall(r"^function\s+([A-Za-z_$][\w$]*)\s*\(", src, re.M)
+    repes = sorted({n for n in nombres if nombres.count(n) > 1})
+    for n in repes:
+        fails.append("funcion declarada %d veces: %s()" % (nombres.count(n), n))
+
+    # Un numero con separador de miles dentro de un comando no se puede
+    # pegar: "getblockhash 961,632" no funciona. Lo que se imprime para
+    # ejecutar va sin formatear.
+    for m in re.finditer(r"(bitcoin-cli\s+\w+\s+)\{(\w+)\}", src):
+        if m.group(2) in ("h", "n", "tip", "height"):
+            fails.append("comando con un marcador que se imprime formateado: "
+                         "%s{%s}" % (m.group(1), m.group(2)))
 
     if "const DICT" in src:
         blob = src[src.index("const DICT"):]
