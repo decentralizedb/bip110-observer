@@ -607,9 +607,17 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
        Nadie lo ha medido. La seccion de mas abajo si avisaba, pero el heroe
        es lo que lee todo el mundo y afirmaba lo contrario. */
     const cd = datos.chain;
-    if (cd && cd.ok && (cd.degraded || cd.single_node) &&
-        hero.includes(panel.t("oneChainKicker")))
-      err("el heroe afirma que los nodos coinciden sin poder compararlos");
+    if (cd && cd.ok && (cd.degraded || cd.single_node)) {
+      if (hero.includes(panel.t("oneChainKicker")))
+        err("el heroe afirma que los nodos coinciden sin poder compararlos");
+      /* Y tampoco lleva etiqueta de dato verificable: la ausencia de una
+         comparacion no es una comparacion. Se mira solo la tarjeta del
+         estado, porque la cuenta atras de al lado si es dato verificable y
+         lleva la suya con todo el derecho. */
+      const tarjeta = (dom.els.herostat && dom.els.herostat._html) || "";
+      if (tarjeta.includes(panel.t("tagData")))
+        err("el heroe etiqueta como dato verificable una comparacion que no ha podido hacer");
+    }
 
     const c = datos.chain;
     if (c && c.ok && !c.single_node && !c.degraded) {

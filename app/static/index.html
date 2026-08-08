@@ -707,7 +707,7 @@ en: {
  answerMore:"Explain this to me", answerLess:"Show less",
  answerP1:"Your bitcoin does not move on its own and does not disappear. If you run a node it keeps validating exactly as it does today, and if you keep your coins in self-custody you do not have to touch your wallet either. The only thing that would ask a decision of you is wanting to sell coins from a new chain, and that is a decision you can take calmly, or not take at all.",
  answerP2:"Three things could actually cost you money, and all three depend on what you do. First, a scam asking for your seed phrase, usually dressed up as helping you protect your funds. Second, a transaction you sign on one chain being copied onto the other when you did not expect it. Third, handing your personal data to an exchange while chasing a prize that probably will not exist.",
- cdTitle:"How far is the mandatory phase",
+ cdTitle:"How far is the next milestone",
  cdWhat1:"until signalling becomes mandatory",
  cdWhat2:"until the mandatory window closes",
  cdWhat3:"until the data rules take effect",
@@ -948,7 +948,7 @@ es: {
  answerMore:"Explícamelo", answerLess:"Mostrar menos",
  answerP1:"Tus bitcoin no se mueven solos ni desaparecen. Si tienes un nodo, seguirá validando igual que hoy, y si tienes tus bitcoin en autocustodia, tampoco tienes que tocar tu cartera. Lo único que te pediría decidir algo es querer vender monedas de una cadena nueva, y esa decisión la puedes tomar con calma, o no tomarla.",
  answerP2:"Hay tres cosas que sí pueden costarte dinero, y las tres dependen de lo que hagas tú. La primera, una estafa que te pide la frase semilla, normalmente disfrazada de ayudarte a proteger tus fondos. La segunda, que una transacción que firmas en una cadena se copie en la otra sin que lo esperes. Y la tercera, entregarle tus datos a un exchange corriendo detrás de un premio que probablemente no exista.",
- cdTitle:"Cuánto falta para la fase obligatoria",
+ cdTitle:"Cuánto falta para lo siguiente",
  cdWhat1:"para que señalizar sea obligatorio",
  cdWhat2:"para que se cierre la ventana obligatoria",
  cdWhat3:"para que entren en vigor las reglas de datos",
@@ -1638,7 +1638,8 @@ function renderHeroStatus(){
                           <p class="err" style="margin-top:6px">${esc(errTxt(c))}</p></div>`;
   else            f1 = `<div class="hcard">
       <div class="hrow"><span class="hlab">${esc(t("heroChainQ"))}</span>
-        <span class="pill p-data">${esc(t("tagData"))}</span></div>
+        ${(c.degraded || c.single_node) ? "" :
+          `<span class="pill p-data">${esc(t("tagData"))}</span>`}</div>
       <div class="hval${(c.degraded || c.single_node) ? " apagado" : ""}">${esc(heroStateLine() || "—")}</div>
       ${lagNote(c)}</div>`;
 
