@@ -1781,7 +1781,12 @@ function renderHeroStatus(){
       <div class="cdnum g" style="font-size:34px;margin-top:6px">${fmt(vit.blocks_since_split)}</div>
       <div class="cdunit">${esc(t("vitUnit", {t: lapso(c.split_seconds_ago)}))}</div>
       ${partes.length ? `<div class="cdfoot">${esc(partes.join(" · "))}</div>` : ""}
-      ${((mi.milestones || {}).in_mandatory_window)
+      ${/* OJO: aqui `mi` puede no existir todavia. Esta tarjeta se dibuja en
+            cuanto llega /api/chain, y /api/miners puede tardar mas. Sin esta
+            guarda, una recarga en frio soltaba un TypeError y la pagina se
+            quedaba a medias. Las dos respuestas llegan por separado y en
+            cualquier orden: ninguna puede dar por hecha a la otra. */
+        ((mi && mi.milestones) || {}).in_mandatory_window
         ? `<div class="cdfoot o">${esc(t("cdInWindow"))}</div>` : ""}
     </div>`;
     el.innerHTML   = `<div class="hgrid">${f1}</div>`;

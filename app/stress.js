@@ -452,6 +452,17 @@ const ESCENARIOS = {
       history: history([0.3, 0.7, 0.4, 0.9, 1.2]),
       pools: pools(["Ocean"]), nodes: nodes(), chain: chain({ state: "split" }) },
 
+  /* Llega una respuesta y la otra todavia no.
+     Las seis peticiones salen a la vez y vuelven en cualquier orden. En una
+     recarga en frio, /api/chain suele llegar antes que /api/miners, y la
+     tarjeta del heroe se dibuja con la cadena ya separada y sin datos de
+     mineros. Eso soltaba un TypeError en produccion el 2026-08-09 y dejaba
+     la pagina a medias. Ningun escenario cubria una respuesta ausente: los
+     habia con ok:false, que es otra cosa. */
+  "las cadenas ya se comparan pero los mineros no han llegado":
+    { params, miners: null, history: history([0.3, 0.7, 0.4, 0.9, 1.2]),
+      pools: pools(["Ocean"]), nodes: nodes(), chain: chain({ state: "split" }) },
+
   "umbral ya cumplido en este periodo":
     { params, miners: miners({ scanned: 1500, sig: 1200,
         byPool: { "Foundry USA": 700, AntPool: 500 } }),
@@ -664,6 +675,7 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
        la otra, asi que tiende a cero sola. Sin decirlo se lee como "ya no
        señaliza nadie", que es falso. */
     if (datos.chain && datos.chain.ok && datos.chain.state === "split" &&
+        datos.miners && datos.miners.ok &&
         !usaClave(panel, salida, "mSplitBody"))
       err("cadenas separadas y la cuenta de señalizacion no dice sobre cual se mide");
 
@@ -702,6 +714,7 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
          la respuesta que casi todo el mundo busca es la de la cadena
          BIP-110, que es la unica donde ese hito ocurre. */
       if (cd.state === "split" && cd.minority && cd.minority.tip != null &&
+          datos.miners && datos.miners.ok &&
           !usaClave(panel, salida, "cdOnBip"))
         err("hay dos cadenas y el heroe no dice en cual cuenta el proximo hito");
 
@@ -907,6 +920,7 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
   if (h && h.ok && h.periods.length >= 2) {
     const d = h.periods[h.periods.length - 1].pct - h.periods[0].pct;
     const esperada = Math.abs(d) < 0.5 ? "trendFlat" : (d > 0 ? "trendUp" : "trendDown");
+    if (!(m && m.ok)) return;
     if (!usaClave(panel, salida, esperada)) {
       err(`la tendencia es ${d.toFixed(2)} y no se usa ${esperada}`);
     }
@@ -916,12 +930,16 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
       }
     }
   }
-  if (h && h.ok && h.periods.length < 2 && !usaClave(panel, salida, "trendNone")) {
+  // Todo lo que sigue se pinta dentro de la seccion de mineros: sin esa
+  // respuesta no hay donde ponerlo, y no se le puede exigir a la pagina que
+  // lo diga. Que llegue una respuesta y otra no es lo normal al recargar.
+  const hayMineros = !!(m && m.ok);
+  if (hayMineros && h && h.ok && h.periods.length < 2 && !usaClave(panel, salida, "trendNone")) {
     err("sin historico suficiente y no usa trendNone");
   }
   // El historico ya no es prosa: son nombres. Si señalizo mas de un pool,
   // tienen que aparecer TODOS por nombre, no un recuento suelto.
-  if (h && h.ok && h.signalling_blocks && h.by_pool) {
+  if (hayMineros && h && h.ok && h.signalling_blocks && h.by_pool) {
     for (const nombre of Object.keys(h.by_pool)) {
       if (!salida.includes(nombre)) err(`el pool ${nombre} señalizo y no aparece por nombre`);
     }
