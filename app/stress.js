@@ -683,6 +683,20 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
       /* Y con una separacion medida, la pagina NO puede decir en ningun
          sitio que no hay cadena minoritaria que medir. La habia cuatro
          secciones mas arriba, con sus bloques y su ritmo. */
+      /* "Las cuentas todavia dan" se lee como "aun puede activarse". Con las
+         cadenas separadas, los bloques que llevarian la marca se estan
+         minando en la otra, asi que esa nota tiene que decirlo. La caja
+         grande de al lado sigue diciendo "en teoria, si", y sola es
+         justamente la frase que este proyecto ya tuvo que corregir una vez. */
+      const mi2 = datos.miners;
+      if (cd.state === "split" && mi2 && mi2.ok && mi2.threshold_reachable &&
+          mi2.signalling_blocks < mi2.threshold_blocks) {
+        if (!usaClave(panel, salida, "mReachNoteSplit"))
+          err("cadenas separadas y el umbral se explica como si nada hubiera cambiado");
+        if (usaClave(panel, salida, "mReachNote"))
+          err("cadenas separadas y ademas se imprime la nota del umbral sin separacion");
+      }
+
       if (cd.state === "split" && usaClave(panel, salida, "strNever"))
         err("hay dos cadenas medidas y el recorrido dice que no hay ninguna que medir");
 

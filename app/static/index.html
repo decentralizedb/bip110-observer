@@ -715,8 +715,8 @@ en: {
  proofKicker:"The proof, so you do not have to take our word for it",
  proofBody:"At height {h} there are two different blocks, one on each chain. They are the same chain up to block {n}, and not after it. These are their fingerprints, read from our two nodes.",
  proofCheck:"Check it on your own node: bitcoin-cli getblockhash {hraw}. Whichever of the two you get back tells you which chain your node is on.",
- splitYes:"Yes, there are two chains now",
- splitYesFor:"Yes, there have been two chains for {t}",
+ splitYes:"Yes. There are now two versions of Bitcoin moving on separately",
+ splitYesFor:"Yes. For {t} there have been two versions of Bitcoin moving on separately",
  splitStillYours:"Your bitcoin are still where they were, on both of them. You do not have to do anything.",
  mSplitKicker:"Read this count knowing the chains have separated",
  mSplitBody:"It is counted on the chain with today's rules, block by block on our own node. Since the split, a miner that signals builds on the other chain, so its blocks are not here and this figure heads towards zero on its own. It is still exact and still verifiable, but it now answers how much of THIS chain signals, not how many miners are signalling.",
@@ -732,8 +732,8 @@ en: {
  answerP1:"Your bitcoin does not move on its own and does not disappear. If you run a node it keeps validating exactly as it does today, and if you keep your coins in self-custody you do not have to touch your wallet either. The only thing that would ask a decision of you is wanting to sell coins from a new chain, and that is a decision you can take calmly, or not take at all.",
  answerP2:"Three things could actually cost you money, and all three depend on what you do. First, a scam asking for your seed phrase, usually dressed up as helping you protect your funds. Second, a transaction you sign on one chain being copied onto the other when you did not expect it. Third, handing your personal data to an exchange while chasing a prize that probably will not exist.",
  cdTitle:"How far is the next milestone",
- cdWhat1:"until signalling becomes mandatory",
- cdWhat2:"until the mandatory window closes",
+ cdWhat1:"until the mark becomes mandatory",
+ cdWhat2:"until the mark stops being mandatory",
  cdWhat3:"until the data rules take effect",
  cdPaceNote:"if it held at one block every {sp}. Not a date.",
  cdFoot:"Counted on the chain with today's rules, which is at block {tip}, up to {h}.",
@@ -742,9 +742,9 @@ en: {
  cdAllPassed:"All three heights have been passed, so there is nothing left to count down to. What happened at each one is below.",
  legendTitle:"How to read every number here",
  tagData:"Verifiable data", tagEst:"Estimate", tagSample:"Biased sample",
- legendData:"Anyone with a full node gets the same figure. No sampling involved.",
+ legendData:"Anyone with a full node gets the same figure. Nothing is sampled: every block is counted.",
  legendEst:"A model or a sample, with its assumptions written next to it.",
- legendSample:"Does not represent the population. The reasons why are on screen, never hidden.",
+ legendSample:"What we can see is not everything there is, so this does not describe the whole. Why not is written on screen, never hidden.",
  chainTitle:"Has Bitcoin split in two?",
  chainMethod:"To answer that we run two nodes of our own, two computers that verify Bitcoin by themselves. One follows the rules in force today, the other follows the BIP-110 rules. While both see the same blocks there is one chain. The day they stop matching, there are two. Nobody has to announce it: it can be checked directly.",
  trackEyebrow:"See how it looks in each case",
@@ -829,6 +829,7 @@ en: {
  mTip:"Current block", mTipNote:"period {p} · from {a} to {b}",
  mReach:"Could it still reach {thr}%?", mReachVal:"In theory, yes",
  mReachNote:"{t} of the {periodSize} blocks are needed and {r} are still to be mined, so the numbers still add up. It says nothing about whether it will happen.",
+ mReachNoteSplit:"The arithmetic still works: {t} of the {periodSize} blocks are needed and {r} are left to mine. But since the split, the miners that carry the mark are mining the other chain, so those blocks would have to come from miners that are not carrying it today.",
  mTrend:"Last {n} closed periods", mTrendNote:"{v} %",
  whoTitle:"Who has signalled in period {p}, the one running now",
  whoNone:"No block has signalled bit 4 in this period yet.",
@@ -967,8 +968,8 @@ es: {
  proofKicker:"La prueba, para que no tengas que creerte nada",
  proofBody:"A la altura {h} hay dos bloques distintos, uno en cada cadena. Son la misma cadena hasta el bloque {n}, y a partir de ahí no. Estas son sus huellas, leídas de nuestros dos nodos.",
  proofCheck:"Compruébalo en tu propio nodo: bitcoin-cli getblockhash {hraw}. La que te devuelva de las dos te dice en qué cadena estás.",
- splitYes:"Sí, ahora hay dos cadenas",
- splitYesFor:"Sí, hay dos cadenas desde hace {t}",
+ splitYes:"Sí. Ahora hay dos versiones de Bitcoin avanzando por separado",
+ splitYesFor:"Sí. Desde hace {t} hay dos versiones de Bitcoin avanzando por separado",
  splitStillYours:"Tus bitcoin siguen donde estaban, en las dos. No tienes que hacer nada.",
  mSplitKicker:"Lee esta cuenta sabiendo que las cadenas se han separado",
  mSplitBody:"Se cuenta sobre la cadena con las reglas de hoy, bloque a bloque en nuestro propio nodo. Desde la separación, un minero que señaliza construye en la otra cadena, así que sus bloques no están aquí y esta cifra tiende a cero por sí sola. Sigue siendo exacta y verificable, pero ahora contesta cuánto señaliza ESTA cadena, no cuántos mineros están señalizando.",
@@ -984,8 +985,8 @@ es: {
  answerP1:"Tus bitcoin no se mueven solos ni desaparecen. Si tienes un nodo, seguirá validando igual que hoy, y si tienes tus bitcoin en autocustodia, tampoco tienes que tocar tu cartera. Lo único que te pediría decidir algo es querer vender monedas de una cadena nueva, y esa decisión la puedes tomar con calma, o no tomarla.",
  answerP2:"Hay tres cosas que sí pueden costarte dinero, y las tres dependen de lo que hagas tú. La primera, una estafa que te pide la frase semilla, normalmente disfrazada de ayudarte a proteger tus fondos. La segunda, que una transacción que firmas en una cadena se copie en la otra sin que lo esperes. Y la tercera, entregarle tus datos a un exchange corriendo detrás de un premio que probablemente no exista.",
  cdTitle:"Cuánto falta para lo siguiente",
- cdWhat1:"para que señalizar sea obligatorio",
- cdWhat2:"para que se cierre la ventana obligatoria",
+ cdWhat1:"para que la marca sea obligatoria",
+ cdWhat2:"para que la marca deje de ser obligatoria",
  cdWhat3:"para que entren en vigor las reglas de datos",
  cdPaceNote:"si se mantuviera en un bloque cada {sp}. No es una fecha.",
  cdFoot:"Contado sobre la cadena con las reglas de hoy, que va por el bloque {tip}, hasta el {h}.",
@@ -994,9 +995,9 @@ es: {
  cdAllPassed:"Las tres alturas ya han pasado, así que no queda ninguna cuenta atrás. Lo que ocurrió en cada una está más abajo.",
  legendTitle:"Cómo leer cada cifra de este panel",
  tagData:"Dato verificable", tagEst:"Estimación", tagSample:"Muestra sesgada",
- legendData:"Cualquiera con un nodo completo obtiene la misma cifra. Sin muestreo.",
+ legendData:"Cualquiera con un nodo completo obtiene la misma cifra. No se toma una muestra: se cuentan todos los bloques.",
  legendEst:"Un modelo o una muestra, con sus supuestos escritos al lado.",
- legendSample:"No representa a la población. Los motivos están en pantalla, nunca escondidos.",
+ legendSample:"Lo que se ve no es todo lo que hay, así que esto no describe el conjunto. Los motivos están en pantalla, nunca escondidos.",
  chainTitle:"¿Se ha partido Bitcoin en dos?",
  chainMethod:"Para responder tenemos dos nodos propios, dos ordenadores que verifican Bitcoin por su cuenta. Uno lleva las reglas que están en vigor hoy y el otro las del BIP-110. Mientras los dos vean los mismos bloques, hay una sola cadena. El día que dejen de coincidir, habrá dos. No hace falta que nadie lo anuncie: se puede comprobar directamente.",
  trackEyebrow:"Míralo en cada caso",
@@ -1081,6 +1082,7 @@ es: {
  mTip:"Bloque actual", mTipNote:"periodo {p} · del {a} al {b}",
  mReach:"¿Todavía puede llegar al {thr}%?", mReachVal:"En teoría, sí",
  mReachNote:"hacen falta {t} de los {periodSize} bloques y quedan {r} por minar, así que las cuentas todavía dan. No dice nada sobre si va a ocurrir.",
+ mReachNoteSplit:"Las cuentas siguen dando: hacen falta {t} de los {periodSize} bloques y quedan {r} por minar. Pero desde la separación, los mineros que ponen la marca están minando la otra cadena, así que esos bloques tendrían que salir de mineros que hoy no la ponen.",
  mTrend:"Últimos {n} periodos cerrados", mTrendNote:"{v} %",
  whoTitle:"Quién ha señalizado en el periodo {p}, el que está en curso",
  whoNone:"Todavía no ha señalizado el bit 4 ningún bloque de este periodo.",
@@ -2027,7 +2029,14 @@ function renderMiners(){
         // en que la propuesta sale adelante.
         const cumplido = d.signalling_blocks >= d.threshold_blocks;
         const clave = cumplido ? "reachMet" : (d.threshold_reachable ? "reachYes" : "reachNo");
-        const nota  = cumplido ? "reachMetNote" : (d.threshold_reachable ? "mReachNote" : "reachNoNote");
+        /* Con las cadenas separadas, "las cuentas dan" se lee como "aun
+           puede activarse", y en ESTA cadena los bloques que llevarian la
+           marca se estan minando en la otra. La cifra no cambia; lo que
+           cambia es lo que significa, y eso hay que decirlo. */
+        const partidas = realState() === "split";
+        const nota  = cumplido ? "reachMetNote"
+                    : (d.threshold_reachable ? (partidas ? "mReachNoteSplit" : "mReachNote")
+                                             : "reachNoNote");
         const color = cumplido ? "g" : (d.threshold_reachable ? "b" : "o");
         return `<div class="card"><div class="lbl">${esc(t("mReach", constVars()))}</div>
           <div class="val ${color}">${esc(t(clave))}</div>
