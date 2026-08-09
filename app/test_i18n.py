@@ -142,6 +142,24 @@ def check(path):
     for n in repes:
         fails.append("funcion declarada %d veces: %s()" % (nombres.count(n), n))
 
+    # UN HITO, UN NOMBRE.
+    #
+    # Las mismas dos alturas se llamaban de dos maneras segun la seccion: la
+    # cronologia usaba nombres llanos y el recorrido los nombres del
+    # protocolo (LOCKED_IN, ACTIVE). Para el lector no son el mismo sitio, y
+    # entonces el panel parece estar hablando de cuatro momentos y no de dos.
+    # Si algun dia se cambia uno, este par tiene que cambiarse entero.
+    # Se comparan POR IDIOMA, en el mismo orden en que aparecen los dos
+    # diccionarios. La primera version buscaba solo la primera aparicion, o
+    # sea siempre la inglesa, y rompiendo el texto castellano no fallaba.
+    for a, b in (("ms2", "strMs2"), ("ms3", "strMs3")):
+        v1 = re.findall(r'\b%s:"((?:[^"\\]|\\.)*)"' % a, src)
+        v2 = re.findall(r'\b%s:"((?:[^"\\]|\\.)*)"' % b, src)
+        for i, (x, y) in enumerate(zip(v1, v2)):
+            if x != y:
+                fails.append("la misma altura con dos nombres (%s): %s=%r y %s=%r"
+                             % ("en" if i == 0 else "es", a, x, b, y))
+
     # Un numero con separador de miles dentro de un comando no se puede
     # pegar: "getblockhash 961,632" no funciona. Lo que se imprime para
     # ejecutar va sin formatear.
