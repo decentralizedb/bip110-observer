@@ -732,6 +732,14 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
           !usaClave(panel, salida, "cdFewBlocks"))
         err("se da un plazo sacado de pocos bloques sin decir sobre cuantos va");
 
+      /* La lista de pools tambien se mide sobre la cadena de hoy, y desde el
+         corte quien señaliza mina en la otra. Sin decirlo, el dia que la
+         ventana deje atras la separacion seguira diciendo "solo señaliza X"
+         con X minando en otra parte. */
+      if (cd.state === "split" && datos.pools && datos.pools.ok &&
+          !usaClave(panel, salida, "coalSplitNote"))
+        err("cadenas separadas y la lista de pools no dice sobre cual se mide");
+
       if (cd.state === "split" && usaClave(panel, salida, "strNever"))
         err("hay dos cadenas medidas y el recorrido dice que no hay ninguna que medir");
 

@@ -907,6 +907,7 @@ en: {
  poolsMethod:"Each pool's share measured over the last {sampleBlocks} blocks against an own node, not taken from a third party. {poolsIdent} pools identified, {unattrPct}% unattributed.",
  poolsMethodPlain:"Each pool's share is measured block by block against an own node, never taken from a third party.",
  coalitionKicker:"What it would take to reach the threshold",
+ coalSplitNote:"Read on the chain with today's rules, over its last blocks: since the split a pool that signals is mining the other chain, so it drops out of this window as the window moves on, without having changed its mind.",
  coalitionBody:"No combination reaches {thr}% today unless several of the majors move at the same time. Only {pool} signals, and it holds {share}%. That is the coordination problem keeping everyone still.",
  coalitionBodyMany:"Reaching {thr}% needs several of the majors moving at the same time. Right now {poolCount} pools signal and together they hold {sigShare}% of mining. That is {gapShare} points short of the threshold.",
  coalitionBodyOver:"{poolCount} pools now signal and together they hold {sigShare}% of mining, above the {thr}% the BIP asks for. Mining share is not the same as blocks actually signalled, so it is the count per period that decides, not this figure.",
@@ -1169,6 +1170,7 @@ es: {
  poolsMethod:"Cuota de cada pool medida sobre los últimos {sampleBlocks} bloques contra un nodo propio, no tomada de un tercero. {poolsIdent} pools identificados, {unattrPct}% sin atribuir.",
  poolsMethodPlain:"La cuota de cada pool se mide bloque a bloque contra un nodo propio, nunca se toma de un tercero.",
  coalitionKicker:"Qué haría falta para llegar al umbral",
+ coalSplitNote:"Leído sobre la cadena con las reglas de hoy, en sus últimos bloques: desde la separación, un pool que señaliza está minando la otra cadena, así que va saliendo de esta ventana según avanza, sin haber cambiado de idea.",
  coalitionBody:"Ninguna combinación llega al {thr}% sin que varios de los grandes se muevan a la vez. Solo señaliza {pool}, con el {share}%. Ese es el problema de coordinación que mantiene inmóvil a todo el mundo.",
  coalitionBodyMany:"Llegar al {thr}% exige que varios de los grandes se muevan a la vez. Ahora mismo señalizan {poolCount} pools y entre todos suman el {sigShare}% del minado. Eso deja {gapShare} puntos hasta el umbral.",
  coalitionBodyOver:"Ya señalizan {poolCount} pools y entre todos suman el {sigShare}% del minado, por encima del {thr}% que pide el BIP. Cuota de minado no es lo mismo que bloques señalizados, así que lo que decide es el recuento de cada periodo, no esta cifra.",
@@ -2258,7 +2260,16 @@ function renderPools(){
   const rows = (d.pools || []).slice(0, 14);
   const mx = (rows.length ? rows[0].share_pct : 0) || 1;
   const co = $("coalition");
-  if(co) co.textContent = coalitionText();
+  /* La muestra de pools se toma sobre la cadena de hoy, y desde el corte
+     quien señaliza mina en la otra. Ahora mismo la ventana todavia cruza la
+     separacion, asi que Ocean sigue apareciendo; cuando la ventana avance
+     dejara de estar, y esta frase seguiria diciendo lo mismo sin que nada
+     la desmienta. Se dice de donde sale, igual que en la seccion de
+     mineros, que ya lo avisa. */
+  if(co){
+    co.textContent = coalitionText() +
+      (realState() === "split" ? " " + t("coalSplitNote") : "");
+  }
   el.innerHTML = rows.map(p => {
     const sig = p.signalling_blocks > 0;
     return `<div class="poolrow">
