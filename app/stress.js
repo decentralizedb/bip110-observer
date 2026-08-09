@@ -463,6 +463,23 @@ const ESCENARIOS = {
     { params, miners: null, history: history([0.3, 0.7, 0.4, 0.9, 1.2]),
       pools: pools(["Ocean"]), nodes: nodes(), chain: chain({ state: "split" }) },
 
+  /* Separacion ya detectada y AHORA falta un nodo.
+     El estado sigue siendo split porque quedo guardado, pero sin los dos
+     nodos no hay majority ni minority: las tarjetas salian con la altura,
+     la cuota y el ritmo en rayas. Visto en produccion el 2026-08-09, con el
+     nodo canonico inalcanzable un rato. Lo que si se puede seguir enseñando
+     son los hashes del corte, que estan guardados. */
+  "separadas, y ahora el nodo canonico no responde":
+    { params, miners: miners({ scanned: 100, sig: 0 }),
+      history: history([0.3, 0.7, 0.4, 0.9, 1.2]),
+      pools: pools(["Ocean"]), nodes: nodes(),
+      chain: chain({ state: "split", extra: {
+        degraded: true, missing: ["core"], majority: null, minority: null,
+        nodes: { core: { ok: false, error: "no se ha podido conectar con el nodo" },
+                 knots: { ok: true, subversion: "/Satoshi:29.4.0/Knots:20260508/",
+                          tip: 961633, hash: HASH_B, chainwork: "0a",
+                          via: "tor", enforces: true } } } }) },
+
   "umbral ya cumplido en este periodo":
     { params, miners: miners({ scanned: 1500, sig: 1200,
         byPool: { "Foundry USA": 700, AntPool: 500 } }),
@@ -678,6 +695,31 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
         datos.miners && datos.miners.ok &&
         !usaClave(panel, salida, "mSplitBody"))
       err("cadenas separadas y la cuenta de señalizacion no dice sobre cual se mide");
+
+    /* Con un nodo mudo no se dibujan las tarjetas de las dos cadenas: sin
+       sus datos salen con la altura, la cuota y el ritmo en rayas, parece una
+       pagina rota y tapan el aviso que explica por que no hay datos. La
+       prueba del corte si se queda, que son hashes guardados.
+       VA FUERA del bloque de abajo a proposito: ese se salta justo cuando
+       hay un nodo caido, que es el unico caso que esto vigila. Escrita
+       dentro, no se ejecutaba nunca. */
+    const cdeg = datos.chain;
+    // Solo cuando la vista es la REAL. En vista previa las tarjetas se
+    // rellenan con valores de ejemplo a proposito, y ahi no hay rayas.
+    if (cdeg && cdeg.ok && cdeg.degraded && vista === "split" &&
+        cdeg.state === "split" &&
+        !(cdeg.majority && cdeg.majority.tip != null)) {
+      /* Se mira SOLO dentro de la seccion de la cadena. En castellano,
+         blockPace y simInterval son la misma frase ("Un bloque cada"), asi
+         que buscar en toda la pagina encontraba la del simulador y daba una
+         falsa alarma en un idioma y no en el otro. Dos claves distintas
+         pueden compartir texto; el sitio donde se pintan, no. */
+      const secCadena = (dom.els.chain && dom.els.chain._html) || "";
+      if (secCadena.includes(panel.t("blockPace")))
+        err("falta un nodo y aun asi se dibujan las tarjetas de las dos cadenas");
+      if (cdeg.split_hashes && !usaClave(panel, salida, "proofKicker"))
+        err("falta un nodo y se pierde la prueba del corte, que si se sabe");
+    }
 
     const c = datos.chain;
     if (c && c.ok && !c.single_node && !c.degraded) {

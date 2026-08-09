@@ -53,7 +53,7 @@ services:
       MINERS_TTL: "${MINERS_TTL:-300}"
       POOLS_TTL: "${POOLS_TTL:-3600}"
       NODES_TTL: "${NODES_TTL:-3600}"
-      CHAINS_TTL: "${CHAINS_TTL:-60}"
+      CHAINS_TTL: "${CHAINS_TTL:-30}"
       HEALTH_TIMEOUT: "${HEALTH_TIMEOUT:-12}"
       # Por ENCIMA de los 120s que Tor insiste antes de rendirse. Con 35 se
       # daba por caido un nodo que estaba contestando, solo que despacio.

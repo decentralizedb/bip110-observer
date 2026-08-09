@@ -847,7 +847,7 @@ en: {
  ms3a2:"No. Coins confirmed before block {h} stay outside the new rules permanently, for the whole time they are in force. This is written into the BIP itself.",
  ms3q3:"How long do they last?",
  ms3a3:"About a year, and then they expire on their own without anyone doing anything. And they only apply on the chain whose nodes enforce them.",
- blocks:"blocks", block:"block", daysAway:"≈{n} days", reached:"reached",
+ blocks:"blocks", block:"block", daysAway:"≈{n} days", etaAprox:"≈{v}", reached:"reached",
  minersTitle:"Are the miners signalling?",
  minersMethod:"For BIP-110 to go ahead, {thr}% of the blocks in a {periodSize} block stretch have to carry the bit 4 mark. We count those marks one by one on our own node. No explorer and no third-party API, so anyone with a full node can repeat the count and get the same number. One thing almost nobody says: the mark is put there by the mining software itself while the deployment is counting, so it tells you which software built the block, not what whoever mined it thinks.",
  gapKicker:"How far it is from the {thr}% needed",
@@ -1113,7 +1113,7 @@ es: {
  ms3a2:"No. Las monedas confirmadas antes del bloque {h} quedan fuera de las reglas nuevas de forma permanente, durante todo el tiempo que estén en vigor. Está escrito en el propio BIP.",
  ms3q3:"¿Cuánto duran?",
  ms3a3:"Alrededor de un año, y después expiran solas sin que nadie haga nada. Y solo se aplican en la cadena cuyos nodos las hacen cumplir.",
- blocks:"bloques", block:"bloque", daysAway:"≈{n} días", reached:"alcanzado",
+ blocks:"bloques", block:"bloque", daysAway:"≈{n} días", etaAprox:"≈{v}", reached:"alcanzado",
  minersTitle:"¿Los mineros están señalizando?",
  minersMethod:"Para que el BIP-110 salga adelante, el {thr}% de los bloques de una tanda de {periodSize} tiene que llevar la marca del bit 4. Esas marcas las contamos una a una en nuestro propio nodo. Sin exploradores ni APIs de terceros, así que cualquiera con un nodo completo puede repetir la cuenta y obtener el mismo número. Un matiz que casi nadie cuenta: la marca la pone el propio programa de minado mientras el despliegue está contando, así que dice qué software armó el bloque, no lo que opina quien lo minó.",
  gapKicker:"Lo que falta para el {thr}% necesario",
@@ -1626,6 +1626,26 @@ function forkDiagram(d){
     </div></div>`;
 }
 
+/* La prueba del corte, sin las tarjetas de las dos cadenas.
+   Se usa cuando falta un nodo: los hashes divergentes estan guardados y
+   siguen siendo ciertos, asi que se pueden enseñar; las cifras en vivo de
+   cada rama, no. */
+function forkProofOnly(d){
+  const hc = d.split_hashes;
+  if(!hc) return "";
+  const corta = h => (h && h.length > 24) ? h.slice(0, 12) + "…" + h.slice(-10) : (h || "—");
+  return `<div class="panel" style="margin-top:18px">
+    <div class="caveat-k">${esc(t("proofKicker"))}</div>
+    <div style="font-size:15px;color:var(--dim);margin-top:6px;max-width:66ch">${
+      esc(t("proofBody", {h: fmt(d.split_height + 1), n: fmt(d.split_height)}))}</div>
+    <div class="proof">
+      <div><div class="lbl">${esc(t("nodeCore"))}</div>
+        <div class="mono proofh">${esc(corta(hc.core))}</div></div>
+      <div><div class="lbl">${esc(t("nodeKnots"))}</div>
+        <div class="mono proofh o">${esc(corta(hc.knots))}</div></div>
+    </div></div>`;
+}
+
 function chainPanelSplit(d, preview){
   // En vista previa no hay medida: se usan valores ilustrativos y se dice.
   const maj = preview ? {tip:(d.nodes&&d.nodes.core?d.nodes.core.tip:0)+212,
@@ -1981,7 +2001,19 @@ function renderChain(){
       <div class="caveat-k">${esc(t("degradedKicker"))}</div>
       <div class="caveat-b" style="font-size:15px">${esc(t("degradedBody"))}</div></div>`;
   }
-  if(shown === "split")           html += chainPanelSplit(d, preview);
+  /* CON UN NODO MUDO NO SE DIBUJAN LAS TARJETAS VACIAS.
+     El estado sigue siendo "split" porque quedo guardado, pero sin los dos
+     nodos no hay majority ni minority que enseñar, y las tarjetas salian
+     con la altura, la cuota y el ritmo todos en rayas. Una tarjeta llena de
+     rayas parece una pagina rota, y encima tapa el aviso de arriba, que es
+     el que explica por que no hay datos.
+     La prueba del corte SI se queda: son hashes guardados, no dependen de
+     que el nodo conteste hoy. */
+  const sinComparar = d.degraded && !(d.majority && d.majority.tip != null);
+  if(shown === "split" && sinComparar && !preview){
+    html += (d.split_hashes ? forkProofOnly(d) : "");
+  }
+  else if(shown === "split")      html += chainPanelSplit(d, preview);
   else if(shown === "reunified")  html += chainPanelReuni(d, preview);
   else                            html += chainPanelOne(d, preview);
   el.innerHTML = html;
@@ -2028,7 +2060,11 @@ function renderTimeline(){
     const away = m.passed ? t("reached") : fmt(faltan) + " " + t("blocks");
     // Sin plazo fiable no se escribe uno. "nunca" era lo que salia cuando la
     // proyeccion venia con la cuota señalizada, que tras el corte es cero.
-    const eta  = m.passed ? "" : (dias == null ? "" : t("daysAway", {n: num(dias, 1)}));
+    /* La MISMA unidad que el recorrido, que usa strDur y pasa a años por
+       encima del año. El mismo hito salia como "770,0 dias" aqui y "2,11
+       años" alli: el mismo numero, y el lector teniendo que dividir para
+       saber que hablan de lo mismo. */
+    const eta  = m.passed ? "" : (dias == null ? "" : t("etaAprox", {v: strDur(dias)}));
     const n = i + 1;
     const v = Object.assign(constVars(), {h: fmt(m.height), prev: fmt(m.height - 1)});
     const qa = [1, 2, 3].map(j => {
@@ -2659,7 +2695,12 @@ function autoRefresh(){
   // El "hace X" tiene que avanzar aunque no entren datos: si el panel se
   // quedara mudo, el contador subiendo es la senal de que algo pasa.
   setInterval(paintFresh, 10000);
-  setInterval(() => load("chain",  "/api/chain"),  60 * 1000);
+  /* Cada 15 s, y no es por ansiedad: el servidor rehace esta comparacion
+     cada 30, asi que sondeando cada 60 se perdia medio ciclo entero. Pedir
+     mas a menudo que el TTL no cuesta nada al nodo, porque estas peticiones
+     se sirven de la cache; lo unico que hace es que el dato nuevo llegue a
+     la pantalla en cuanto existe. */
+  setInterval(() => load("chain",  "/api/chain"),  15 * 1000);
   setInterval(() => load("miners", "/api/miners"), 5 * 60 * 1000);
   setInterval(() => { load("history","/api/history"); load("pools","/api/pools"); },
               30 * 60 * 1000);

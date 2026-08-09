@@ -20,6 +20,7 @@ de verdad, con dos nodos falsos.
 
 Uso: python3 test_stall.py
 """
+import json
 import os
 import sys
 import time
@@ -202,6 +203,54 @@ comprobar("cadena parada: el ritmo recoge el tiempo sin producir",
 comprobar("y NO es la media entre sus dos bloques (1,1 h)", h_min > 2)
 comprobar("la base son los bloques propios desde el corte",
           mino.get("interval_blocks") == 2, "n=%s" % mino.get("interval_blocks"))
+
+
+# --- 9. LA DIRECCION DEL NODO NO SALE EN NINGUNA RESPUESTA PUBLICA.
+#
+# El 2026-08-09 la .onion del nodo canonico aparecio entera en /api/chain.
+# La rama que gestiona "este nodo no responde" copiaba el texto crudo de la
+# excepcion, y ese texto llevaba las URLs probadas dentro. Todas las demas
+# rutas limpiaban; bastaba una que no.
+#
+# Se comprueba de punta a punta: un nodo que falla con la direccion dentro
+# del error, y la respuesta entera mirada en busca de cualquier rastro.
+# NUNCA una direccion real aqui, ni siquiera en una prueba.
+# Esta cadena se escribio con la .onion de verdad del nodo y acabo
+# publicada en GitHub, en la misma prueba que existe para impedir
+# justo eso. Lo que no debe salir no se escribe en ningun sitio, y un
+# fichero de pruebas es un sitio.
+ONION = "aaaaaaaaaaaaaaaaaaaaaaaaaaejemplodeprueba234567abcdefghij.onion"
+
+
+class NodoQueFalla:
+    def batch(self, _p):
+        raise RuntimeError(
+            "Ninguna direccion del nodo 'core' responde. Probadas: "
+            "http://%s:8332 -> SOCKSHTTPConnectionPool(host='%s', port=8332): "
+            "Max retries exceeded" % (ONION, ONION))
+
+    def call(self, *a):
+        raise RuntimeError("http://%s:8332 no responde" % ONION)
+
+
+rotos = {"core": NodoQueFalla(), "knots": DosRamas(961633, "b", 4069)}
+main._rpc = lambda n: rotos[n]
+main._node_configured = lambda n: True
+main._load_state = lambda: {}
+main._save_state = lambda s: None
+main.transport_of = lambda u: "tor"
+main._active_url = lambda n: ""
+d = main._build_chains()
+
+crudo = json.dumps(d, default=str)
+comprobar("la .onion no aparece en la respuesta", ONION not in crudo)
+comprobar("ni el trozo reconocible de la direccion", ONION[:20] not in crudo)
+comprobar("ni ninguna otra cosa acabada en .onion",
+          ".onion" not in crudo, crudo[:90] if ".onion" in crudo else "")
+comprobar("y aun asi se dice que ese nodo no responde",
+          d["nodes"]["core"].get("ok") is False and
+          bool(d["nodes"]["core"].get("error")),
+          d["nodes"]["core"].get("error", "")[:60])
 
 print()
 print("sin fallos" if not fallos else "%d fallos" % fallos)

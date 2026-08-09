@@ -37,7 +37,15 @@ TTL = {
     "miners": int(os.environ.get("MINERS_TTL", "300")),
     "pools": int(os.environ.get("POOLS_TTL", "3600")),
     "nodes": int(os.environ.get("NODES_TTL", "3600")),
-    "chains": int(os.environ.get("CHAINS_TTL", "60")),
+    # 30 s, no 60. La frescura de esta cifra es lo que hace que el panel se
+    # mire dos veces: con 60 de cache y 60 de sondeo en el navegador, un
+    # bloque tardaba hasta dos minutos en aparecer. Con 30 y 15, medio
+    # minuto en el peor caso.
+    # No se baja mas porque cada construccion habla con los dos nodos por
+    # Tor y ahi cada ida y vuelta son segundos: por debajo de 30 el hilo de
+    # fondo estaria trabajando casi sin parar para adelantar unos pocos
+    # segundos que nadie nota.
+    "chains": int(os.environ.get("CHAINS_TTL", "30")),
     # Los periodos cerrados no cambian; el TTL solo controla cada cuanto se
     # comprueba si ha cerrado uno nuevo.
     "history": int(os.environ.get("HISTORY_TTL", "3600")),
@@ -213,9 +221,21 @@ def _rpc(node=DEFAULT_NODE, force=False):
         _rpc_pick[node] = (url, now)
         return BitcoinRPC(url=url, user=user, password=password)
 
+    # LAS DIRECCIONES NO ENTRAN EN EL MENSAJE.
+    #
+    # Aqui iban las URLs enteras, y el 2026-08-09 la .onion del nodo salio
+    # publicada en /api/chain: esa rama copiaba el texto de la excepcion sin
+    # pasarlo por _explicar(). Un solo sitio que se olvide de limpiar basta
+    # para publicarla, asi que lo que no debe salir tampoco se escribe.
+    # Van las huellas, que sirven para distinguir dos entradas y no se
+    # deshacen.
     raise RuntimeError(
-        f"Ninguna direccion del nodo '{node}' responde. Probadas: "
-        + "; ".join(f"{u} -> {errors.get(u, 'sin respuesta')}" for u in urls)
+        "Ninguna direccion del nodo '%s' responde (%s). Motivos: %s" % (
+            node,
+            ", ".join(_huella(u) for u in urls),
+            "; ".join(_sin_direcciones(str(errors.get(u, "sin respuesta")))
+                      for u in urls),
+        )
     ) from last
 
 
@@ -1154,7 +1174,10 @@ def _build_chains():
             continue
         got = crudo[name]
         if isinstance(got, Exception):
-            out["nodes"][name] = {"ok": False, "error": str(got)}
+            # _explicar(), no str(). Era el unico sitio que copiaba el
+            # texto crudo de la excepcion a la respuesta publica.
+            out["nodes"][name] = {"ok": False, "error": _explicar(got),
+                                  "motivo": _motivo(got), "detalle": _detalle(got)}
             continue
         try:
             r, bi, ni = got
@@ -1287,8 +1310,15 @@ def _build_chains():
         if out["state"] == "split":
             # Cuatro viajes mas por Tor. Solo se enseña en la vista de dos
             # cadenas, asi que antes de la separacion no se calcula.
-            ritmo, ultima, medidos = _pace(rpcs[name], tip,
-                                           suelo=out.get("split_height"))
+            # Solo la hora de la punta: dos llamadas, no cuatro.
+            #
+            # Aqui se llamaba a _pace(), que ademas pide el bloque del suelo
+            # de la ventana para sacar la media de los intervalos. Esa media
+            # ya no se usa desde que el ritmo se mide sobre el tiempo
+            # transcurrido, asi que eran dos idas y vueltas por Tor y por
+            # rama para tirar el resultado. Con la caché bajando a 30 s eso
+            # deja de ser un detalle.
+            ultima = _tip_time(rpcs[name], tip)
 
             # EL RITMO SE MIDE SOBRE EL TIEMPO TRANSCURRIDO, NO ENTRE BLOQUES.
             #
