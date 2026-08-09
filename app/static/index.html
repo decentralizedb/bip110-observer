@@ -757,7 +757,7 @@ en: {
  chainStateLabel:"See how it would look",
  statePre:"One chain", stateSplit:"Two chains", stateReuni:"One chain again",
  stopNow:"now",
- chainStateNote:"Only the stop marked NOW shows real data. The other two are an example, so the day it changes does not catch you off guard. If it happens, that mark moves by itself and what you see there stops being an example.",
+ chainStateNote:"Only the stop marked NOW shows real data. The other two are an example, so you can see what each case looks like. That mark moves on its own as the state changes, and whatever it lands on stops being an example.",
  previewBadge:"Example · this is not happening",
  previewNote:"You are looking at a scenario, not at what is happening now. The figures here are made up to show the layout. The panel works out the real state on its own by comparing the two nodes, with nobody touching anything.",
  oneChainKicker:"One chain · both nodes agree",
@@ -775,7 +775,8 @@ en: {
  minBody:"Every figure below applies only to this chain, and only while it produces blocks.",
  asymKicker:"Not symmetric",
  asymBody:"These two panels are different sizes on purpose, and the difference is the accumulated work, which is measured. Showing them as equals would suggest a parity that no figure here supports. It says nothing about which one anyone should follow.",
- hashShare:"Share of mining", blockPace:"A block every",
+ hashShare:"Share of mining",
+ splitBlockShare:"Blocks since the split", blockPace:"A block every",
  lastBlock:"last block {t}",
  paceBase:"average over {n} blocks of this chain",
  paceNoBlocks:"no blocks of its own yet, so there is no pace to measure",
@@ -877,7 +878,7 @@ en: {
  strAxis0:"split",
  strAxisY1:"{n} year",
  strAxisYn:"{n} years",
- strRailFast:"If the chain stays one",
+ strRailFast:"If it had not split",
  strRailSlow:"On the minority chain, at today's {share}%",
  strMs2:"The outcome is settled",
  strMs3:"The data rules take effect",
@@ -900,6 +901,7 @@ en: {
  simViable:"At this share the chain would be the majority: there would be no split, the whole network would follow those rules.",
  poolsTitle:"Who could change this?",
  poolsMethod:"Each pool's share measured over the last {sampleBlocks} blocks against an own node, not taken from a third party. {poolsIdent} pools identified, {unattrPct}% unattributed.",
+ poolsMethodPlain:"Each pool's share is measured block by block against an own node, never taken from a third party.",
  coalitionKicker:"What it would take to reach the threshold",
  coalitionBody:"No combination reaches {thr}% today unless several of the majors move at the same time. Only {pool} signals, and it holds {share}%. That is the coordination problem keeping everyone still.",
  coalitionBodyMany:"Reaching {thr}% needs several of the majors moving at the same time. Right now {poolCount} pools signal and together they hold {sigShare}% of mining. That is {gapShare} points short of the threshold.",
@@ -1013,7 +1015,7 @@ es: {
  chainStateLabel:"Ver cómo quedaría",
  statePre:"Una cadena", stateSplit:"Dos cadenas", stateReuni:"Vuelve a ser una",
  stopNow:"ahora",
- chainStateNote:"Solo la parada marcada como AHORA muestra datos reales. Las otras dos son un ejemplo, para que el día que cambie no te pille de nuevas. Si ocurre, esa marca se mueve sola y lo que veas ahí dejará de ser un ejemplo.",
+ chainStateNote:"Solo la parada marcada como AHORA muestra datos reales. Las otras dos son un ejemplo, para que veas cómo se ve cada caso. Esa marca se mueve sola según cambia el estado, y lo que quede señalado deja de ser un ejemplo.",
  previewBadge:"Ejemplo · esto no está pasando",
  previewNote:"Esto es un escenario, no lo que está pasando ahora. Las cifras están inventadas para enseñar cómo quedaría. El estado real lo saca el panel solo, comparando los dos nodos, sin que nadie toque nada.",
  oneChainKicker:"Una cadena · los dos nodos coinciden",
@@ -1031,7 +1033,8 @@ es: {
  minBody:"Cada cifra de aquí abajo vale solo para esta cadena, y solo mientras produzca bloques.",
  asymKicker:"No son simétricas",
  asymBody:"Estos dos paneles tienen tamaños distintos a propósito, y la diferencia es el trabajo acumulado, que sí está medido. Ponerlos como iguales sugeriría una paridad que ninguna cifra de aquí respalda. No dice nada sobre cuál habría que seguir.",
- hashShare:"Cuota de minado", blockPace:"Un bloque cada",
+ hashShare:"Cuota de minado",
+ splitBlockShare:"Bloques desde el corte", blockPace:"Un bloque cada",
  lastBlock:"último bloque {t}",
  paceBase:"media sobre {n} bloques de esta cadena",
  paceNoBlocks:"todavía no tiene bloques propios, así que no hay ritmo que medir",
@@ -1133,7 +1136,7 @@ es: {
  strAxis0:"separación",
  strAxisY1:"{n} año",
  strAxisYn:"{n} años",
- strRailFast:"Si la cadena sigue siendo una",
+ strRailFast:"Si no se hubiera separado",
  strRailSlow:"En la cadena minoritaria, con el {share}% actual",
  strMs2:"El resultado queda decidido",
  strMs3:"Las reglas de datos entran en vigor",
@@ -1156,6 +1159,7 @@ es: {
  simViable:"Con esta cuota la cadena sería mayoritaria: no habría separación, la red entera seguiría esas reglas.",
  poolsTitle:"¿Quién podría cambiarlo?",
  poolsMethod:"Cuota de cada pool medida sobre los últimos {sampleBlocks} bloques contra un nodo propio, no tomada de un tercero. {poolsIdent} pools identificados, {unattrPct}% sin atribuir.",
+ poolsMethodPlain:"La cuota de cada pool se mide bloque a bloque contra un nodo propio, nunca se toma de un tercero.",
  coalitionKicker:"Qué haría falta para llegar al umbral",
  coalitionBody:"Ninguna combinación llega al {thr}% sin que varios de los grandes se muevan a la vez. Solo señaliza {pool}, con el {share}%. Ese es el problema de coordinación que mantiene inmóvil a todo el mundo.",
  coalitionBodyMany:"Llegar al {thr}% exige que varios de los grandes se muevan a la vez. Ahora mismo señalizan {poolCount} pools y entre todos suman el {sigShare}% del minado. Eso deja {gapShare} puntos hasta el umbral.",
@@ -1335,7 +1339,12 @@ function paintStatic(){
   const choque = Object.keys(vars).filter(k => k in coal);
   if(choque.length) console.warn("marcadores duplicados:", choque);
   document.querySelectorAll("[data-k]").forEach(el => {
-    el.textContent = t(el.dataset.k, Object.assign({}, vars, coal));
+    /* Mientras no hay muestra de pools, esa frase se rellenaba con rayas:
+       "medida sobre los ultimos — bloques ... —% sin atribuir". Se lee como
+       una pagina rota, y encima justo debajo dice que se esta calculando.
+       Sin cifras que poner, se dice lo mismo sin cifras. */
+    const k = (el.dataset.k === "poolsMethod" && !P) ? "poolsMethodPlain" : el.dataset.k;
+    el.textContent = t(k, Object.assign({}, vars, coal));
   });
   if(B.bit != null){
     $("tagline").textContent = (B.name || "reduced_data") + " · bit " + B.bit + " · " +
@@ -1563,8 +1572,22 @@ function chainPanelSplit(d, preview){
   // En vista previa la cuota se deriva de lo que se mide hoy, no se inventa.
   const cv = coalitionVars();
   const sh = (cv.share && cv.share !== "—") ? cv.share : null;
-  const mShare = preview && sh ? num(100 - parseFloat(sh.replace(",",".")), 2) + "%" : "—";
-  const nShare = preview && sh ? sh + "%" : "—";
+  /* Con la separacion ya ocurrida esto no hay que estimarlo: se cuenta.
+     Los bloques que ha hecho cada rama desde el corte son un hecho de los
+     dos nodos, y la raya que salia aqui venia de la seccion de pools, que
+     tarda minutos por Tor. Enseñar "—" teniendo el dato es esconderlo. */
+  const bm = maj.blocks_since_split, bn = min.blocks_since_split;
+  const medido = !preview && Number.isInteger(bm) && Number.isInteger(bn) && (bm + bn) > 0;
+  /* El rotulo dice "bloques" y el valor decia solo un porcentaje: no
+     cuadraban. Van los dos, que ademas es lo honesto con cifras tan
+     pequeñas: "2 (7,1%)" avisa solo de lo poco que hay detras. */
+  const mShare = medido ? fmt(bm) + " (" + num(bm * 100 / (bm + bn), 1) + "%)"
+               : (preview && sh ? num(100 - parseFloat(sh.replace(",",".")), 2) + "%" : "—");
+  const nShare = medido ? fmt(bn) + " (" + num(bn * 100 / (bm + bn), 1) + "%)"
+               : (preview && sh ? sh + "%" : "—");
+  // Y con el dato medido, el rotulo dice lo que es: bloques desde el corte,
+  // no cuota de potencia, que es otra cosa y no se mide desde aqui.
+  const shareLbl = medido ? t("splitBlockShare") : t("hashShare");
   /* LA PRUEBA, ARRIBA DEL TODO.
      Lo que demuestra una separacion no son las puntas, que se mueven cada
      diez minutos, sino el primer bloque divergente: dos huellas distintas a
@@ -1597,7 +1620,7 @@ function chainPanelSplit(d, preview){
       <div class="mono" style="font-size:40px;font-weight:700;line-height:1.05;margin-top:10px">${fmt(maj.tip)}</div>
       <div style="color:var(--dim);font-size:15px;margin-top:6px">${esc(t("majBody"))}</div>
       <div class="pair">
-        <div><div class="lbl">${esc(t("hashShare"))}</div>
+        <div><div class="lbl">${esc(shareLbl)}</div>
           <div class="mono g" style="font-size:24px;font-weight:700">${mShare}</div></div>
         <div><div class="lbl">${esc(t("blockPace"))}</div>
           <div class="mono" style="font-size:24px;font-weight:700">${esc(pace(maj.avg_interval_sec))}</div></div>
@@ -1609,7 +1632,7 @@ function chainPanelSplit(d, preview){
       <div class="mono o" style="font-size:28px;font-weight:700;line-height:1.05;margin-top:10px">${fmt(min.tip)}</div>
       <div style="color:var(--dim);font-size:15px;margin-top:6px">${esc(t("minBody"))}</div>
       <div class="pair">
-        <div><div class="lbl">${esc(t("hashShare"))}</div>
+        <div><div class="lbl">${esc(shareLbl)}</div>
           <div class="mono o" style="font-size:20px;font-weight:700">${nShare}</div></div>
         <div><div class="lbl">${esc(t("blockPace"))}</div>
           <div class="mono" style="font-size:20px;font-weight:700">${esc(pace(min.avg_interval_sec))}</div></div>
@@ -1993,7 +2016,7 @@ function histBlock(){
           <span class="nm">${esc(nombre)}</span>
           <span class="mono blk">${fmt(n)} ${esc(t("blocks"))}</span>
           <span class="mono pc">${esc(t("histOfSig", {pct: num(n / h.signalling_blocks * 100, 0)}))}</span>
-          <span class="mono sh">${c == null ? "—" : esc(t("histMining", {pct: num(c, 2)}))}</span>
+          ${c == null ? "" : `<span class="mono sh">${esc(t("histMining", {pct: num(c, 2)}))}</span>`}
         </div>`;
       }).join("")}
     </div>
