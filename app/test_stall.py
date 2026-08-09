@@ -136,6 +136,73 @@ comprobar("y no se imprime un tiempo falso",
 comprobar("el umbral sigue siendo pequeño", 2 <= main.STALL_GAP <= 6,
           "STALL_GAP=%d" % main.STALL_GAP)
 
+
+# --- 8. CON LAS CADENAS SEPARADAS, EL RITMO SE MIDE SOBRE EL TIEMPO.
+#
+# La media de los INTERVALOS miente en cuanto una rama se para: sus dos
+# bloques tardaron 1,1 h entre uno y otro, asi que el panel decia "un bloque
+# cada 1,1 horas" al lado de "ultimo bloque hace 15 h". Ciertas las dos y
+# contradiciendose en la misma tarjeta.
+#
+# Dividiendo el tiempo desde el corte entre los bloques hechos, una cadena
+# sana no cambia y una parada se degrada sola.
+FORK_H = 961631
+T_FORK = AHORA - 61200          # el corte, hace 17 horas
+
+
+class DosRamas:
+    """Nodo de una rama. El hash lleva la altura dentro, asi que la hora de
+    cualquier bloque se puede derivar sin tabla aparte."""
+
+    def __init__(self, tip, marca, seg_por_bloque):
+        self.tip, self.marca, self.spb = tip, marca, seg_por_bloque
+
+    def _hash(self, h):
+        return ("%s%d" % (self.marca, h)) if h > FORK_H else "comun%d" % h
+
+    def batch(self, _p):
+        return ({"blocks": self.tip, "bestblockhash": self._hash(self.tip),
+                 "chainwork": "0f" if self.marca == "a" else "0a"},
+                {"subversion": "/falso/", "localservicesnames": []})
+
+    def call(self, metodo, *a):
+        if metodo == "getblockhash":
+            return self._hash(a[0])
+        if metodo == "getblockheader":
+            h = int("".join(c for c in a[0] if c.isdigit()))
+            return {"time": T_FORK + max(0, h - FORK_H) * self.spb}
+        raise AssertionError(metodo)
+
+
+ramas = {"core": DosRamas(961728, "a", 631),      # 97 bloques en 17 h
+         "knots": DosRamas(961633, "b", 4069)}    # 2 bloques, y parada
+main._rpc = lambda n: ramas[n]
+main._node_configured = lambda n: True
+main._load_state = lambda: {}
+main._save_state = lambda s: None
+main.transport_of = lambda u: "tor"
+main._active_url = lambda n: ""
+d = main._build_chains()
+
+comprobar("se detecta la separacion", d["state"] == "split",
+          "corte en %s" % d.get("split_height"))
+maj, mino = d.get("majority") or {}, d.get("minority") or {}
+comprobar("la mayoritaria sale como la de mas trabajo", maj.get("node") == "core")
+
+# 97 bloques en 17 h son 10,5 min. Este numero casi no cambia con el metodo
+# nuevo, y esa es la gracia: solo se mueve donde hacia falta.
+comprobar("cadena sana: el ritmo sigue siendo el de siempre",
+          600 < (maj.get("avg_interval_sec") or 0) < 700,
+          "%.0f s/bloque" % (maj.get("avg_interval_sec") or 0))
+
+# 2 bloques en 17 h son 8,5 h, no 1,1 h.
+h_min = (mino.get("avg_interval_sec") or 0) / 3600
+comprobar("cadena parada: el ritmo recoge el tiempo sin producir",
+          8.0 < h_min < 9.0, "%.1f h/bloque" % h_min)
+comprobar("y NO es la media entre sus dos bloques (1,1 h)", h_min > 2)
+comprobar("la base son los bloques propios desde el corte",
+          mino.get("interval_blocks") == 2, "n=%s" % mino.get("interval_blocks"))
+
 print()
 print("sin fallos" if not fallos else "%d fallos" % fallos)
 sys.exit(1 if fallos else 0)

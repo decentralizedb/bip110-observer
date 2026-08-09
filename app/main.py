@@ -1289,6 +1289,25 @@ def _build_chains():
             # cadenas, asi que antes de la separacion no se calcula.
             ritmo, ultima, medidos = _pace(rpcs[name], tip,
                                            suelo=out.get("split_height"))
+
+            # EL RITMO SE MIDE SOBRE EL TIEMPO TRANSCURRIDO, NO ENTRE BLOQUES.
+            #
+            # `_pace` da la media DE LOS INTERVALOS entre los bloques que hay.
+            # Con una rama parada eso miente y bien: sus dos bloques tardaron
+            # 1,1 h entre uno y otro, asi que la tarjeta decia "un bloque cada
+            # 1,1 horas" al lado de "ultimo bloque hace 15 h". Las dos cifras
+            # ciertas y contradiciendose en el mismo sitio.
+            #
+            # Lo que promete la etiqueta es un ritmo, y un ritmo que ignora el
+            # rato que lleva sin producir no es un ritmo. Dividiendo el tiempo
+            # desde el corte entre los bloques hechos, una cadena sana no
+            # cambia (97 bloques en 17 h siguen siendo 10,6 min) y una parada
+            # se degrada sola, que es exactamente lo que hay que ver.
+            n_prop = (tip - out["split_height"]) if out.get("split_height") is not None else None
+            trans = out.get("split_seconds_ago")
+            if n_prop and trans and n_prop > 0:
+                ritmo = round(trans / float(n_prop), 1)
+                medidos = n_prop
         return {
             "node": name,
             "tip": tip,
