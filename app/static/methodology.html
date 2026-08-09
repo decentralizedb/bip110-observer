@@ -154,6 +154,19 @@ footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);color:v
   <div class="caveat"><div class="caveat-k" data-k="kC"></div><div class="caveat-b" data-k="bC"></div></div>
 </section>
 
+<!-- Que significa "mayoritaria" en el panel, y que NO significa.
+     El rotulo de esa tarjeta llego a decir "la valida casi toda la
+     economia", y este panel no mide eso ni puede. Se retiro de la tarjeta y
+     se explica aqui, separando lo medido de lo que es tesis del autor. -->
+<section>
+  <h2 data-k="tD"></h2>
+  <p data-k="pDa"></p>
+  <pre data-k="codeD1"></pre>
+  <p data-k="pDb"></p>
+  <p data-k="pDc"></p>
+  <div class="caveat"><div class="caveat-k" data-k="kD"></div><div class="caveat-b" data-k="bD"></div></div>
+</section>
+
 <section>
   <h2 data-k="t5"></h2>
   <p data-k="p5a"></p>
@@ -201,6 +214,10 @@ footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);color:v
     <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260508/contrib/guix/libexec/build.sh">bitcoinknots/bitcoin · contrib/guix/libexec/build.sh</a> <span data-k="s8h"></span></li>
     <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.3.knots20260507/CMakeLists.txt">bitcoinknots/bitcoin · CMakeLists.txt (v29.3.knots20260507)</a> <span data-k="s8i"></span></li>
     <li><a href="https://github.com/bitcoinknots/bitcoin/blob/v29.4.knots20260508/src/validation.cpp">bitcoinknots/bitcoin · src/validation.cpp</a> <span data-k="s8j"></span></li>
+    <!-- La unica fuente de esta lista que es codigo propio. Va aqui porque
+         la seccion de "cadena mayoritaria" cita ese fichero, y una cita sin
+         donde comprobarla no es una cita. -->
+    <li><a href="https://github.com/decentralizedb/bip110-observer/blob/main/app/main.py">decentralizedb/bip110-observer · app/main.py</a> <span data-k="s8k"></span></li>
   </ul>
 </section>
 
@@ -263,6 +280,13 @@ en:{
  codeB3:"if (state == ThresholdState::LOCKED_IN ||\n    state == ThresholdState::STARTED) {\n    nVersion |= Mask(params, pos);\n}",
  pBf:"Two consequences for reading this panel. Someone who never configured anything may be enforcing BIP-110 simply by having updated, so running a node and staying out of it are not the same decision. And the signalling figure counts blocks whose template came from software that signals, which is a choice about what to run rather than a statement of opinion. The count stays exact; what it means is narrower than approval.",
  kB:"Read from the source, at a tag, on a date",
+ tD:"What \"majority chain\" means here, and what it does not",
+ pDa:"With the chains apart, the panel calls one majority and the other minority. That word carries a lot, so here is exactly what is behind it: the accumulated proof of work each chain holds, read from each node and compared. Nothing else goes into that decision.",
+ codeD1:"main.py\n\n  # Mayoritaria y minoritaria por trabajo acumulado, no por reglas.\n  work = {n: int(out[\"nodes\"][n].get(\"chainwork\") or \"0\", 16) for n in rpcs}\n  maj_node = max(work, key=work.get)\n  min_node = \"knots\" if maj_node == \"core\" else \"core\"",
+ pDb:"An earlier version of that label said the majority chain was the one validated by most of the economy, and named wallets, exchanges and merchants. It was removed on 2026-08-09. This panel holds no data on any of them and cannot obtain any without asking third parties, which is the one thing it does not do. Chainwork is measured. Who accepts a chain to get paid is not.",
+ pDc:"The distinction matters more than it looks, because the author's position is that the deciding side is the economic one and not the mining one. A chain can carry more work and be worth less than the other if nobody accepts it for payment, and the reverse is just as possible. This panel cannot tell you that, and naming the majority chain after an argument it does not measure would be doing the very thing it spends the rest of these pages warning about.",
+ kD:"How it would be measured",
+ bD:"You would have to ask every exchange, payment processor and merchant which chain they credit you on, and take their answer at face value. That is a survey, with every bias a survey has, and it runs against third parties. It is a legitimate thing to publish and it is not this. If it is ever added here it will arrive labelled a biased sample, next to the node crawl, and never as verifiable data.",
  tC:"What this panel can see, and what it could never see",
  pCa:"This panel compares two nodes, so it sees any chain those two nodes can follow. A BIP-110 chain is one of them: BIP-110 is a soft fork, it only narrows rules, so its blocks are valid under the older rules too and a node can weigh both branches. That is why a split shows up here as two heights that stop matching, and why the fork point can be found by comparing block hashes.",
  pCb:"A chain that changed its proof of work would be a different matter. It would not look like a weaker branch, it would not look like a branch at all. Checking the proof of work is the first thing a node does with a block it receives, before it looks at anything else, and a block that fails it is discarded there:",
@@ -294,6 +318,7 @@ en:{
  s8h:"the value the official release build uses",
  s8i:"the build without the deployment, for contrast",
  s8j:"— where a block with the wrong proof of work is discarded",
+ s8k:"— this panel's own code, including the line that decides which chain is the majority one",
  t6:"Pool attribution",
  p6a:"Each pool is identified by the tag it writes into the coinbase, read from an own node. Three things about that:",
  l6a:"The tag is not authenticated. A pool can omit it, change it, or imitate another's. It is a useful convention, not proof of authorship.",
@@ -372,6 +397,13 @@ es:{
  codeB3:"if (state == ThresholdState::LOCKED_IN ||\n    state == ThresholdState::STARTED) {\n    nVersion |= Mask(params, pos);\n}",
  pBf:"Dos consecuencias para leer este panel. Alguien que no ha configurado nada puede estar aplicando el BIP-110 solo por haber actualizado, así que tener un nodo y quedarse al margen no son la misma decisión. Y la cifra de señalización cuenta bloques cuya plantilla salió de un programa que señaliza, que es una elección sobre qué ejecutar más que una declaración de opinión. La cuenta sigue siendo exacta; lo que significa es más estrecho que un respaldo.",
  kB:"Leído del código, en una etiqueta y en una fecha",
+ tD:"Qué significa aquí \"cadena mayoritaria\", y qué no",
+ pDa:"Con las cadenas separadas, el panel llama mayoritaria a una y minoritaria a la otra. Esa palabra carga con mucho, así que aquí está exactamente lo que hay detrás: el trabajo de minado acumulado que lleva cada cadena, leído de cada nodo y comparado. En esa decisión no entra nada más.",
+ codeD1:"main.py\n\n  # Mayoritaria y minoritaria por trabajo acumulado, no por reglas.\n  work = {n: int(out[\"nodes\"][n].get(\"chainwork\") or \"0\", 16) for n in rpcs}\n  maj_node = max(work, key=work.get)\n  min_node = \"knots\" if maj_node == \"core\" else \"core\"",
+ pDb:"Una versión anterior de ese rótulo decía que la mayoritaria era la que valida casi toda la economía, y nombraba carteras, exchanges y comercios. Se retiró el 2026-08-09. Este panel no tiene ni un dato sobre ninguno de ellos, y no puede conseguirlo sin preguntarle a terceros, que es justo lo único que no hace. El trabajo acumulado se mide. Quién acepta una cadena para cobrar, no.",
+ pDc:"La distinción importa más de lo que parece, porque la tesis del autor es que lo que decide es precisamente la parte económica y no la minera. Una cadena puede llevar más trabajo y valer menos que la otra si nadie la acepta para cobrar, y al revés también. Este panel no puede decírtelo, y llamar mayoritaria a una cadena apoyándose en un argumento que no mide sería hacer justo aquello contra lo que avisa en el resto de estas páginas.",
+ kD:"Cómo se mediría",
+ bD:"Habría que preguntarle a cada exchange, pasarela de pago y comercio en qué cadena te acredita, y fiarse de su respuesta. Eso es una encuesta, con todos los sesgos de una encuesta, y además contra terceros. Es algo legítimo de publicar, y no es esto. Si algún día se añade aquí, llegará etiquetado como muestra sesgada, al lado del sondeo de nodos, y nunca como dato verificable.",
  tC:"Qué puede ver este panel, y qué no podría ver nunca",
  pCa:"Este panel compara dos nodos, así que ve cualquier cadena que esos dos nodos puedan seguir. La del BIP-110 es una de ellas: el BIP-110 es un soft fork, solo estrecha reglas, así que sus bloques son válidos también con las reglas de antes y un nodo puede sopesar las dos ramas. Por eso una separación se nota aquí como dos alturas que dejan de coincidir, y por eso el punto de bifurcación se encuentra comparando hashes de bloque.",
  pCb:"Una cadena que cambiara la prueba de trabajo sería otra cosa. No se vería como una rama más débil, no se vería como una rama en absoluto. Comprobar la prueba de trabajo es lo primero que hace un nodo con un bloque que le llega, antes de mirar nada más, y un bloque que no la pasa se descarta ahí mismo:",
@@ -403,6 +435,7 @@ es:{
  s8h:"el valor con el que se compila la versión oficial",
  s8i:"la versión sin el despliegue, para contrastar",
  s8j:"— dónde se descarta un bloque con la prueba de trabajo equivocada",
+ s8k:"— el código de este panel, incluida la línea que decide cuál es la cadena mayoritaria",
  t6:"Atribución de pools",
  p6a:"Cada pool se identifica por la etiqueta que escribe en la coinbase, leída de un nodo propio. Tres cosas sobre eso:",
  l6a:"La etiqueta no está autenticada. Un pool puede omitirla, cambiarla o imitar la de otro. Es una convención útil, no una prueba de autoría.",
