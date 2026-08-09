@@ -743,6 +743,14 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
       if (cd.state === "split" && usaClave(panel, salida, "strNever"))
         err("hay dos cadenas medidas y el recorrido dice que no hay ninguna que medir");
 
+      /* Y el arbol: de que bloque salen las dos y cuanto lleva cada una.
+         Los dos hashes demuestran que hay dos cadenas; el arbol enseña la
+         forma, que es lo que se entiende sin vocabulario. */
+      if (vista === "split" && cd.state === "split" &&
+          cd.majority && cd.minority && cd.majority.tip != null &&
+          !usaClave(panel, salida, "forkCommon"))
+        err("hay dos cadenas y no se enseña de que bloque salen");
+
       if (vista === "split" && cd.state === "split" && cd.split_hashes) {
         const trozo = (cd.split_hashes.knots || "").slice(-10);
         if (trozo && !salida.includes(trozo))

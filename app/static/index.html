@@ -194,6 +194,31 @@ h3{font-size:20px;font-weight:550}
    que la otra, la maqueta estaria sugiriendo una jerarquia que aqui no
    existe. Cada una con su marco, para que se vea de un vistazo donde acaba
    una huella y empieza la otra. */
+/* El arbol de la separacion.
+   Se dibuja con bordes, no con SVG: un SVG escalado encoge tambien el texto,
+   y a 369 px de ancho las etiquetas quedarian a siete pixeles. Asi cada
+   linea es texto normal y se apila sola.
+   Y no lleva un bloque por caja como fork-observer: el nombre del pool de
+   cada bloque exige sacar la coinbase de todos, que en la rama mayoritaria
+   son miles y por Tor son minutos. Lo que aporta esto es la FORMA. */
+.fork{margin-top:18px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:10px;padding:16px 18px}
+.fk-com{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.fk-com .h{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:20px;font-weight:700}
+.fk-com .l{font-size:14px;color:var(--dim)}
+.fk-rows{margin:6px 0 0 9px;border-left:2px solid var(--line2)}
+.fk-row{position:relative;padding:12px 0 0 20px}
+.fk-row::before{content:"";position:absolute;left:0;top:24px;width:16px;
+  border-top:2px solid var(--line2)}
+/* La vertical se corta despues de la ultima rama: si sigue, parece que el
+   arbol continua hacia abajo y no continua. */
+.fk-row:last-child::after{content:"";position:absolute;left:-2px;top:26px;
+  bottom:0;width:2px;background:var(--panel2)}
+.fk-n{font-size:14px;color:var(--dim)}
+.fk-t{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:20px;
+  font-weight:700;margin-top:2px}
+.fk-t.o{color:var(--orange-t)}
+.fk-l{font-size:14px;color:var(--dim);margin-top:2px}
 .proof{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
 .proof > div{background:var(--panel2);border:1px solid var(--line);
   border-radius:10px;padding:12px 14px;min-width:0}
@@ -712,6 +737,9 @@ en: {
  answerQ:"Do I need to do anything with my bitcoin?", answerA:"No.",
  answerLead:"If you keep your bitcoin in self-custody, with your own keys, you don't need to move anything or pick a side.",
  heroChainQ:"Are there two chains?",
+ forkCommon:"the last block both chains agree on",
+ forkMaj:"chain with the rules in force today",
+ forkMin:"chain enforcing BIP-110",
  proofKicker:"The proof, so you do not have to take our word for it",
  proofBody:"At height {h} there are two different blocks, one on each chain. They are the same chain up to block {n}, and not after it. These are their fingerprints, read from our two nodes.",
  proofCheck:"Check it on your own node: bitcoin-cli getblockhash {hraw}. Whichever of the two you get back tells you which chain your node is on.",
@@ -975,6 +1003,9 @@ es: {
  answerQ:"¿Tengo que hacer algo con mi bitcoin?", answerA:"No.",
  answerLead:"Si guardas tus bitcoin en autocustodia, con tus propias llaves, no tienes que mover nada ni elegir bando.",
  heroChainQ:"¿Hay dos cadenas?",
+ forkCommon:"el último bloque en el que las dos coinciden",
+ forkMaj:"cadena con las reglas de hoy",
+ forkMin:"cadena que aplica el BIP-110",
  proofKicker:"La prueba, para que no tengas que creerte nada",
  proofBody:"A la altura {h} hay dos bloques distintos, uno en cada cadena. Son la misma cadena hasta el bloque {n}, y a partir de ahí no. Estas son sus huellas, leídas de nuestros dos nodos.",
  proofCheck:"Compruébalo en tu propio nodo: bitcoin-cli getblockhash {hraw}. La que te devuelva de las dos te dice en qué cadena estás.",
@@ -1569,6 +1600,32 @@ function paceNote(s){
   return `<div class="pacenote">${esc(partes.join(" · "))}</div>`;
 }
 
+/* De donde sale cada cadena, dibujado.
+   Los dos hashes de la prueba demuestran que hay dos, pero no enseñan la
+   forma: de que bloque salen las dos y cuanto ha avanzado cada una. Esto
+   sale entero de datos que ya estan en /api/chain, sin una llamada mas. */
+function forkDiagram(d){
+  if(!d || !d.ok || d.split_height == null) return "";
+  const maj = d.majority || {}, min = d.minority || {};
+  if(maj.tip == null || min.tip == null) return "";
+  const rama = (s, clave, naranja) => {
+    const n = s.blocks_since_split;
+    const desde = hace(s.seconds_since_last_block);
+    const pie = [t(clave)].concat(desde ? [t("lastBlock", {t: desde})] : []).join(" · ");
+    return `<div class="fk-row">
+      <div class="fk-n">${n == null ? "—" : fmt(n) + " " + esc(unidad(n, "block", "blocks"))}</div>
+      <div class="fk-t${naranja ? " o" : ""}">${fmt(s.tip)}</div>
+      <div class="fk-l">${esc(pie)}</div></div>`;
+  };
+  return `<div class="fork">
+    <div class="fk-com"><span class="h">${fmt(d.split_height)}</span>
+      <span class="l">${esc(t("forkCommon"))}</span></div>
+    <div class="fk-rows">
+      ${rama(maj, "forkMaj", false)}
+      ${rama(min, "forkMin", true)}
+    </div></div>`;
+}
+
 function chainPanelSplit(d, preview){
   // En vista previa no hay medida: se usan valores ilustrativos y se dice.
   const maj = preview ? {tip:(d.nodes&&d.nodes.core?d.nodes.core.tip:0)+212,
@@ -1623,7 +1680,7 @@ function chainPanelSplit(d, preview){
         esc(t("proofCheck", {hraw: String(d.split_height + 1)}))}</div>
     </div>` : "";
 
-  return prueba + `${preview ? `<div style="margin-top:18px">${previewBox()}</div>` : ""}
+  return (preview ? "" : forkDiagram(d)) + prueba + `${preview ? `<div style="margin-top:18px">${previewBox()}</div>` : ""}
   <div class="chains">
     <div class="panel t-data">
       <div class="caveat-k g">${esc(t("majKicker"))}</div>
