@@ -716,7 +716,7 @@ en: {
  proofBody:"At height {h} there are two different blocks, one on each chain. They are the same chain up to block {n}, and not after it. These are their fingerprints, read from our two nodes.",
  proofCheck:"Check it on your own node: bitcoin-cli getblockhash {hraw}. Whichever of the two you get back tells you which chain your node is on.",
  splitYes:"Yes. There are now two versions of Bitcoin moving on separately",
- splitYesFor:"Yes. For {t} there have been two versions of Bitcoin moving on separately",
+ splitYesFor:"Yes. Two versions of Bitcoin are moving on separately, starting {t}",
  splitStillYours:"Your bitcoin are still where they were, on both of them. You do not have to do anything.",
  mSplitKicker:"Read this count knowing the chains have separated",
  mSplitBody:"It is counted on the chain with today's rules, block by block on our own node. Since the split, a miner that signals builds on the other chain, so its blocks are not here and this figure heads towards zero on its own. It is still exact and still verifiable, but it now answers how much of THIS chain signals, not how many miners are signalling.",
@@ -776,7 +776,7 @@ en: {
  asymKicker:"Not symmetric",
  asymBody:"These two panels are different sizes on purpose, and the difference is the accumulated work, which is measured. Showing them as equals would suggest a parity that no figure here supports. It says nothing about which one anyone should follow.",
  hashShare:"Share of mining", blockPace:"A block every",
- lastBlock:"last block {t} ago",
+ lastBlock:"last block {t}",
  paceBase:"average over {n} blocks of this chain",
  paceNoBlocks:"no blocks of its own yet, so there is no pace to measure",
  reuniKicker:"One chain again",
@@ -972,7 +972,7 @@ es: {
  proofBody:"A la altura {h} hay dos bloques distintos, uno en cada cadena. Son la misma cadena hasta el bloque {n}, y a partir de ahí no. Estas son sus huellas, leídas de nuestros dos nodos.",
  proofCheck:"Compruébalo en tu propio nodo: bitcoin-cli getblockhash {hraw}. La que te devuelva de las dos te dice en qué cadena estás.",
  splitYes:"Sí. Ahora hay dos versiones de Bitcoin avanzando por separado",
- splitYesFor:"Sí. Desde hace {t} hay dos versiones de Bitcoin avanzando por separado",
+ splitYesFor:"Sí. Hay dos versiones de Bitcoin avanzando por separado, desde {t}",
  splitStillYours:"Tus bitcoin siguen donde estaban, en las dos. No tienes que hacer nada.",
  mSplitKicker:"Lee esta cuenta sabiendo que las cadenas se han separado",
  mSplitBody:"Se cuenta sobre la cadena con las reglas de hoy, bloque a bloque en nuestro propio nodo. Desde la separación, un minero que señaliza construye en la otra cadena, así que sus bloques no están aquí y esta cifra tiende a cero por sí sola. Sigue siendo exacta y verificable, pero ahora contesta cuánto señaliza ESTA cadena, no cuántos mineros están señalizando.",
@@ -1032,7 +1032,7 @@ es: {
  asymKicker:"No son simétricas",
  asymBody:"Estos dos paneles tienen tamaños distintos a propósito, y la diferencia es el trabajo acumulado, que sí está medido. Ponerlos como iguales sugeriría una paridad que ninguna cifra de aquí respalda. No dice nada sobre cuál habría que seguir.",
  hashShare:"Cuota de minado", blockPace:"Un bloque cada",
- lastBlock:"último bloque hace {t}",
+ lastBlock:"último bloque {t}",
  paceBase:"media sobre {n} bloques de esta cadena",
  paceNoBlocks:"todavía no tiene bloques propios, así que no hay ritmo que medir",
  reuniKicker:"Una sola cadena otra vez",
@@ -1755,8 +1755,34 @@ function renderHeroStatus(){
     const proyHito = (pr.milestones || []).find(x => x.key === hito.clave);
     const enBip = mino && mino.tip != null;
     const quedan = enBip ? Math.max(0, hito.m.height - mino.tip) : hito.m.blocks_away;
-    const plazo  = enBip ? (proyHito ? proyHito.minority_days : null)
-                         : hito.m.approx_days;
+    /* EL PLAZO SALE DEL RITMO MEDIDO, NO DE LA PROYECCION.
+       Y no es un atajo: el 963.648 cae exactamente un periodo de reajuste
+       despues del corte, asi que hasta ese hito la dificultad no cambia y
+       basta multiplicar los bloques que faltan por el ritmo que esa cadena
+       lleva. Sin depender de nada mas.
+       Antes se cogia de la proyeccion, que se calcula con la cuota
+       señalizada y, tras una separacion, esa cuota es cero por
+       construccion: el heroe llego a imprimir "nunca" justo encima de la
+       linea que explica de donde sale ese plazo. */
+    /* UN SOLO METODO PARA ESTA CIFRA.
+       Estuvo un rato calculandose aqui con el ritmo medido mientras la
+       cronologia usaba la proyeccion, y la misma altura salia con 95 dias
+       arriba y 168 abajo. Dos metodos defendibles y un lector que no puede
+       fiarse de ninguno. Manda la proyeccion, que es la que usa el resto de
+       la pagina y la unica que modela los reajustes de dificultad.
+       Y si todavia no hay proyeccion buena, no se imprime un plazo: se dice
+       que se esta rehaciendo. "nunca" era lo que salia antes, encima de la
+       linea que explica de donde sale el plazo. */
+    const plazo = enBip ? (proyHito ? proyHito.minority_days : null)
+                        : hito.m.approx_days;
+    /* Sin plazo hay dos motivos distintos y no se dicen igual:
+       - la proyeccion viene con cuota cero, o sea el desfase de caches tras
+         una separacion: eso SI se explica, porque se va a arreglar solo.
+       - ese hito no esta en la proyeccion (solo ocurre antes del corte, y
+         entonces no habria separacion): ahi no hay nada que explicar, se
+         omite la estimacion y ya. */
+    const sinPlazo = enBip && plazo == null;
+    const rehaciendo = sinPlazo && !((pr.share_pct || 0) > 0);
 
     f2 = `<div class="hcard">
       <div class="hlab">${esc(t("cdTitle"))}</div>
@@ -1766,12 +1792,13 @@ function renderHeroStatus(){
           <div class="cdnum g">${fmt(quedan)}</div>
           <div class="cdunit">${esc(t("blocks"))} ${esc(t(hito.whatKey))}</div>
         </div>
-        <div class="cdbox">
+        ${sinPlazo ? "" : `<div class="cdbox">
           <div class="caveat-k b">${esc(t("tagEst"))}</div>
           <div class="cdnum b">${esc(strDur(plazo))}</div>
           <div class="cdunit">${esc(enBip ? t("cdPaceBip") : t("cdPaceNote", {sp: normalSpacing()}))}</div>
-        </div>
+        </div>`}
       </div>
+      ${rehaciendo ? `<div class="cdfoot o">${esc(t("strRecalc"))}</div>` : ""}
       ${enBip ? `<div class="cdfoot">${esc(t("cdOnBip", {h: fmt(mino.tip)}))}</div>` : ""}
       ${/* Un plazo sacado de una cuota medida sobre dos bloques no puede
             imprimirse con la misma cara que el recuento de al lado. El dato
@@ -1861,8 +1888,20 @@ function renderTimeline(){
   ];
   el.innerHTML = rows.map(([k, tk, bk, c], i) => {
     const m = ms[k] || {};
-    const away = m.passed ? t("reached") : fmt(m.blocks_away) + " " + t("blocks");
-    const eta  = m.passed ? "" : t("daysAway", {n: num(m.approx_days, 1)});
+    /* Con las cadenas separadas, estos hitos se cuentan en la cadena del
+       BIP-110, que es la unica donde ocurren: el otro nodo no tiene ese
+       despliegue. Mismo criterio que el heroe, y por el mismo motivo. */
+    const cadMin = (DATA.chain && DATA.chain.ok && realState() === "split")
+                 ? (DATA.chain.minority || null) : null;
+    const faltan = (cadMin && cadMin.tip != null)
+                 ? Math.max(0, m.height - cadMin.tip) : m.blocks_away;
+    const proyM  = cadMin ? ((d.milestone_projection || {}).milestones || [])
+                              .find(z => z.key === k) : null;
+    const dias   = cadMin ? (proyM ? proyM.minority_days : null) : m.approx_days;
+    const away = m.passed ? t("reached") : fmt(faltan) + " " + t("blocks");
+    // Sin plazo fiable no se escribe uno. "nunca" era lo que salia cuando la
+    // proyeccion venia con la cuota señalizada, que tras el corte es cero.
+    const eta  = m.passed ? "" : (dias == null ? "" : t("daysAway", {n: num(dias, 1)}));
     const n = i + 1;
     const v = Object.assign(constVars(), {h: fmt(m.height), prev: fmt(m.height - 1)});
     const qa = [1, 2, 3].map(j => {
@@ -1875,7 +1914,11 @@ function renderTimeline(){
     // justo lo que hace entender por que las otras dos se separan.
     let alt = "";
     const pr = d.milestone_projection;
-    if(pr && !m.passed){
+    // Con la separacion ya ocurrida, la cifra de arriba YA es la de la
+    // cadena BIP-110, asi que repetirla como "si se separan" sobra y
+    // ademas contradice: eso ya no es un escenario.
+    if(cadMin){ alt = ""; }
+    else if(pr && !m.passed){
       if(k === "mandatory_signalling_start"){
         alt = `<span class="tl-est same">${esc(t("tlSameBoth"))}</span>`;
       } else {
@@ -1894,8 +1937,17 @@ function renderTimeline(){
   /* Sobre que cadena se cuenta. Estaba en el heroe, y ahi estorbaba: es una
      nota para quien viene a comprobar, no una respuesta para quien llega
      asustado. Aqui, al pie de las alturas, es donde se pregunta. */
-  `<div class="cdfoot">${esc(t("cdFoot", {tip: fmt(d.tip),
-     h: fmt((ms[(rows.find(r => !(ms[r[0]] || {}).passed) || rows[2])[0]] || {}).height)}))}</div>`;
+  (() => {
+    const min = (DATA.chain && DATA.chain.ok && realState() === "split")
+              ? (DATA.chain.minority || null) : null;
+    const alt = fmt((ms[(rows.find(r => !(ms[r[0]] || {}).passed) || rows[2])[0]] || {}).height);
+    // Si las cifras de arriba se cuentan en la cadena BIP-110, el pie tiene
+    // que nombrar ESA. Decir "contado sobre la cadena con las reglas de hoy"
+    // debajo de unas cifras que no salen de ella es peor que no decir nada.
+    return (min && min.tip != null)
+      ? `<div class="cdfoot">${esc(t("cdOnBip", {h: fmt(min.tip)}))}</div>`
+      : `<div class="cdfoot">${esc(t("cdFoot", {tip: fmt(d.tip), h: alt}))}</div>`;
+  })();
 }
 
 /* Quien señaliza en el periodo en curso.

@@ -751,9 +751,13 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
         const soloDigitos = hero.replace(/[.,  \s]/g, "");
         if (n != null && !soloDigitos.includes(String(n)))
           err(`el heroe no enseña los ${n} bloques que faltan para el proximo hito`);
-        // Con la cuenta atras arriba, las dos etiquetas tienen que estar.
-        if (!hayEst || !hayDato)
-          err("la cuenta atras del heroe no lleva sus dos etiquetas epistemicas");
+        /* La cuenta atras siempre lleva la etiqueta del dato: los bloques
+           que faltan son un recuento exacto. La de estimacion solo si hay
+           un plazo que enseñar, porque con las cadenas separadas puede no
+           haberlo todavia. Lo que no puede pasar nunca es lo de arriba: una
+           estimacion sin el dato al lado. */
+        if (!hayDato)
+          err("la cuenta atras del heroe no lleva la etiqueta del dato");
       }
     }
   }
