@@ -737,6 +737,7 @@ en: {
  cdWhat3:"until the data rules take effect",
  cdOnBip:"Counted on the BIP-110 chain, which is at block {h}. That is the only chain where this changes anything: a node with the rules in force today does not have this deployment at all, so nothing happens there at that height.",
  cdPaceBip:"at the pace that chain has kept since the split. Not a date.",
+ cdFewBlocks:"Treat that estimate loosely: the pace behind it comes from the {n} blocks that chain has produced so far, and a couple more can move it by weeks.",
  cdPaceNote:"if it held at one block every {sp}. Not a date.",
  cdFoot:"Counted on the chain with today's rules, which is at block {tip}, up to {h}.",
  cdInWindow:"Since this afternoon, the programs enforcing BIP-110 only accept blocks that carry the mark. They throw the rest away.",
@@ -768,12 +769,12 @@ en: {
  hashWhat:"That string is the fingerprint of a block: a code that comes out of its contents, so two identical blocks always give the same code and two different ones never do. It is what lets us compare the two nodes without trusting either of them.",
  aheadKicker:"What changes at {splitHeight}",
  aheadBody:"From that block onward, the node running the BIP-110 rules starts rejecting any block that does not back them. If some miners do not back them, the two nodes stop seeing the same thing and this panel splits in two.",
- majKicker:"Majority chain · validated by most of the economy",
- majBody:"The chain most wallets, exchanges and merchants follow. Its numbers carry the same weight they do today.",
- minKicker:"Minority chain · BIP-110 enforced",
+ majKicker:"Majority chain · more accumulated work",
+ majBody:"Majority here means one measured thing and nothing else: it has more mining work behind it, which is how this panel tells the two apart. Who accepts it to get paid, to pay, or on an exchange is not measured from here, and that is what actually decides.",
+ minKicker:"Minority chain · less accumulated work · enforces BIP-110",
  minBody:"Every figure below applies only to this chain, and only while it produces blocks.",
  asymKicker:"Not symmetric",
- asymBody:"These two panels are different sizes on purpose. Showing them side by side as equals would suggest an equivalence nobody has measured.",
+ asymBody:"These two panels are different sizes on purpose, and the difference is the accumulated work, which is measured. Showing them as equals would suggest a parity that no figure here supports. It says nothing about which one anyone should follow.",
  hashShare:"Share of mining", blockPace:"A block every",
  lastBlock:"last block {t} ago",
  paceBase:"average over {n} blocks of this chain",
@@ -992,6 +993,7 @@ es: {
  cdWhat3:"para que entren en vigor las reglas de datos",
  cdOnBip:"Contado sobre la cadena BIP-110, que va por el bloque {h}. Es la única donde esto cambia algo: un nodo con las reglas de hoy no tiene ese despliegue, así que a esa altura ahí no ocurre nada.",
  cdPaceBip:"al ritmo que lleva esa cadena desde la separación. No es una fecha.",
+ cdFewBlocks:"Cógelo con pinzas: ese plazo sale del ritmo de los {n} bloques que esa cadena lleva hechos, y un par más pueden moverlo semanas.",
  cdPaceNote:"si se mantuviera en un bloque cada {sp}. No es una fecha.",
  cdFoot:"Contado sobre la cadena con las reglas de hoy, que va por el bloque {tip}, hasta el {h}.",
  cdInWindow:"Desde esta tarde, los programas que aplican el BIP-110 solo aceptan bloques que lleven la marca. Los demás los descartan.",
@@ -1023,12 +1025,12 @@ es: {
  hashWhat:"Ese código es la huella de un bloque: sale de su contenido, así que dos bloques idénticos dan siempre el mismo código y dos distintos no coinciden nunca. Es lo que permite comparar los dos nodos sin fiarse de ninguno de los dos.",
  aheadKicker:"Qué cambia en el {splitHeight}",
  aheadBody:"A partir de ese bloque, el nodo que lleva las reglas del BIP-110 empieza a rechazar los bloques que no las apoyen. Si algunos mineros no las apoyan, los dos nodos dejan de ver lo mismo y este panel se parte en dos.",
- majKicker:"Cadena mayoritaria · la valida casi toda la economía",
- majBody:"La cadena que siguen la mayoría de carteras, exchanges y comercios. Sus cifras pesan lo mismo que hoy.",
- minKicker:"Cadena minoritaria · con BIP-110 aplicado",
+ majKicker:"Cadena mayoritaria · más trabajo acumulado",
+ majBody:"Mayoritaria aquí significa una sola cosa medida y ninguna más: lleva más trabajo de minado detrás, que es como este panel distingue una de otra. Quién la acepta para cobrar, para pagar o en un exchange no se mide desde aquí, y es lo que de verdad decide.",
+ minKicker:"Cadena minoritaria · menos trabajo acumulado · aplica el BIP-110",
  minBody:"Cada cifra de aquí abajo vale solo para esta cadena, y solo mientras produzca bloques.",
  asymKicker:"No son simétricas",
- asymBody:"Estos dos paneles tienen tamaños distintos a propósito. Ponerlos lado a lado como iguales sugeriría una equivalencia que nadie ha medido.",
+ asymBody:"Estos dos paneles tienen tamaños distintos a propósito, y la diferencia es el trabajo acumulado, que sí está medido. Ponerlos como iguales sugeriría una paridad que ninguna cifra de aquí respalda. No dice nada sobre cuál habría que seguir.",
  hashShare:"Cuota de minado", blockPace:"Un bloque cada",
  lastBlock:"último bloque hace {t}",
  paceBase:"media sobre {n} bloques de esta cadena",
@@ -1771,6 +1773,11 @@ function renderHeroStatus(){
         </div>
       </div>
       ${enBip ? `<div class="cdfoot">${esc(t("cdOnBip", {h: fmt(mino.tip)}))}</div>` : ""}
+      ${/* Un plazo sacado de una cuota medida sobre dos bloques no puede
+            imprimirse con la misma cara que el recuento de al lado. El dato
+            existe (blocks_since_split) y decirlo cuesta una linea. */
+        (enBip && mino.blocks_since_split != null && mino.blocks_since_split < 12)
+        ? `<div class="cdfoot o">${esc(t("cdFewBlocks", {n: fmt(mino.blocks_since_split)}))}</div>` : ""}
       ${avisos.map(a => `<div class="cdfoot o">${esc(a)}</div>`).join("")}
     </div>`;
   }

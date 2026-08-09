@@ -705,6 +705,16 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
           !usaClave(panel, salida, "cdOnBip"))
         err("hay dos cadenas y el heroe no dice en cual cuenta el proximo hito");
 
+      /* Y un plazo sacado de un puñado de bloques se dice con esa cara. La
+         cifra grande de al lado es un recuento exacto; esta es una
+         extrapolacion sobre dos bloques, y sin decirlo las dos se leen
+         igual de firmes. */
+      if (cd.state === "split" && cd.minority &&
+          cd.minority.blocks_since_split != null &&
+          cd.minority.blocks_since_split < 12 &&
+          !usaClave(panel, salida, "cdFewBlocks"))
+        err("se da un plazo sacado de pocos bloques sin decir sobre cuantos va");
+
       if (cd.state === "split" && usaClave(panel, salida, "strNever"))
         err("hay dos cadenas medidas y el recorrido dice que no hay ninguna que medir");
 
