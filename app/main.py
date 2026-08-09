@@ -1314,6 +1314,22 @@ def _build_chains():
     else:
         out["note"] = ("Las cadenas se han separado. Cada cifra vale solo para "
                        "su cadena, y no se suman.")
+
+        # LA CACHE DE MINEROS SE TIRA SI SE CALCULO ANTES DE SABER ESTO.
+        #
+        # Tras cada reinicio, /api/miners se precalcula mientras esta
+        # comparacion todavia esta en marcha, asi que se queda con la cuota
+        # SEÑALIZADA, que despues de una separacion es cero por
+        # construccion. Con eso, la pagina pierde el plazo del proximo hito
+        # durante los minutos que dure su TTL, justo despues de cada
+        # despliegue. No es incorrecto, pero es evitable: en cuanto se sabe
+        # que hay separacion, ese resultado esta obsoleto y se rehace en la
+        # siguiente peticion en vez de esperar a que caduque.
+        with _lock:
+            ck = "miners:" + DEFAULT_NODE
+            e = _cache.get(ck)
+            if e and (e[0] or {}).get("share_source") != "observed":
+                _cache.pop(ck, None)
     return out
 
 
@@ -1480,6 +1496,20 @@ def _calentar():
     """
     def correr():
         time.sleep(2)
+        # La comparacion de cadenas va primero Y SE ESPERA. /api/miners la
+        # necesita para saber si hay separacion, y sin esperar arrancaba con
+        # la cuota señalizada. Pedir la ruta no basta: el calculo va en otro
+        # hilo y la peticion vuelve al instante.
+        try:
+            app.test_client().get("/api/chain")
+            for _ in range(60):
+                with _lock:
+                    listo = ("chains:" + DEFAULT_NODE) in _cache
+                if listo:
+                    break
+                time.sleep(2)
+        except Exception:                                    # noqa: BLE001
+            pass
         for nombre, ruta in (("chain", "/api/chain"), ("miners", "/api/miners"),
                              ("history", "/api/history"), ("pools", "/api/pools"),
                              ("nodes", "/api/nodes")):

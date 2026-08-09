@@ -2114,7 +2114,10 @@ function renderMiners(){
 
   el.innerHTML = avisoPartido + `<div class="panel t-data" style="margin-top:20px">
     <div class="caveat-k">${esc(t("gapKicker", constVars()))}</div>
-    <div class="gapnum"><span class="n">${num(gap, 2)}</span><span class="u">${esc(t("gapUnit", constVars()))}</span></div>
+    <div class="gapnum"><span class="n">${/* Con la MISMA precision que el
+        umbral que hay en la misma frase. Salia "55,01 puntos por debajo
+        del 55%", dos precisiones en una linea, y eso hace dudar de las
+        dos cifras. */ num(gap, 0)}</span><span class="u">${esc(t("gapUnit", constVars()))}</span></div>
     <div style="font-size:15px;color:var(--dim);margin-top:10px;max-width:64ch">${
       esc(t("gapBody", Object.assign({n: num(pct, 2)}, constVars())))} ${esc(trendText())}</div>
     <div class="bar"><div style="width:${barPct}%"></div></div>
