@@ -697,6 +697,14 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
           err("cadenas separadas y ademas se imprime la nota del umbral sin separacion");
       }
 
+      /* Y el heroe tiene que decir SOBRE QUE CADENA cuenta el hito. Con dos
+         cadenas, "faltan N bloques" sin decir de cual no significa nada, y
+         la respuesta que casi todo el mundo busca es la de la cadena
+         BIP-110, que es la unica donde ese hito ocurre. */
+      if (cd.state === "split" && cd.minority && cd.minority.tip != null &&
+          !usaClave(panel, salida, "cdOnBip"))
+        err("hay dos cadenas y el heroe no dice en cual cuenta el proximo hito");
+
       if (cd.state === "split" && usaClave(panel, salida, "strNever"))
         err("hay dos cadenas medidas y el recorrido dice que no hay ninguna que medir");
 
@@ -717,7 +725,16 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
       const orden = ["mandatory_signalling_start", "forced_lockin", "rules_active"];
       const clave = orden.find(k => !((mi.milestones[k] || {}).passed));
       if (clave) {
-        const n = (mi.milestones[clave] || {}).blocks_away;
+        /* Con las cadenas separadas, el hito se cuenta en la cadena donde
+           ocurre, que es la del BIP-110: ese despliegue no existe en la
+           otra. Asi que la cifra correcta no es blocks_away, que va sobre
+           la cadena mayoritaria, sino la distancia desde la punta de la
+           minoritaria. */
+        const hm = mi.milestones[clave] || {};
+        const mn = (datos.chain && datos.chain.ok && datos.chain.state === "split")
+                 ? (datos.chain.minority || null) : null;
+        const n = (mn && mn.tip != null && hm.height != null)
+                ? Math.max(0, hm.height - mn.tip) : hm.blocks_away;
         /* Sin separadores de millar: el panel escribe 1.733 en castellano y
            1,733 en ingles, asi que comparar el numero crudo fallaba siempre.
            Se comparan digitos con digitos. */

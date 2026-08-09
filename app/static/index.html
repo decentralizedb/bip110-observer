@@ -735,6 +735,8 @@ en: {
  cdWhat1:"until the mark becomes mandatory",
  cdWhat2:"until the mark stops being mandatory",
  cdWhat3:"until the data rules take effect",
+ cdOnBip:"Counted on the BIP-110 chain, which is at block {h}. That is the only chain where this changes anything: a node with the rules in force today does not have this deployment at all, so nothing happens there at that height.",
+ cdPaceBip:"at the pace that chain has kept since the split. Not a date.",
  cdPaceNote:"if it held at one block every {sp}. Not a date.",
  cdFoot:"Counted on the chain with today's rules, which is at block {tip}, up to {h}.",
  cdInWindow:"Since this afternoon, the programs enforcing BIP-110 only accept blocks that carry the mark. They throw the rest away.",
@@ -988,6 +990,8 @@ es: {
  cdWhat1:"para que la marca sea obligatoria",
  cdWhat2:"para que la marca deje de ser obligatoria",
  cdWhat3:"para que entren en vigor las reglas de datos",
+ cdOnBip:"Contado sobre la cadena BIP-110, que va por el bloque {h}. Es la única donde esto cambia algo: un nodo con las reglas de hoy no tiene ese despliegue, así que a esa altura ahí no ocurre nada.",
+ cdPaceBip:"al ritmo que lleva esa cadena desde la separación. No es una fecha.",
  cdPaceNote:"si se mantuviera en un bloque cada {sp}. No es una fecha.",
  cdFoot:"Contado sobre la cadena con las reglas de hoy, que va por el bloque {tip}, hasta el {h}.",
  cdInWindow:"Desde esta tarde, los programas que aplican el BIP-110 solo aceptan bloques que lleven la marca. Los demás los descartan.",
@@ -1736,20 +1740,37 @@ function renderHeroStatus(){
        mi.threshold_blocks != null && mi.signalling_blocks >= mi.threshold_blocks){
       avisos.push(t("cdLockNote"));
     }
+    /* EL HITO SE CUENTA EN LA CADENA DONDE OCURRE.
+       Los hitos que quedan son reglas del software BIP-110, aplicadas sobre
+       la cadena que ese software sigue. Un nodo con las reglas de hoy ni
+       siquiera tiene ese despliegue: para el, en el 963.648 no pasa nada.
+       Mientras hubo una sola cadena daba igual porque eran la misma. Desde
+       la separacion, contarlo sobre la cadena mayoritaria da una fecha diez
+       veces mas cercana que la real y responde a quien no ha preguntado. */
+    const mino = (DATA.chain && DATA.chain.ok && realState() === "split")
+               ? (DATA.chain.minority || null) : null;
+    const pr = mi.milestone_projection || {};
+    const proyHito = (pr.milestones || []).find(x => x.key === hito.clave);
+    const enBip = mino && mino.tip != null;
+    const quedan = enBip ? Math.max(0, hito.m.height - mino.tip) : hito.m.blocks_away;
+    const plazo  = enBip ? (proyHito ? proyHito.minority_days : null)
+                         : hito.m.approx_days;
+
     f2 = `<div class="hcard">
       <div class="hlab">${esc(t("cdTitle"))}</div>
       <div class="cdgrid">
         <div class="cdbox">
           <div class="caveat-k g">${esc(t("tagData"))}</div>
-          <div class="cdnum g">${fmt(hito.m.blocks_away)}</div>
+          <div class="cdnum g">${fmt(quedan)}</div>
           <div class="cdunit">${esc(t("blocks"))} ${esc(t(hito.whatKey))}</div>
         </div>
         <div class="cdbox">
           <div class="caveat-k b">${esc(t("tagEst"))}</div>
-          <div class="cdnum b">${esc(strDur(hito.m.approx_days))}</div>
-          <div class="cdunit">${esc(t("cdPaceNote", {sp: normalSpacing()}))}</div>
+          <div class="cdnum b">${esc(strDur(plazo))}</div>
+          <div class="cdunit">${esc(enBip ? t("cdPaceBip") : t("cdPaceNote", {sp: normalSpacing()}))}</div>
         </div>
       </div>
+      ${enBip ? `<div class="cdfoot">${esc(t("cdOnBip", {h: fmt(mino.tip)}))}</div>` : ""}
       ${avisos.map(a => `<div class="cdfoot o">${esc(a)}</div>`).join("")}
     </div>`;
   }
