@@ -735,6 +735,10 @@ en: {
  cdWhat1:"until the mark becomes mandatory",
  cdWhat2:"until the mark stops being mandatory",
  cdWhat3:"until the data rules take effect",
+ vitTitle:"And the BIP-110 chain, is it moving?",
+ vitUnit:"blocks of its own in {t} since the split",
+ vitLast:"last one {t}",
+ vitOther:"the other chain has done {n} in the same time",
  cdOnBip:"Counted on the BIP-110 chain, which is at block {h}. That is the only chain where this changes anything: a node with the rules in force today does not have this deployment at all, so nothing happens there at that height.",
  cdPaceBip:"at the pace that chain has kept since the split. Not a date.",
  cdFewBlocks:"Treat that estimate loosely: the pace behind it comes from the {n} blocks that chain has produced so far, and a couple more can move it by weeks.",
@@ -815,7 +819,7 @@ en: {
  ms3a2:"No. Coins confirmed before block {h} stay outside the new rules permanently, for the whole time they are in force. This is written into the BIP itself.",
  ms3q3:"How long do they last?",
  ms3a3:"About a year, and then they expire on their own without anyone doing anything. And they only apply on the chain whose nodes enforce them.",
- blocks:"blocks", daysAway:"≈{n} days", reached:"reached",
+ blocks:"blocks", block:"block", daysAway:"≈{n} days", reached:"reached",
  minersTitle:"Are the miners signalling?",
  minersMethod:"For BIP-110 to go ahead, {thr}% of the blocks in a {periodSize} block stretch have to carry the bit 4 mark. We count those marks one by one on our own node. No explorer and no third-party API, so anyone with a full node can repeat the count and get the same number. One thing almost nobody says: the mark is put there by the mining software itself while the deployment is counting, so it tells you which software built the block, not what whoever mined it thinks.",
  gapKicker:"How far it is from the {thr}% needed",
@@ -993,6 +997,10 @@ es: {
  cdWhat1:"para que la marca sea obligatoria",
  cdWhat2:"para que la marca deje de ser obligatoria",
  cdWhat3:"para que entren en vigor las reglas de datos",
+ vitTitle:"¿Y la cadena BIP-110, avanza?",
+ vitUnit:"bloques propios en {t} desde la separación",
+ vitLast:"el último {t}",
+ vitOther:"la otra cadena ha hecho {n} en el mismo rato",
  cdOnBip:"Contado sobre la cadena BIP-110, que va por el bloque {h}. Es la única donde esto cambia algo: un nodo con las reglas de hoy no tiene ese despliegue, así que a esa altura ahí no ocurre nada.",
  cdPaceBip:"al ritmo que lleva esa cadena desde la separación. No es una fecha.",
  cdFewBlocks:"Cógelo con pinzas: ese plazo sale del ritmo de los {n} bloques que esa cadena lleva hechos, y un par más pueden moverlo semanas.",
@@ -1073,7 +1081,7 @@ es: {
  ms3a2:"No. Las monedas confirmadas antes del bloque {h} quedan fuera de las reglas nuevas de forma permanente, durante todo el tiempo que estén en vigor. Está escrito en el propio BIP.",
  ms3q3:"¿Cuánto duran?",
  ms3a3:"Alrededor de un año, y después expiran solas sin que nadie haga nada. Y solo se aplican en la cadena cuyos nodos las hacen cumplir.",
- blocks:"bloques", daysAway:"≈{n} días", reached:"alcanzado",
+ blocks:"bloques", block:"bloque", daysAway:"≈{n} días", reached:"alcanzado",
  minersTitle:"¿Los mineros están señalizando?",
  minersMethod:"Para que el BIP-110 salga adelante, el {thr}% de los bloques de una tanda de {periodSize} tiene que llevar la marca del bit 4. Esas marcas las contamos una a una en nuestro propio nodo. Sin exploradores ni APIs de terceros, así que cualquiera con un nodo completo puede repetir la cuenta y obtener el mismo número. Un matiz que casi nadie cuenta: la marca la pone el propio programa de minado mientras el despliegue está contando, así que dice qué software armó el bloque, no lo que opina quien lo minó.",
  gapKicker:"Lo que falta para el {thr}% necesario",
@@ -1749,6 +1757,38 @@ function renderHeroStatus(){
      una con SU etiqueta: los bloques son dato verificable y los dias un
      modelo. Lo que no se puede hacer es subir una y dejar la otra, porque
      entonces el heroe daria una fecha sin decir que es estimada. */
+  /* CON LAS CADENAS SEPARADAS, LA PREGUNTA VIVA ES OTRA.
+     La cuenta atras estaba aqui porque contestaba "cuando empieza esto", y
+     la respuesta eran dias. Ahora son meses y, apoyada en dos bloques, se
+     movia entre 168 y 203 dias en un par de horas: un titular que salta
+     semanas entre dos visitas desgasta mas de lo que informa, por mucho
+     aviso que lleve al lado.
+     Lo que si cambia cada rato, y es lo que hoy se pregunta todo el mundo,
+     es si esa cadena avanza o se ha quedado clavada. Y es un recuento, no
+     una proyeccion: no necesita matices. La cuenta atras no se pierde,
+     sigue en la seccion de las tres fechas, contada sobre la cadena que
+     corresponde. */
+  const vit = (c && c.ok && realState() === "split") ? (c.minority || null) : null;
+  if(vit && vit.blocks_since_split != null){
+    const otros = (c.majority || {}).blocks_since_split;
+    const desde = hace(vit.seconds_since_last_block);
+    const partes = [];
+    if(desde) partes.push(t("vitLast", {t: desde}));
+    if(otros != null) partes.push(t("vitOther", {n: fmt(otros)}));
+    const f2v = `<div class="hcard">
+      <div class="hrow"><span class="hlab">${esc(t("vitTitle"))}</span>
+        <span class="pill p-data">${esc(t("tagData"))}</span></div>
+      <div class="cdnum g" style="font-size:34px;margin-top:6px">${fmt(vit.blocks_since_split)}</div>
+      <div class="cdunit">${esc(t("vitUnit", {t: lapso(c.split_seconds_ago)}))}</div>
+      ${partes.length ? `<div class="cdfoot">${esc(partes.join(" · "))}</div>` : ""}
+      ${((mi.milestones || {}).in_mandatory_window)
+        ? `<div class="cdfoot o">${esc(t("cdInWindow"))}</div>` : ""}
+    </div>`;
+    el.innerHTML   = `<div class="hgrid">${f1}</div>`;
+    elcd.innerHTML = `<div class="hgrid">${f2v}</div>`;
+    return;
+  }
+
   let f2;
   const hito = mi && mi.ok ? siguienteHito(mi) : undefined;
   if(!mi)                f2 = `<div class="hcard">${skel(150)}</div>`;
@@ -1967,8 +2007,13 @@ function renderTimeline(){
     // Si las cifras de arriba se cuentan en la cadena BIP-110, el pie tiene
     // que nombrar ESA. Decir "contado sobre la cadena con las reglas de hoy"
     // debajo de unas cifras que no salen de ella es peor que no decir nada.
+    // El aviso de "pocos bloques" va pegado al plazo, y el plazo vive aqui
+    // desde que el heroe enseña vitalidad en su lugar.
+    const pocos = min && min.blocks_since_split != null && min.blocks_since_split < 12
+      ? `<div class="cdfoot o">${esc(t("cdFewBlocks", {n: fmt(min.blocks_since_split)}))}</div>`
+      : "";
     return (min && min.tip != null)
-      ? `<div class="cdfoot">${esc(t("cdOnBip", {h: fmt(min.tip)}))}</div>`
+      ? `<div class="cdfoot">${esc(t("cdOnBip", {h: fmt(min.tip)}))}</div>` + pocos
       : `<div class="cdfoot">${esc(t("cdFoot", {tip: fmt(d.tip), h: alt}))}</div>`;
   })();
 }
@@ -2014,7 +2059,7 @@ function histBlock(){
         const c = cuota(nombre);
         return `<div class="histrow">
           <span class="nm">${esc(nombre)}</span>
-          <span class="mono blk">${fmt(n)} ${esc(t("blocks"))}</span>
+          <span class="mono blk">${fmt(n)} ${esc(unidad(n, "block", "blocks"))}</span>
           <span class="mono pc">${esc(t("histOfSig", {pct: num(n / h.signalling_blocks * 100, 0)}))}</span>
           ${c == null ? "" : `<span class="mono sh">${esc(t("histMining", {pct: num(c, 2)}))}</span>`}
         </div>`;
@@ -2127,7 +2172,12 @@ function renderMiners(){
         <div class="val o">${fmt(d.signalling_blocks)}</div>
         <div class="note">${esc(t("mSigOf", {n: fmt(p.scanned)}))}</div></div>
       <div class="card"><div class="lbl">${esc(t("mTip"))}</div>
-        <div class="val">${fmt(d.tip)}</div>
+        ${/* La altura MAS reciente de las dos que tiene la pagina. Las dos
+             secciones salen de caches distintas y con edades distintas, asi
+             que la cabecera decia 961.659 y esta 961.658. No es falso, pero
+             dos "bloque actual" que no coinciden en la misma pantalla hacen
+             dudar del resto. */""}
+        <div class="val">${fmt(alturaActual(d.tip))}</div>
         <div class="note">${esc(t("mTipNote", {p: fmt(p.index), a: fmt(p.start), b: fmt(p.end)}))}</div></div>
       ${(() => {
         // Tres estados. Con solo "alcanzable si/no", un periodo que YA ha
@@ -2311,6 +2361,26 @@ function renderSim(){
    numero crudo habria dado "1 dias" en el primero y "1 dia" en el segundo,
    con el mismo texto en pantalla. */
 function unidad(mostrado, sing, plu){ return t(Math.abs(mostrado) === 1 ? sing : plu); }
+
+/* La altura mas fresca de las que tiene la pagina. /api/chain se refresca
+   cada minuto y /api/miners cada cinco, asi que enseñar cada seccion la
+   suya deja dos "bloque actual" distintos a la vez. */
+function alturaActual(propia){
+  const c = DATA.chain;
+  const otra = (c && c.ok && c.nodes && c.nodes.core) ? c.nodes.core.tip : null;
+  if(propia == null) return otra;
+  if(otra == null) return propia;
+  return Math.max(propia, otra);
+}
+
+/* Una duracion pelada: "6,1 h", "45 min". Sin "hace" ni "ago", para las
+   frases que ya ponen su propia preposicion. hace() sirve para lo otro. */
+function lapso(seg){
+  if(seg == null) return "";
+  if(seg < 3600)  return num(seg/60, 0) + " " + unidad(Math.round(seg/60), "minute", "minutes");
+  if(seg < 86400) return num(seg/3600, 1) + " " + unidad(Math.round(seg/360)/10, "hour", "hours");
+  return num(seg/86400, 1) + " " + unidad(Math.round(seg/8640)/10, "day", "days");
+}
 
 function strDur(dias){
   if(dias === null || dias === undefined) return t("strNeverRow");

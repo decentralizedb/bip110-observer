@@ -709,9 +709,13 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
          cifra grande de al lado es un recuento exacto; esta es una
          extrapolacion sobre dos bloques, y sin decirlo las dos se leen
          igual de firmes. */
+      /* El aviso de "pocos bloques" acompaña a un plazo. Desde que el
+         heroe enseña vitalidad en vez de cuenta atras, ese plazo ya no esta
+         ahi arriba, asi que solo se exige si de verdad se imprime uno. */
       if (cd.state === "split" && cd.minority &&
           cd.minority.blocks_since_split != null &&
           cd.minority.blocks_since_split < 12 &&
+          usaClave(panel, salida, "cdOnBip") &&
           !usaClave(panel, salida, "cdFewBlocks"))
         err("se da un plazo sacado de pocos bloques sin decir sobre cuantos va");
 
@@ -812,7 +816,14 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
        - apunta al PRIMER hito no alcanzado, no a uno escrito a mano;
        - si ya han pasado los tres, no cuenta nada;
        - nunca cuenta hacia atras. */
-  if (m && m.ok && m.milestones) {
+  /* La cuenta atras vive en el heroe SOLO mientras hay una cadena. Con las
+     cadenas separadas ese sitio lo ocupa la vitalidad de la rama BIP-110, y
+     la cuenta atras sigue existiendo mas abajo con sus propias claves. Estas
+     comprobaciones son de esa tarjeta, asi que no aplican en ese caso. */
+  const heroConContador = !(datos.chain && datos.chain.ok &&
+                            datos.chain.state === "split" &&
+                            (datos.chain.minority || {}).blocks_since_split != null);
+  if (m && m.ok && m.milestones && heroConContador) {
     const ms = m.milestones;
     const orden = [["mandatory_signalling_start", "cdWhat1"],
                    ["forced_lockin",              "cdWhat2"],
