@@ -614,6 +614,33 @@ function vecesClave(panel, salida, clave) {
 function revisar(nombre, lang, vista, salida, datos, panel, dom) {
   const err = m => { console.log(`  FALLO [${nombre} | ${lang} | ${vista}] ${m}`); fallos++; };
 
+  /* EL SIMULADOR TIENE QUE ARRANCAR EN LA MISMA CUOTA QUE LA PROYECCION.
+     El boton "actual" tomaba pct_of_scanned, que desde la separacion es
+     cuanto señaliza LA OTRA cadena y tiende a cero por construccion.
+     Pulsarlo mandaba el control al minimo, 0,1%, y el simulador contestaba
+     con siglos mientras la seccion del recorrido tenia la cuota medida.
+     Dos cifras del mismo fenomeno en la misma pagina. */
+  {
+    const m = datos.miners;
+    const pr = m && m.ok ? m.milestone_projection : null;
+    const esperado = (m && m.ok && m.share_source === "observed" && pr && pr.share_pct > 0)
+                   ? pr.share_pct
+                   : (m && m.ok && m.pct_of_scanned > 0 ? m.pct_of_scanned : null);
+    /* Sin `!= null` a proposito. Aqui el control no arrastra el value del
+       HTML, asi que si la pagina no lo coloca se queda en undefined, y un
+       guardian que perdonara ese caso se saltaria justo el fallo que
+       vigila: comprobado rompiendo cuotaActual, no saltaba ni una vez. */
+    const sl = dom.els.share;
+    if (esperado !== null) {
+      const quiere = Math.round(Math.min(60, Math.max(0.1, esperado)) * 10);
+      const hay = sl && sl.value != null ? Number(sl.value) : null;
+      if (hay !== quiere) {
+        err(`el simulador arranca en ${hay === null ? "nada" : hay / 10 + "%"
+            } y la cuota vigente es ${esperado}%`);
+      }
+    }
+  }
+
   /* "Se esta calculando" NO es un error, y no puede verse como uno.
      El servidor manda su mensaje en castellano y con ok:false. Cinco
      renderizadores miraban solo ok y lo pintaban en rojo con el texto crudo,
@@ -977,12 +1004,21 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
   }
   if (h && h.ok && h.periods.length >= 2) {
     const d = h.periods[h.periods.length - 1].pct - h.periods[0].pct;
-    const esperada = Math.abs(d) < 0.5 ? "trendFlat" : (d > 0 ? "trendUp" : "trendDown");
+    // "Subio" solo vale si subio todo el rato. Una serie que baja por el
+    // medio y acaba mas arriba no es una subida, y la frase se imprime
+    // justo encima de la lista que la desmiente.
+    const dir = d > 0 ? 1 : -1;
+    let monotona = true;
+    for (let i = 1; i < h.periods.length; i++) {
+      if ((h.periods[i].pct - h.periods[i - 1].pct) * dir < 0) { monotona = false; break; }
+    }
+    const esperada = Math.abs(d) < 0.5 ? "trendFlat"
+                   : (!monotona ? "trendBumpy" : (d > 0 ? "trendUp" : "trendDown"));
     if (!(m && m.ok)) return;
     if (!usaClave(panel, salida, esperada)) {
       err(`la tendencia es ${d.toFixed(2)} y no se usa ${esperada}`);
     }
-    for (const otra of ["trendFlat", "trendUp", "trendDown"]) {
+    for (const otra of ["trendFlat", "trendUp", "trendDown", "trendBumpy"]) {
       if (otra !== esperada && usaClave(panel, salida, otra)) {
         err(`la tendencia es ${d.toFixed(2)} y ademas se usa ${otra}`);
       }
@@ -1010,6 +1046,29 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
     const firman = p.pools.filter(r => r.signalling_blocks > 0);
     if (firman.length > 1 && usaClave(panel, salida, "coalitionBody")) {
       err(`firman ${firman.length} pools y dice que solo uno`);
+    }
+    /* CERO NO ES UNO, Y ESTO NO ESTABA COMPROBADO.
+       Solo se vigilaba "muchos pero dice uno". Con cero, la pagina caia en
+       la plantilla del singular y la rellenaba con el lider del historico:
+       decia "solo señaliza Ocean, con el 3,20%" sin que nadie señalizara.
+       Habia escenarios con pools([]) desde siempre; lo que faltaba era
+       mirarlos. Las tres ramas, cada una excluyendo a las otras. */
+    if (firman.length === 0) {
+      if (!usaClave(panel, salida, "coalitionBodyNone")) {
+        err("no señaliza ningun pool y no se usa coalitionBodyNone");
+      }
+      if (usaClave(panel, salida, "coalitionBody")) {
+        err("no señaliza ningun pool y dice que solo señaliza uno");
+      }
+    } else if (firman.length === 1) {
+      if (!usaClave(panel, salida, "coalitionBody")) {
+        err("señaliza un solo pool y no se usa coalitionBody");
+      }
+      if (usaClave(panel, salida, "coalitionBodyNone")) {
+        err("señaliza un pool y dice que no señaliza ninguno");
+      }
+    } else if (usaClave(panel, salida, "coalitionBodyNone")) {
+      err(`firman ${firman.length} pools y dice que ninguno`);
     }
     // Todo pool que señaliza en el periodo en curso, por nombre.
     const m2 = datos.miners;

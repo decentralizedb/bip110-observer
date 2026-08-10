@@ -856,12 +856,13 @@ en: {
  trendFlat:"Across the last {histPeriods} closed periods it barely moved, from {first}% to {last}%.",
  trendUp:"Across the last {histPeriods} closed periods it went up, from {first}% to {last}%.",
  trendDown:"Across the last {histPeriods} closed periods it went down, from {first}% to {last}%.",
+ trendBumpy:"Across the last {histPeriods} closed periods it went from {first}% to {last}%, up and down along the way.",
  trendNone:"There is not enough closed-period history yet to say whether it is moving.",
  reachYes:"In theory, yes", reachNo:"No, not this period", reachMet:"It already has",
  reachNoNote:"Even if every block left signalled, it would fall short of the {t} needed. The count starts over next period.",
  reachMetNote:"{sig} of the {t} blocks needed have signalled in this period, so the threshold is already met. What happens next is set by the dates above.",
  barLegend:"progress toward the {thr}% threshold",
- mSig:"Signalling blocks", mSigOf:"of {n} scanned this period",
+ mSig:"Signalling blocks", mSigOf:"of {n} scanned this period, up to block {h}",
  mTip:"Current block", mTipNote:"period {p} · from {a} to {b}",
  mReach:"Could it still reach {thr}%?", mReachVal:"In theory, yes",
  mReachNote:"{t} of the {periodSize} blocks are needed and {r} are still to be mined, so the numbers still add up. It says nothing about whether it will happen.",
@@ -885,7 +886,9 @@ en: {
  simInterval:"One block every", simPerDay:"Blocks per day",
  simPerDayNote:"vs {bpd} on the main chain",
  simRetarget:"First difficulty retarget", simMajority:"Majority chain",
- simMajNote:"barely affected by losing that share",
+ simRetargetNote:"{d} days · {n} blocks to go",
+ simMajNote:"barely affected by losing that share. Modelled on a target of {normal}, not measured on the chain.",
+ presetMeasured:"measured",
  assumeKicker:"Assumptions",
  err_tor_circuito:"Could not reach the node over Tor right now.",
  err_tor_caducado:"The Tor connection to the node expired before it completed.",
@@ -937,6 +940,7 @@ en: {
  coalitionKicker:"What it would take to reach the threshold",
  coalSplitNote:"Read on the chain with today's rules, over its last blocks: since the split a pool that signals is mining the other chain, so it drops out of this window as the window moves on, without having changed its mind.",
  coalitionBody:"No combination reaches {thr}% today unless several of the majors move at the same time. Only {pool} signals, and it holds {share}%. That is the coordination problem keeping everyone still.",
+ coalitionBodyNone:"No combination reaches {thr}% today unless several of the majors move at the same time. Not one pool in this sample is signalling, which is as far from that as it gets.",
  coalitionBodyMany:"Reaching {thr}% needs several of the majors moving at the same time. Right now {poolCount} pools signal and together they hold {sigShare}% of mining. That is {gapShare} points short of the threshold.",
  coalitionBodyOver:"{poolCount} pools now signal and together they hold {sigShare}% of mining, above the {thr}% the BIP asks for. Mining share is not the same as blocks actually signalled, so it is the count per period that decides, not this figure.",
  gfTitle:"Can my bitcoin get locked up by this?",
@@ -1122,12 +1126,13 @@ es: {
  trendFlat:"En los {histPeriods} periodos cerrados anteriores apenas se movió, del {first}% al {last}%.",
  trendUp:"En los {histPeriods} periodos cerrados anteriores subió, del {first}% al {last}%.",
  trendDown:"En los {histPeriods} periodos cerrados anteriores bajó, del {first}% al {last}%.",
+ trendBumpy:"En los {histPeriods} periodos cerrados anteriores pasó del {first}% al {last}%, con subidas y bajadas por el camino.",
  trendNone:"Todavía no hay suficientes periodos cerrados para decir si se mueve o no.",
  reachYes:"En teoría, sí", reachNo:"No, en este periodo ya no", reachMet:"Ya lo ha alcanzado",
  reachNoNote:"Aunque señalizaran todos los bloques que quedan, no llegaría a los {t} necesarios. La cuenta vuelve a empezar en el siguiente periodo.",
  reachMetNote:"En este periodo ya han señalizado {sig} de los {t} bloques necesarios, así que el umbral está cumplido. Lo que venga después lo marcan las fechas de arriba.",
  barLegend:"progreso hacia el umbral del {thr}%",
- mSig:"Bloques señalizando", mSigOf:"de {n} escaneados este periodo",
+ mSig:"Bloques señalizando", mSigOf:"de {n} escaneados este periodo, hasta el bloque {h}",
  mTip:"Bloque actual", mTipNote:"periodo {p} · del {a} al {b}",
  mReach:"¿Todavía puede llegar al {thr}%?", mReachVal:"En teoría, sí",
  mReachNote:"hacen falta {t} de los {periodSize} bloques y quedan {r} por minar, así que las cuentas todavía dan. No dice nada sobre si va a ocurrir.",
@@ -1151,7 +1156,9 @@ es: {
  simInterval:"Un bloque cada", simPerDay:"Bloques al día",
  simPerDayNote:"frente a {bpd} en la cadena principal",
  simRetarget:"Primer reajuste de dificultad", simMajority:"Cadena mayoritaria",
- simMajNote:"apenas la afecta perder esa cuota",
+ simRetargetNote:"{d} días · le faltan {n} bloques",
+ simMajNote:"apenas la afecta perder esa cuota. Modelado sobre el objetivo de {normal}, no medido en la cadena.",
+ presetMeasured:"medida",
  assumeKicker:"Supuestos",
  err_tor_circuito:"No se ha podido llegar al nodo por Tor en este momento.",
  err_tor_caducado:"La conexión con el nodo por Tor ha caducado antes de completarse.",
@@ -1203,6 +1210,7 @@ es: {
  coalitionKicker:"Qué haría falta para llegar al umbral",
  coalSplitNote:"Leído sobre la cadena con las reglas de hoy, en sus últimos bloques: desde la separación, un pool que señaliza está minando la otra cadena, así que va saliendo de esta ventana según avanza, sin haber cambiado de idea.",
  coalitionBody:"Ninguna combinación llega al {thr}% sin que varios de los grandes se muevan a la vez. Solo señaliza {pool}, con el {share}%. Ese es el problema de coordinación que mantiene inmóvil a todo el mundo.",
+ coalitionBodyNone:"Ninguna combinación llega al {thr}% sin que varios de los grandes se muevan a la vez. En esta muestra no señaliza ni un pool, que es lo más lejos que se puede estar de ese umbral.",
  coalitionBodyMany:"Llegar al {thr}% exige que varios de los grandes se muevan a la vez. Ahora mismo señalizan {poolCount} pools y entre todos suman el {sigShare}% del minado. Eso deja {gapShare} puntos hasta el umbral.",
  coalitionBodyOver:"Ya señalizan {poolCount} pools y entre todos suman el {sigShare}% del minado, por encima del {thr}% que pide el BIP. Cuota de minado no es lo mismo que bloques señalizados, así que lo que decide es el recuento de cada periodo, no esta cifra.",
  gfTitle:"¿Se me pueden bloquear los bitcoin por esto?",
@@ -2223,6 +2231,16 @@ function trendText(){
   const v = Object.assign(constVars(), {first: num(first, 2), last: num(last, 2)});
   const delta = last - first;
   if(Math.abs(delta) < 0.5) return t("trendFlat", v);
+  /* "Subio" solo si subio todo el rato. La serie 0,79 · 0,45 · 0,99 · 1,29
+     · 2,53 sube de extremo a extremo pero baja en el segundo periodo, y la
+     frase se imprimia justo encima de esa lista contradiciendola. Comparar
+     solo el primero con el ultimo describe dos puntos, no la serie. */
+  const dir = delta > 0 ? 1 : -1;
+  let monotona = true;
+  for(let i = 1; i < ps.length; i++){
+    if((ps[i].pct - ps[i-1].pct) * dir < 0){ monotona = false; break; }
+  }
+  if(!monotona) return t("trendBumpy", v);
   return t(delta > 0 ? "trendUp" : "trendDown", v);
 }
 
@@ -2270,7 +2288,11 @@ function renderMiners(){
     <div class="grid" style="margin-top:22px">
       <div class="card"><div class="lbl">${esc(t("mSig"))}</div>
         <div class="val o">${fmt(d.signalling_blocks)}</div>
-        <div class="note">${esc(t("mSigOf", {n: fmt(p.scanned)}))}</div></div>
+        ${/* La altura de la tarjeta de al lado es la mas fresca de la
+             pagina, y este recuento sale de una cache de minutos. Restando
+             saltaba un bloque de diferencia y parecia un error de cuenta.
+             Se dice hasta donde llego el escaneo, que es la verdad. */""}
+        <div class="note">${esc(t("mSigOf", {n: fmt(p.scanned), h: fmt(d.tip)}))}</div></div>
       <div class="card"><div class="lbl">${esc(t("mTip"))}</div>
         ${/* La altura MAS reciente de las dos que tiene la pagina. Las dos
              secciones salen de caches distintas y con edades distintas, asi
@@ -2318,7 +2340,13 @@ function coalitionText(){
   const P = DATA.pools && DATA.pools.ok ? (DATA.pools.pools || []) : [];
   const firman = P.filter(r => r.signalling_blocks > 0);
   const v = Object.assign(constVars(), coalitionVars());
-  if(firman.length <= 1) return t("coalitionBody", v);
+  /* CERO NO ES UNO. La condicion era `<= 1`, asi que el caso "no señaliza
+     nadie" caia en la plantilla del singular y se rellenaba con el lider
+     del HISTORICO: la pagina decia "solo señaliza Ocean, con el 3,20%"
+     mientras la muestra tenia cero. Se blindo el caso de muchos y se dejo
+     abierto el de ninguno, que es el que ha acabado ocurriendo. */
+  if(firman.length === 0) return t("coalitionBodyNone", v);
+  if(firman.length === 1) return t("coalitionBody", v);
   const suma = firman.reduce((a, r) => a + r.share_pct, 0);
   // Si ya suman por encima del umbral, decir "quedan 0 puntos" es absurdo.
   // Y ahi hace falta el matiz: cuota de minado no es señalizacion medida.
@@ -2419,8 +2447,31 @@ function renderNodes(){
 }
 
 /* ===================== simulador ===================== */
+
+/* CUOTA QUE REPRESENTA A LA CADENA MINORITARIA HOY, EN UN SOLO SITIO.
+   El boton "actual" tomaba pct_of_scanned, que es cuanto señaliza LA OTRA
+   cadena. Desde la separacion esa cifra tiende a cero por construccion, y
+   el propio panel lo explica dos secciones mas arriba: pulsarlo mandaba el
+   control al minimo y el simulador contestaba con siglos. La cuota buena
+   ya existia y ya la usa la seccion del recorrido, medida en bloques.
+   Un solo sitio, porque dos secciones no pueden discrepar sobre lo mismo. */
+function cuotaActual(){
+  const d = DATA.miners;
+  if(!d || !d.ok) return null;
+  const p = d.milestone_projection;
+  if(d.share_source === "observed" && p && p.share_pct > 0)
+    return {pct: p.share_pct, medida: true};
+  const s = d.pct_of_scanned || 0;
+  return s > 0 ? {pct: s, medida: false} : null;
+}
+
+/* El control arranca en el valor del HTML hasta que llegan datos, y
+   entonces salta una sola vez a la cuota real. Si el visitante lo ha
+   tocado, manda el visitante. */
+let SIM_TOCADO = false;
+
 function renderPresets(){
-  const cur = DATA.miners && DATA.miners.ok ? (DATA.miners.pct_of_scanned || 0) : null;
+  const cur = cuotaActual();
   // Escenarios de referencia, derivados y no clavados: el umbral que pide
   // el BIP, la mitad de ese umbral, y la cuota del mayor pool de hoy.
   const top = DATA.pools && DATA.pools.ok && DATA.pools.pools.length
@@ -2428,10 +2479,26 @@ function renderPresets(){
   const vals = [...new Set([1, 5, 10, Math.round(top), Math.round(thrPct()/2), thrPct()])]
                .filter(v => v > 0 && v <= 60).sort((a,b) => a-b);
   let html = vals.map(v => `<button type="button" class="pbtn" onclick="setShare(${v})">${num(v,1)}%</button>`).join("");
-  if(cur != null) html += `<button type="button" class="pbtn" onclick="setShare(${cur})">${esc(t("current"))} ${num(cur,2)}%</button>`;
+  if(cur) html += `<button type="button" class="pbtn" onclick="setShare(${cur.pct})">${
+    esc(t(cur.medida ? "presetMeasured" : "current"))} ${num(cur.pct, 2)}%</button>`;
   $("presets").innerHTML = html;
+  if(cur && !SIM_TOCADO){ SIM_TOCADO = true; setShare(cur.pct); }
 }
 function setShare(pct){ $("share").value = Math.round(Math.min(60, Math.max(0.1, pct)) * 10); renderSim(); }
+
+/* Bloques hasta el PRIMER reajuste de dificultad de esa cadena. Con las
+   cadenas ya separadas no son 2016 desde cero: son los que le faltan a la
+   cadena BIP-110 para llegar a su proximo multiplo del periodo. La seccion
+   de los hitos ya cuenta asi, y el mismo plazo calculado de dos maneras en
+   la misma pagina se lee como un error aunque las dos cuentas sean buenas. */
+function bloquesHastaReajuste(period){
+  const c = DATA.chain;
+  const h = (realState() === "split" && c && c.ok && c.nodes && c.nodes.knots)
+          ? c.nodes.knots.tip : null;
+  if(!h) return period;
+  const falta = (Math.floor(h / period) + 1) * period - h;
+  return falta > 0 ? falta : period;
+}
 
 function renderSim(){
   const share = Math.max(0.001, $("share").value / 1000);
@@ -2439,7 +2506,8 @@ function renderSim(){
   const period = bip().period || 2016;
   const interval = spacing / share;
   const perDay = 86400 / interval;
-  const retargetDays = interval * period / 86400;
+  const restantes = bloquesHastaReajuste(period);
+  const retargetDays = interval * restantes / 86400;
   const majority = spacing / Math.max(1e-9, 1 - share);
 
   $("shareval").textContent = num(share * 100, 2) + "%";
@@ -2455,10 +2523,14 @@ function renderSim(){
       <div class="note">${esc(t("simPerDayNote", constVars()))}</div></div>
     <div class="card"><div class="lbl">${esc(t("simRetarget"))}</div>
       <div class="val b">${esc(rTxt)}</div>
-      <div class="note">${num(retargetDays, 0)} ${esc(t("days"))}</div></div>
+      <div class="note">${esc(t("simRetargetNote", {d: num(retargetDays, 0), n: fmt(restantes)}))}</div></div>
     <div class="card"><div class="lbl">${esc(t("simMajority"))}</div>
       <div class="val g">${num(majority/60, 1)} ${esc(t("minutes"))}</div>
-      <div class="note">${esc(t("simMajNote"))}</div></div>`;
+      ${/* Ese numero es MODELADO, y la seccion de la cadena enseña el
+           medido unos centimetros mas arriba. Salian 10,2 y 10,3 minutos
+           para lo mismo. Ninguno es falso, asi que no se toca el calculo:
+           se dice de donde sale cada uno. */""}
+      <div class="note">${esc(t("simMajNote", {normal: normalSpacing()}))}</div></div>`;
   $("simviable").innerHTML = share >= 0.5 ? `<div class="viable">${esc(t("simViable"))}</div>` : "";
 }
 
@@ -2642,7 +2714,7 @@ if(window.matchMedia){
     if(!guardado){ TEMA = e.matches ? "light" : "dark"; aplicarTema(); }
   });
 }
-$("share").addEventListener("input", renderSim);
+$("share").addEventListener("input", () => { SIM_TOCADO = true; renderSim(); });
 window.addEventListener("scroll", () => {
   const b = $("totop");
   if(window.scrollY > 600) b.removeAttribute("hidden"); else b.setAttribute("hidden", "");
