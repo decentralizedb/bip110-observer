@@ -89,6 +89,28 @@ def contar_periodo(rpc, start, end):
 
 
 # --------------------------------------------------------------------------
+def cadenas_separadas(a, b):
+    """¿Estan en cadenas distintas los nodos a y b?
+
+    Se resuelve con RPC crudo y no leyendo /api/chain, por la regla del
+    script: lo que se audita no se usa como fuente para auditarlo. Compara
+    el hash a la altura comun mas alta, que es la misma prueba de la
+    seccion [5] y no depende de ningun calculo del panel.
+
+    Devuelve None si no se puede saber, que no es lo mismo que 'no'.
+    """
+    if a == b:
+        return False
+    if not (main._node_configured(a) and main._node_configured(b)):
+        return None
+    try:
+        ra, rb = main._rpc(a), main._rpc(b)
+        comun = min(ra.get_block_count(), rb.get_block_count())
+        return ra.call("getblockhash", comun) != rb.call("getblockhash", comun)
+    except Exception:
+        return None
+
+
 def auditar_params(cli):
     print("\n[1] Parametros del BIP contra el .mediawiki oficial")
     bip = cli.get("/api/params").get_json()["bip"]
@@ -130,33 +152,68 @@ def auditar_miners(cli, bip, node):
         fallo(f"escaneados: panel {p['scanned']}, recuento propio {total}")
 
     # 2b. Contra el contador de consenso de la implementacion de referencia.
-    #     Ojo: el despliegue reduced_data solo existe en el nodo que aplica
+    #
+    #     EL CONTADOR ES DE SU CADENA, NO DE LA NUESTRA.
+    #
+    #     El despliegue reduced_data solo existe en el nodo que aplica
     #     BIP-110. Pedirselo al canonico no falla, simplemente no esta, y la
-    #     mejor prueba cruzada que tenemos se saltaria en silencio. Mientras
-    #     las cadenas no se hayan separado los dos nodos ven los mismos
-    #     bloques, asi que el contador del Knots vale para contrastar.
+    #     mejor prueba cruzada que hay se saltaria en silencio. Hasta la
+    #     separacion los dos nodos veian los mismos bloques y comparar el
+    #     contador de Knots con la cifra del panel era legitimo.
+    #
+    #     Desde el corte son dos cadenas distintas: Knots contaba 2 sobre su
+    #     rama y el panel 280 sobre la otra, las dos cifras correctas, y esta
+    #     comprobacion pasaba a fallar siempre. Una que grita sin motivo se
+    #     acaba ignorando, y aflojarla para que pasara habria tirado el unico
+    #     contraste independiente que tenemos. Asi que se le pregunta a cada
+    #     cadena por la suya: el contador del nodo contra un recuento propio
+    #     hecho SOBRE ESE MISMO NODO, y solo si las dos cadenas coinciden se
+    #     exige ademas que cuadre con lo que publica el panel.
     hecho = False
     for cand in ("knots", "core"):
         if not main._node_configured(cand):
             continue
         try:
-            dep = main._rpc(cand).call("getdeploymentinfo")["deployments"]["reduced_data"]
+            rpc_c = main._rpc(cand)
+            dep = rpc_c.call("getdeploymentinfo")["deployments"]["reduced_data"]
         except Exception:
             continue
         st = dep["bip9"]["statistics"]
         hecho = True
-        if st["count"] != m["signalling_blocks"]:
+
+        # Recuento independiente sobre la cadena de ESE nodo, con sus propios
+        # limites de periodo: su punta puede estar en otra altura.
+        tip_c = rpc_c.get_block_count()
+        ini_c = (tip_c // bip["period"]) * bip["period"]
+        n_c, tot_c = contar_periodo(rpc_c, ini_c, tip_c)
+        if st["count"] != n_c:
             fallo(f"getdeploymentinfo del nodo {cand} cuenta {st['count']}, "
-                  f"el panel {m['signalling_blocks']}")
+                  f"recuento propio sobre esa misma cadena {n_c}")
         else:
-            ok(f"contador de consenso del nodo {cand} coincide: {st['count']} "
-               f"(bit {dep['bip9']['bit']}, estado {dep['bip9']['status']})")
+            ok(f"contador de consenso del nodo {cand} coincide con el recuento "
+               f"propio de su cadena: {n_c} (bit {dep['bip9']['bit']}, "
+               f"estado {dep['bip9']['status']})")
         if st["threshold"] != m["threshold_blocks"]:
             fallo(f"umbral: nodo {st['threshold']}, panel {m['threshold_blocks']}")
         else:
             ok(f"umbral del nodo coincide: {st['threshold']}")
-        if abs(st["elapsed"] - p["scanned"]) > 2:
-            fallo(f"elapsed del nodo {st['elapsed']} vs escaneados {p['scanned']}")
+        if abs(st["elapsed"] - tot_c) > 2:
+            fallo(f"elapsed del nodo {st['elapsed']} vs escaneados en su "
+                  f"cadena {tot_c}")
+
+        sep = cadenas_separadas(cand, node)
+        if sep is None:
+            aviso(f"no se ha podido comparar la cadena de {cand} con la de "
+                  f"{node}: el contador queda sin cruzar contra el panel")
+        elif sep:
+            aviso(f"cadenas separadas: el contador de {cand} es de su rama y "
+                  f"el panel lee {node}, asi que no son comparables entre si")
+        elif st["count"] != m["signalling_blocks"]:
+            fallo(f"misma cadena, y getdeploymentinfo del nodo {cand} cuenta "
+                  f"{st['count']} frente a {m['signalling_blocks']} del panel")
+        else:
+            ok(f"las dos cadenas coinciden y el contador cuadra tambien con "
+               f"el panel: {st['count']}")
         break
     if not hecho:
         fallo("ningun nodo expone el despliegue reduced_data: sin contraste "
