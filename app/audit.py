@@ -451,7 +451,13 @@ def auditar_simulador(cli):
 
 def auditar_cruce(cli):
     print("\n[8] Cruce entre endpoints")
-    m = cli.get("/api/miners").get_json()
+    # Con `cli.get` a secas esto devolvia {computing: true} en frio, los tres
+    # `if m.get("ok")` de abajo daban falso y la seccion entera no imprimia ni
+    # una linea. Una seccion muda parece una seccion que pasa.
+    m = esperar(cli, "/api/miners")
+    if not m.get("ok"):
+        fallo("/api/miners no responde, la seccion 8 no comprueba nada")
+        return
     h = esperar(cli, "/api/history")
     if m.get("ok") and h.get("ok"):
         if h["periods"] and h["periods"][-1]["period"] >= m["period"]["index"]:
@@ -466,7 +472,15 @@ def auditar_cruce(cli):
             ok("la altura coincide entre /api/miners y /api/chain")
     mk = esperar(cli, "/api/miners?node=knots")
     if m.get("ok") and mk.get("ok"):
-        if c.get("state") == "pre_split" and m["signalling_blocks"] != mk["signalling_blocks"]:
+        # Separadas, cada nodo cuenta sobre SU cadena y las dos cifras pueden
+        # ser distintas siendo las dos correctas. Antes esto caia en el `else`
+        # y anunciaba "los dos nodos cuentan lo mismo" imprimiendo solo la de
+        # core: una comprobacion que no podia fallar, diciendo ademas algo
+        # falso. Core contaba 0 y knots 2.
+        if c.get("state") != "pre_split":
+            aviso(f"cadenas separadas: core cuenta {m['signalling_blocks']} sobre la suya "
+                  f"y knots {mk['signalling_blocks']} sobre la suya, no son comparables")
+        elif m["signalling_blocks"] != mk["signalling_blocks"]:
             fallo(f"los dos nodos discrepan en la señalizacion: "
                   f"core {m['signalling_blocks']} vs knots {mk['signalling_blocks']}")
         else:

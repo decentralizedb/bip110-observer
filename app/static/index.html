@@ -617,7 +617,12 @@ footer p+p{margin-top:8px}
       <span data-k="simLabel"></span>
       <span class="mono b" id="shareval" style="font-size:24px;font-weight:700;display:block;margin-top:4px"></span>
     </label>
-    <input id="share" type="range" min="1" max="600" step="1" value="20" aria-describedby="simout">
+    <!-- El paso es la centesima de punto, no la decima. Con la decima, la
+         cuota medida (0,46%) se redondeaba a 0,50% al colocar el control, y
+         entonces el simulador daba 33,3 h y 7,67 años donde las secciones que
+         miden esa misma cadena dicen 37,9 h y 8,26 años. Mismo dato, dos
+         cifras en la misma pagina, y la culpa era del paso del control. -->
+    <input id="share" type="range" min="1" max="6000" step="1" value="200" aria-describedby="simout">
     <div class="presets" id="presets"></div>
     <div class="grid" id="simout" style="margin-top:24px"></div>
     <div id="simviable"></div>
@@ -772,7 +777,7 @@ en: {
  cdFewBlocks:"Treat that estimate loosely: the pace behind it comes from the {n} blocks that chain has produced so far, and a couple more can move it by weeks.",
  cdPaceNote:"if it held at one block every {sp}. Not a date.",
  cdFoot:"Counted on the chain with today's rules, which is at block {tip}, up to {h}.",
- cdInWindow:"Since this afternoon, the programs enforcing BIP-110 only accept blocks that carry the mark. They throw the rest away.",
+ cdInWindow:"From that height on, the programs enforcing BIP-110 only accept blocks that carry the mark. They throw the rest away.",
  cdLockNote:"Read this countdown with care. The mandatory window only happens if the threshold has not been met first: the check requires the deployment to still be counting. Signalling in the current period has already reached the threshold, so if the period closes this way it locks in earlier and this window never exists.",
  cdAllPassed:"All three heights have been passed, so there is nothing left to count down to. What happened at each one is below.",
  legendTitle:"How to read every number here",
@@ -1042,7 +1047,7 @@ es: {
  cdFewBlocks:"Cógelo con pinzas: ese plazo sale del ritmo de los {n} bloques que esa cadena lleva hechos, y un par más pueden moverlo semanas.",
  cdPaceNote:"si se mantuviera en un bloque cada {sp}. No es una fecha.",
  cdFoot:"Contado sobre la cadena con las reglas de hoy, que va por el bloque {tip}, hasta el {h}.",
- cdInWindow:"Desde esta tarde, los programas que aplican el BIP-110 solo aceptan bloques que lleven la marca. Los demás los descartan.",
+ cdInWindow:"Desde esa altura, los programas que aplican el BIP-110 solo aceptan bloques que lleven la marca. Los demás los descartan.",
  cdLockNote:"Esta cuenta atrás hay que leerla con cuidado. La ventana obligatoria solo ocurre si el umbral no se ha cumplido antes: la comprobación exige que el despliegue siga contando. La señalización del periodo en curso ya ha llegado al umbral, así que si el periodo cierra así se bloquea antes y esta ventana no llega a existir.",
  cdAllPassed:"Las tres alturas ya han pasado, así que no queda ninguna cuenta atrás. Lo que ocurrió en cada una está más abajo.",
  legendTitle:"Cómo leer cada cifra de este panel",
@@ -2484,7 +2489,7 @@ function renderPresets(){
   $("presets").innerHTML = html;
   if(cur && !SIM_TOCADO){ SIM_TOCADO = true; setShare(cur.pct); }
 }
-function setShare(pct){ $("share").value = Math.round(Math.min(60, Math.max(0.1, pct)) * 10); renderSim(); }
+function setShare(pct){ $("share").value = Math.round(Math.min(60, Math.max(0.01, pct)) * 100); renderSim(); }
 
 /* Bloques hasta el PRIMER reajuste de dificultad de esa cadena. Con las
    cadenas ya separadas no son 2016 desde cero: son los que le faltan a la
@@ -2501,7 +2506,7 @@ function bloquesHastaReajuste(period){
 }
 
 function renderSim(){
-  const share = Math.max(0.001, $("share").value / 1000);
+  const share = Math.max(0.0001, $("share").value / 10000);
   const spacing = (DATA.params && DATA.params.target_spacing) || 600;
   const period = bip().period || 2016;
   const interval = spacing / share;
@@ -2512,7 +2517,11 @@ function renderSim(){
 
   $("shareval").textContent = num(share * 100, 2) + "%";
   const iTxt = interval < 3600 ? num(interval/60,1) + " " + t("minutes") : num(interval/3600,1) + " " + t("hours");
-  const rTxt = retargetDays < 365 ? num(retargetDays,0) + " " + t("days") : num(retargetDays/365,2) + " " + t("years");
+  /* strDur y no un formateo propio: esta linea imprimia el plural siempre,
+     asi que con un reajuste que cayera en un año decia "1 years". Y ademas
+     contaba el año como 365 dias donde la seccion de los hitos usa 365,25,
+     o sea el mismo plazo con dos cifras. */
+  const rTxt = strDur(retargetDays);
 
   $("simout").innerHTML = `
     <div class="card"><div class="lbl">${esc(t("simInterval"))}</div>

@@ -632,10 +632,10 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
        vigila: comprobado rompiendo cuotaActual, no saltaba ni una vez. */
     const sl = dom.els.share;
     if (esperado !== null) {
-      const quiere = Math.round(Math.min(60, Math.max(0.1, esperado)) * 10);
+      const quiere = Math.round(Math.min(60, Math.max(0.01, esperado)) * 100);
       const hay = sl && sl.value != null ? Number(sl.value) : null;
       if (hay !== quiere) {
-        err(`el simulador arranca en ${hay === null ? "nada" : hay / 10 + "%"
+        err(`el simulador arranca en ${hay === null ? "nada" : hay / 100 + "%"
             } y la cuota vigente es ${esperado}%`);
       }
     }
