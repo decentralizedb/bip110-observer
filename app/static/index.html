@@ -815,6 +815,7 @@ en: {
  hashShare:"Share of mining",
  splitBlockShare:"Blocks since the split", blockPace:"A block every",
  lastBlock:"last block {t}",
+ paceGap:"longest stall so far {t}",
  paceBase:"over the {n} blocks it has made since the split",
  paceNoBlocks:"no blocks of its own yet, so there is no pace to measure",
  reuniKicker:"One chain again",
@@ -1085,6 +1086,7 @@ es: {
  hashShare:"Cuota de minado",
  splitBlockShare:"Bloques desde el corte", blockPace:"Un bloque cada",
  lastBlock:"último bloque {t}",
+ paceGap:"el parón más largo hasta ahora, {t}",
  paceBase:"sobre los {n} bloques que lleva hechos desde el corte",
  paceNoBlocks:"todavía no tiene bloques propios, así que no hay ritmo que medir",
  reuniKicker:"Una sola cadena otra vez",
@@ -1606,6 +1608,13 @@ function paceNote(s){
   const partes = [];
   const desde = hace(s.seconds_since_last_block);
   if(desde) partes.push(t("lastBlock", {t: desde}));
+  /* El paron mas largo, que la media no cuenta. Esa rama hizo dos bloques en
+     dos horas y despues estuvo 79,7 h parada: la media daba 28,2 h, correcta
+     y muda sobre lo unico que la gente pregunta. Solo se enseña si supera al
+     ritmo medio; por debajo no añade nada. */
+  if(s.longest_gap_sec != null && s.avg_interval_sec != null
+     && s.longest_gap_sec > s.avg_interval_sec)
+    partes.push(t("paceGap", {t: lapso(s.longest_gap_sec)}));
   if(s.interval_blocks === 0) partes.push(t("paceNoBlocks"));
   else if(s.interval_blocks != null && s.interval_blocks < 12)
     partes.push(t("paceBase", {n: fmt(s.interval_blocks)}));
@@ -1667,6 +1676,7 @@ function chainPanelSplit(d, preview){
                       : (d.majority || {});
   const min = preview ? {tip:(d.nodes&&d.nodes.core?d.nodes.core.tip:0)+7,
                          avg_interval_sec:20160, interval_blocks:7,
+                         longest_gap_sec:190000,
                          seconds_since_last_block:33000}
                       : (d.minority || {});
   // En vista previa la cuota se deriva de lo que se mide hoy, no se inventa.

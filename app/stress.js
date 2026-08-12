@@ -303,6 +303,19 @@ const ESCENARIOS = {
         avg_interval_sec: 21600, interval_blocks: 18,
         seconds_since_last_block: 2419200, blocks_since_split: 18 } } }) },
 
+  /* A tirones: tres bloques, dos seguidos y despues un paron de tres dias y
+     medio. Es el caso real del 2026-08-12, y el que la media no cuenta: sale
+     un bloque cada 28,2 h, que es correcto y no dice que estuvo 79,7 h sin
+     ninguno. La media sola bastaba mientras los huecos se parecieran. */
+  "rama minoritaria a tirones, con un paron largo dentro":
+    { params, miners: miners(), history: history([0.35, 0.79, 0.45, 0.99, 1.29]),
+      pools: pools(), nodes: nodes(),
+      chain: chain({ state: "split", extra: { minority: {
+        node: "knots", tip: 961634, hash: HASH_B, enforces: true,
+        avg_interval_sec: 101400, interval_blocks: 3,
+        longest_gap_sec: 286920,
+        seconds_since_last_block: 9000, blocks_since_split: 3 } } }) },
+
   // Separadas, pero la rama no ha producido ni un bloque todavia: no hay
   // ritmo que medir y el panel no puede inventarse uno.
   "rama minoritaria sin bloques propios":
@@ -746,6 +759,22 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
         err("falta un nodo y aun asi se dibujan las tarjetas de las dos cadenas");
       if (cdeg.split_hashes && !usaClave(panel, salida, "proofKicker"))
         err("falta un nodo y se pierde la prueba del corte, que si se sabe");
+    }
+
+    /* Un paron mayor que el ritmo medio tiene que salir escrito. Si no, la
+       tarjeta dice "un bloque cada 28,2 h" de una rama que estuvo 79,7 h
+       quieta, y las dos cifras son ciertas. Se mira SOLO en la seccion de la
+       cadena, y solo en la vista real: en la previa los valores son de
+       ejemplo. */
+    const cg = datos.chain;
+    if (cg && cg.ok && !cg.degraded && cg.state === "split" && vista === "split" &&
+        cg.minority && cg.minority.longest_gap_sec != null &&
+        cg.minority.avg_interval_sec != null &&
+        cg.minority.longest_gap_sec > cg.minority.avg_interval_sec) {
+      const secCadena = (dom.els.chain && dom.els.chain._html) || "";
+      // Con {t} vacio queda la parte fija de la frase, que es lo que se busca.
+      if (!secCadena.includes(panel.t("paceGap", { t: "" }).replace(/[\s,]+$/, "")))
+        err("la rama estuvo parada mas que su ritmo medio y la tarjeta no lo dice");
     }
 
     const c = datos.chain;

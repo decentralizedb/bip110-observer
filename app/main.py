@@ -1067,6 +1067,42 @@ def _tip_time(rpc, tip):
         return None
 
 
+# Por encima de esto no se calcula el hueco mas largo. No es un limite de
+# gusto: son dos idas y vueltas por bloque y esta caché dura 30 s. En una
+# cadena que produce cada diez minutos el hueco mayor no cuenta nada que no
+# se vea ya en la media, asi que se paga solo donde informa: en una rama con
+# pocos bloques y parones de dias.
+MAX_BLOQUES_HUECO = 60
+
+
+def _hueco_mayor(rpc, desde, tip):
+    """
+    El parón mas largo de esta rama desde la separacion, en segundos.
+
+    POR QUE NO BASTA LA MEDIA. Esa cadena hizo dos bloques en las primeras
+    dos horas y despues estuvo 79,7 h sin ninguno. La media sobre el tiempo
+    transcurrido daba 28,2 h, que es correcta y no cuenta el paron. Y no hay
+    "hueco tipico" que resumir: los tres huecos reales fueron 0,6, 1,6 y
+    79,7 horas.
+
+    Devuelve None si no se puede saber, que no es lo mismo que cero.
+    """
+    if desde is None or tip is None or tip - desde < 1 or tip - desde > MAX_BLOQUES_HUECO:
+        return None
+    try:
+        hs = rpc.headers_for_range(desde, tip)
+    except Exception:
+        return None
+    tiempos = [h["time"] for h in hs if h.get("time") is not None]
+    if len(tiempos) < 2:
+        return None
+    # Sin ordenar por altura no vale: la hora de un bloque puede ser menor
+    # que la del anterior, asi que un maximo sobre restas crudas puede salir
+    # negativo. headers_for_range ya devuelve en orden; el max con 0 es el
+    # cinturon por si alguna vez deja de hacerlo.
+    return max(0, max(b - a for a, b in zip(tiempos, tiempos[1:])))
+
+
 def _pace(rpc, tip, window=144, suelo=None):
     """
     Segundos por bloque en los ultimos `window` bloques, y hora del ultimo.
@@ -1306,7 +1342,7 @@ def _build_chains():
 
     def side(name):
         tip = out["nodes"][name]["tip"]
-        ritmo, ultima, medidos = None, None, 0
+        ritmo, ultima, medidos, hueco = None, None, 0, None
         if out["state"] == "split":
             # Cuatro viajes mas por Tor. Solo se enseña en la vista de dos
             # cadenas, asi que antes de la separacion no se calcula.
@@ -1338,6 +1374,7 @@ def _build_chains():
             if n_prop and trans and n_prop > 0:
                 ritmo = round(trans / float(n_prop), 1)
                 medidos = n_prop
+            hueco = _hueco_mayor(rpcs[name], out.get("split_height"), tip)
         return {
             "node": name,
             "tip": tip,
@@ -1348,6 +1385,10 @@ def _build_chains():
             # Cuanto hace del ultimo bloque. Es lo que separa "va despacio"
             # de "esta parada", y el intervalo medio no lo dice: una rama que
             # dejo de producir hace un mes conserva la media que tenia.
+            # El paron mas largo. La media no lo cuenta y es lo que la gente
+            # pregunta: no cuanto tarda de media, sino cuanto llega a estar
+            # parada. Es dato verificable, no estimacion.
+            "longest_gap_sec": hueco,
             "last_block_time": ultima,
             "seconds_since_last_block": (int(time.time()) - ultima) if ultima else None,
             "blocks_since_split": (tip - out["split_height"]
