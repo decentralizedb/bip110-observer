@@ -49,6 +49,10 @@ TTL = {
     # Los periodos cerrados no cambian; el TTL solo controla cada cuanto se
     # comprueba si ha cerrado uno nuevo.
     "history": int(os.environ.get("HISTORY_TTL", "3600")),
+    # El estado de los nodos tambien va por cache y en un hilo aparte.
+    # Corto, porque es lo que se mira cuando algo va mal y ahi el dato
+    # viejo estorba, pero por encima de lo que tarda una ronda por Tor.
+    "health": int(os.environ.get("HEALTH_TTL", "45")),
 }
 POOLS_SAMPLE = int(os.environ.get("POOLS_SAMPLE", "500"))
 # Un endpoint de salud que tarda medio minuto no sirve como endpoint de
@@ -1434,6 +1438,29 @@ def chain():
 @app.route("/api/health")
 def health():
     """
+    Estado de los dos nodos. Se sirve de cache, y el trabajo va en un hilo.
+
+    NO SE CALCULA DENTRO DE LA PETICION, y es la misma regla que el resto
+    de rutas que hablan con el nodo. Aqui se habia colado la excepcion:
+    `HEALTH_TIMEOUT_TOR` son 150 s con reintento, y Cloudflare corta a los
+    ~100 y devuelve su propia pagina de error en text/plain, que el
+    navegador no sabe leer. Medido el 2026-08-22 con el nodo canonico a
+    ratos: 84 s en una llamada y un 524 en otra.
+
+    Lo grave no es la latencia: es CUANDO ocurre. Este endpoint tarda mucho
+    exactamente cuando un nodo no responde, o sea justo cuando existe algo
+    que diagnosticar, asi que el diagnostico se moria del mismo mal que
+    tenia que reportar. Con la cache, el que pregunta recibe al instante lo
+    ultimo que se supo, y el hilo de fondo se toma los 150 s que necesita.
+
+    El 503 se conserva: sale del contenido, no de haber esperado.
+    """
+    out = _cached_bg("health", _build_health)
+    return jsonify(out), (200 if out.get("ok") else 503)
+
+
+def _build_health():
+    """
     Estado de los dos nodos, y por que direccion esta hablando con cada uno.
 
     Lo del transporte no es un detalle: con respaldo configurado el panel
@@ -1441,7 +1468,7 @@ def health():
     tesis es saber de donde sale cada cifra no puede cambiar de ruta a
     escondidas.
     """
-    out, code = {"nodes": {}, "warnings": []}, 200
+    out = {"nodes": {}, "warnings": []}
     tope = _health_timeout()
 
     def mirar(name):
@@ -1511,8 +1538,6 @@ def health():
         out["nodes"][name] = res.get(name, {
             "ok": False,
             "error": f"sin respuesta en {tope}s (el nodo va muy lento o no contesta)"})
-    if not out["nodes"].get(DEFAULT_NODE, {}).get("ok"):
-        code = 503
 
     # La comparacion de cadenas solo sirve si un nodo aplica BIP-110 y el
     # otro no. Con las dos direcciones apuntando al mismo nodo el panel
@@ -1575,7 +1600,7 @@ def health():
         if "configured" in entry:
             entry["configured"] = [{"via": c["via"], "id": _huella(c["url"])}
                                    for c in entry["configured"]]
-    return jsonify(out), code
+    return out
 
 
 def _calentar():
@@ -1600,9 +1625,12 @@ def _calentar():
                 time.sleep(2)
         except Exception:                                    # noqa: BLE001
             pass
+        # /api/health entra aqui desde que se sirve de cache: sin calentarla,
+        # el healthcheck de Docker se encuentra el "calculando" del primer
+        # arranque y da el contenedor por enfermo estando sano.
         for nombre, ruta in (("chain", "/api/chain"), ("miners", "/api/miners"),
                              ("history", "/api/history"), ("pools", "/api/pools"),
-                             ("nodes", "/api/nodes")):
+                             ("nodes", "/api/nodes"), ("health", "/api/health")):
             try:
                 app.test_client().get(ruta)
             except Exception:

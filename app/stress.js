@@ -727,6 +727,24 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
         err("el heroe etiqueta como dato verificable una comparacion que no ha podido hacer");
     }
 
+    /* SEPARADAS Y SIN PODER MEDIR LA OTRA RAMA: NO SE CUENTA EN ESTA.
+       El hito que queda ocurre en la cadena del BIP-110. Con ese nodo mudo
+       la cuenta caia a `blocks_away`, que va sobre la mayoritaria, y el
+       heroe daba una cifra diez veces mas cercana con cara de dato
+       verificable. El escenario que lo produce existia desde siempre; lo
+       que faltaba era mirarlo, que es como se cuelan estas.
+       Dos cosas, y la segunda es la que importa: que se diga por que no hay
+       cifra, y que NO aparezca la nota del ritmo de diez minutos, que es
+       justo la que delata que se ha contado en la cadena de al lado. */
+    if (cd && cd.ok && cd.state === "split" && vista === "split" &&
+        !(cd.minority && cd.minority.tip != null) &&
+        datos.miners && datos.miners.ok) {
+      if (!usaClave(panel, salida, "cdNoBipNode"))
+        err("no se puede medir la rama del BIP-110 y el heroe no dice por que falta la cifra");
+      if (hero.includes(panel.t("cdPaceNote", { sp: "" }).split("{")[0].trim().slice(0, 24)))
+        err("el hito se ha contado sobre la cadena mayoritaria, donde no ocurre");
+    }
+
     /* Con las cadenas separadas, la cuenta de señalizacion cambia de
        significado: se mide sobre la cadena de hoy, y quien señaliza mina en
        la otra, asi que tiende a cero sola. Sin decirlo se lee como "ya no
@@ -872,10 +890,15 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
            la cadena mayoritaria, sino la distancia desde la punta de la
            minoritaria. */
         const hm = mi.milestones[clave] || {};
-        const mn = (datos.chain && datos.chain.ok && datos.chain.state === "split")
-                 ? (datos.chain.minority || null) : null;
+        const partido = !!(datos.chain && datos.chain.ok && datos.chain.state === "split");
+        const mn = partido ? (datos.chain.minority || null) : null;
+        /* Y si hay separacion pero esa rama no se puede medir, aqui NO se
+           exige ninguna cifra. Este mismo `else` caia a `blocks_away` y
+           obligaba al heroe a imprimir la cuenta de la cadena mayoritaria,
+           o sea que la prueba defendia el fallo en vez de cazarlo. */
         const n = (mn && mn.tip != null && hm.height != null)
-                ? Math.max(0, hm.height - mn.tip) : hm.blocks_away;
+                ? Math.max(0, hm.height - mn.tip)
+                : partido ? null : hm.blocks_away;
         /* Sin separadores de millar: el panel escribe 1.733 en castellano y
            1,733 en ingles, asi que comparar el numero crudo fallaba siempre.
            Se comparan digitos con digitos. */
@@ -1066,9 +1089,17 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
     for (const nombre of Object.keys(h.by_pool)) {
       if (!salida.includes(nombre)) err(`el pool ${nombre} señalizo y no aparece por nombre`);
     }
-    const varios = Object.keys(h.by_pool).length > 1;
-    if (!usaClave(panel, salida, varios ? "histSeveral" : "histOnlyOne")) {
-      err(`${Object.keys(h.by_pool).length} pools en el historico y el remate no cuadra`);
+    /* El remate depende de la concentracion, no solo del recuento. Con
+       varios pools pero uno poniendo mas bloques que todos los demas
+       juntos, decir "ya no es la decision de un operador" es falso con la
+       tabla al lado: ese caso tiene clave propia. */
+    const cuentas = Object.values(h.by_pool);
+    const varios = cuentas.length > 1;
+    const lider = Math.max(...cuentas);
+    const clave = !varios ? "histOnlyOne"
+                : lider * 2 > h.signalling_blocks ? "histLed" : "histSeveral";
+    if (!usaClave(panel, salida, clave)) {
+      err(`${cuentas.length} pools en el historico y el remate no cuadra`);
     }
   }
   if (p && p.ok) {

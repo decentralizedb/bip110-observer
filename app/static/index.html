@@ -772,6 +772,7 @@ en: {
  vitUnit:"blocks of its own in {t} since the split",
  vitLast:"last one {t}",
  vitOther:"the other chain has done {n} in the same time",
+ cdNoBipNode:"This cannot be counted right now: the milestone happens on the BIP-110 chain, and this panel is not reaching that node. Counting it on the other chain would give a much nearer figure and answer a question nobody asked, so it is left blank until the node comes back.",
  cdOnBip:"Counted on the BIP-110 chain, which is at block {h}. That is the only chain where this changes anything: a node with the rules in force today does not have this deployment at all, so nothing happens there at that height.",
  cdPaceBip:"at the pace that chain has kept since the split. Not a date.",
  cdFewBlocks:"Treat that estimate loosely: the pace behind it comes from the {n} blocks that chain has produced so far, and a couple more can move it by weeks.",
@@ -883,6 +884,7 @@ en: {
  histNone:"Not a single block signalled in those {histPeriods} periods.",
  histOfSig:"{pct}% of those", histMining:"{pct}% of mining",
  histOnlyOne:"A single pool, so this is one operator's decision rather than a movement across mining.",
+ histLed:"{poolCount} different pools, but {lead} mined {leadPct}% of those blocks, so this still rests on one operator rather than on a movement across mining.",
  histSeveral:"{poolCount} different pools, so it is no longer one operator's decision. What matters is how much mining they add up to.",
  coinbaseKicker:"Coinbase tags are not authenticated",
  coinbaseBody:"A pool can omit its tag, change it, or imitate another's. Useful for reading the map, not proof of authorship.",
@@ -893,7 +895,8 @@ en: {
  simPerDayNote:"vs {bpd} on the main chain",
  simRetarget:"First difficulty retarget", simMajority:"Majority chain",
  simRetargetNote:"{d} days · {n} blocks to go",
- simMajNote:"barely affected by losing that share. Modelled on a target of {normal}, not measured on the chain.",
+ simModelled:"Modelled on a target of {normal}, not measured on that chain. The chain section above shows the pace it is actually keeping.",
+ simMajNote:"barely affected by losing that share. Modelled too, not measured.",
  presetMeasured:"measured",
  assumeKicker:"Assumptions",
  err_tor_circuito:"Could not reach the node over Tor right now.",
@@ -1043,6 +1046,7 @@ es: {
  vitUnit:"bloques propios en {t} desde la separación",
  vitLast:"el último {t}",
  vitOther:"la otra cadena ha hecho {n} en el mismo rato",
+ cdNoBipNode:"Ahora mismo no se puede contar: el hito ocurre en la cadena del BIP-110 y el panel no está alcanzando ese nodo. Contarlo sobre la otra cadena daría una cifra mucho más cercana y respondería a una pregunta que nadie ha hecho, así que se deja en blanco hasta que el nodo vuelva.",
  cdOnBip:"Contado sobre la cadena BIP-110, que va por el bloque {h}. Es la única donde esto cambia algo: un nodo con las reglas de hoy no tiene ese despliegue, así que a esa altura ahí no ocurre nada.",
  cdPaceBip:"al ritmo que lleva esa cadena desde la separación. No es una fecha.",
  cdFewBlocks:"Cógelo con pinzas: ese plazo sale del ritmo de los {n} bloques que esa cadena lleva hechos, y un par más pueden moverlo semanas.",
@@ -1154,6 +1158,7 @@ es: {
  histNone:"En esos {histPeriods} periodos no señalizó ni un solo bloque.",
  histOfSig:"{pct}% de esos", histMining:"{pct}% del minado",
  histOnlyOne:"Un solo pool, así que es la decisión de un operador y no un movimiento del minado.",
+ histLed:"{poolCount} pools distintos, pero {lead} minó el {leadPct}% de esos bloques, así que esto sigue apoyándose en un operador y no en un movimiento del minado.",
  histSeveral:"{poolCount} pools distintos, así que ya no es la decisión de un operador. Lo que importa es cuánto minado suman entre todos.",
  coinbaseKicker:"Las etiquetas de coinbase no están autenticadas",
  coinbaseBody:"Un pool puede omitirla, cambiarla o imitar la de otro. Sirve para leer el mapa, no como prueba de autoría.",
@@ -1164,7 +1169,8 @@ es: {
  simPerDayNote:"frente a {bpd} en la cadena principal",
  simRetarget:"Primer reajuste de dificultad", simMajority:"Cadena mayoritaria",
  simRetargetNote:"{d} días · le faltan {n} bloques",
- simMajNote:"apenas la afecta perder esa cuota. Modelado sobre el objetivo de {normal}, no medido en la cadena.",
+ simModelled:"Modelado sobre el objetivo de {normal}, no medido en esa cadena. La sección de la cadena, más arriba, enseña el ritmo que lleva de verdad.",
+ simMajNote:"apenas la afecta perder esa cuota. También modelado, no medido.",
  presetMeasured:"medida",
  assumeKicker:"Supuestos",
  err_tor_circuito:"No se ha podido llegar al nodo por Tor en este momento.",
@@ -1919,12 +1925,24 @@ function renderHeroStatus(){
        Mientras hubo una sola cadena daba igual porque eran la misma. Desde
        la separacion, contarlo sobre la cadena mayoritaria da una fecha diez
        veces mas cercana que la real y responde a quien no ha preguntado. */
-    const mino = (DATA.chain && DATA.chain.ok && realState() === "split")
-               ? (DATA.chain.minority || null) : null;
+    const partido = !!(DATA.chain && DATA.chain.ok && realState() === "split");
+    const mino = partido ? (DATA.chain.minority || null) : null;
     const pr = mi.milestone_projection || {};
     const proyHito = (pr.milestones || []).find(x => x.key === hito.clave);
-    const enBip = mino && mino.tip != null;
-    const quedan = enBip ? Math.max(0, hito.m.height - mino.tip) : hito.m.blocks_away;
+    const enBip = !!(mino && mino.tip != null);
+    /* SABER QUE HAY SEPARACION Y NO PODER MEDIRLA NO ES VOLVER A ANTES.
+       Con el nodo del BIP-110 sin responder, `minority` no viene y esta
+       cuenta caia a `blocks_away`, o sea la cadena mayoritaria: el mismo
+       error que se quito el 2026-08-09, vivo otra vez por el camino de
+       respaldo. Visto en produccion el 2026-08-22, con el titular diciendo
+       "61 bloques · 0 dias" mientras en la cadena donde ocurre faltaban
+       2.011. Un servicio oculto se cae a ratos, asi que este camino se pisa
+       solo, y encima el estado sigue siendo 'split': lo unico que falta es
+       la medida. Sin cifra se dice que no se puede contar. No se cuenta en
+       la cadena de al lado. */
+    const cadenaMuda = partido && !enBip;
+    const quedan = enBip ? Math.max(0, hito.m.height - mino.tip)
+                 : cadenaMuda ? null : hito.m.blocks_away;
     /* EL PLAZO SALE DEL RITMO MEDIDO, NO DE LA PROYECCION.
        Y no es un atajo: el 963.648 cae exactamente un periodo de reajuste
        despues del corte, asi que hasta ese hito la dificultad no cambia y
@@ -1944,15 +1962,17 @@ function renderHeroStatus(){
        que se esta rehaciendo. "nunca" era lo que salia antes, encima de la
        linea que explica de donde sale el plazo. */
     const plazo = enBip ? (proyHito ? proyHito.minority_days : null)
-                        : hito.m.approx_days;
+                : cadenaMuda ? null : hito.m.approx_days;
     /* Sin plazo hay dos motivos distintos y no se dicen igual:
        - la proyeccion viene con cuota cero, o sea el desfase de caches tras
          una separacion: eso SI se explica, porque se va a arreglar solo.
        - ese hito no esta en la proyeccion (solo ocurre antes del corte, y
          entonces no habria separacion): ahi no hay nada que explicar, se
          omite la estimacion y ya. */
-    const sinPlazo = enBip && plazo == null;
-    const rehaciendo = sinPlazo && !((pr.share_pct || 0) > 0);
+    const sinPlazo = (enBip || cadenaMuda) && plazo == null;
+    /* Sin nodo que medir no se esta rehaciendo nada: es una averia, y se
+       explica con su propia linea. */
+    const rehaciendo = sinPlazo && !cadenaMuda && !((pr.share_pct || 0) > 0);
 
     f2 = `<div class="hcard">
       <div class="hlab">${esc(t("cdTitle"))}</div>
@@ -1969,6 +1989,7 @@ function renderHeroStatus(){
         </div>`}
       </div>
       ${rehaciendo ? `<div class="cdfoot o">${esc(t("strRecalc"))}</div>` : ""}
+      ${cadenaMuda ? `<div class="cdfoot o">${esc(t("cdNoBipNode"))}</div>` : ""}
       ${enBip ? `<div class="cdfoot">${esc(t("cdOnBip", {h: fmt(mino.tip)}))}</div>` : ""}
       ${/* Un plazo sacado de una cuota medida sobre dos bloques no puede
             imprimirse con la misma cara que el recuento de al lado. El dato
@@ -2172,7 +2193,18 @@ function histBlock(){
   const P = DATA.pools && DATA.pools.ok ? (DATA.pools.pools || []) : [];
   const cuota = n => { const r = P.find(x => x.pool === n); return r ? r.share_pct : null; };
   const filas = Object.entries(h.by_pool || {}).sort((a, b) => b[1] - a[1]);
+  /* CONTAR POOLS NO ES MEDIR CONCENTRACION.
+     Esto elegia texto solo por `filas.length`, asi que con Ocean en 121
+     bloques y ckpool en 1 la pagina concluia "2 pools distintos, asi que ya
+     no es la decision de un operador" teniendo el 99% de un operador tres
+     lineas mas arriba. Una conclusion escrita que los datos de al lado
+     desmienten, que es justo lo que la seccion 2.4 prohibe.
+     El corte no es de gusto: el lider pone mas que todos los demas juntos.
+     Y la cifra se interpola, no se escribe. */
   const uno = filas.length === 1;
+  const lideraSolo = !uno && filas.length > 0 &&
+                     filas[0][1] * 2 > h.signalling_blocks;
+  const claveHist = uno ? "histOnlyOne" : lideraSolo ? "histLed" : "histSeveral";
 
   return `<div class="caveat caveat--sample">
     <div class="caveat-k">${esc(t("histTitle", v))}</div>
@@ -2189,7 +2221,11 @@ function histBlock(){
       }).join("")}
     </div>
     <div class="caveat-b" style="font-size:15px;max-width:66ch;margin-top:10px">${
-      esc(t(uno ? "histOnlyOne" : "histSeveral", Object.assign(v, {poolCount: fmt(filas.length)})))}</div>
+      esc(t(claveHist, Object.assign(v, {
+        poolCount: fmt(filas.length),
+        lead: filas.length ? filas[0][0] : "",
+        leadPct: filas.length ? num(filas[0][1] / h.signalling_blocks * 100, 0) : "0"
+      })))}</div>
   </div>`;
 }
 
@@ -2536,7 +2572,14 @@ function renderSim(){
   $("simout").innerHTML = `
     <div class="card"><div class="lbl">${esc(t("simInterval"))}</div>
       <div class="val o">${esc(iTxt)}</div>
-      <div class="note">${esc(t("ofNormal", {n: num(share*100, 2)}))}</div></div>
+      <div class="note">${esc(t("ofNormal", {n: num(share*100, 2)}))}</div>
+      ${/* Este numero tambien es MODELADO, y sale del objetivo de diez
+           minutos igual que el de la mayoritaria. La tarjeta de la cadena
+           enseña el MEDIDO unas secciones mas arriba: salian 54,9 h medidas
+           y 53,8 h modeladas, la misma frase con dos cifras. El aviso
+           existia, pero colgando de la tarjeta de la mayoritaria, o sea
+           lejos de la cifra que matiza. Va donde se lee. */""}
+      <div class="note">${esc(t("simModelled", {normal: normalSpacing()}))}</div></div>
     <div class="card"><div class="lbl">${esc(t("simPerDay"))}</div>
       <div class="val">${num(perDay, 2)}</div>
       <div class="note">${esc(t("simPerDayNote", constVars()))}</div></div>
@@ -2549,7 +2592,7 @@ function renderSim(){
            medido unos centimetros mas arriba. Salian 10,2 y 10,3 minutos
            para lo mismo. Ninguno es falso, asi que no se toca el calculo:
            se dice de donde sale cada uno. */""}
-      <div class="note">${esc(t("simMajNote", {normal: normalSpacing()}))}</div></div>`;
+      <div class="note">${esc(t("simMajNote"))}</div></div>`;
   $("simviable").innerHTML = share >= 0.5 ? `<div class="viable">${esc(t("simViable"))}</div>` : "";
 }
 
