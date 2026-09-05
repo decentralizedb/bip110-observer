@@ -75,6 +75,10 @@ COMUNES = [
 PAGINAS = [
     ("static/index.html", COMUNES + [("rojo: error", "red", MIN_AA)]),
     ("static/methodology.html", COMUNES),
+    # El cronograma hereda la paleta de la metodologia, pero se comprueba
+    # aparte: heredarla no es lo mismo que conservarla, y una pagina que se
+    # queda fuera de la lista no avisa de nada el dia que alguien la toque.
+    ("static/timeline.html", COMUNES),
 ]
 
 # Cada texto contra CADA fondo sobre el que puede aparecer.

@@ -37,6 +37,26 @@ BIP110 = {
     "activation_height": 965664,
 }
 
+# EL HORIZONTE DE MEDIDA DE ESTE PANEL.
+#
+# Esto NO es un parametro del BIP-110: el texto del BIP no menciona el
+# proof of work en ninguna de sus 382 lineas. Es un hard fork posterior y
+# distinto, y vive aqui por una sola razon: marca la altura a partir de la
+# cual este panel deja de poder medir la cadena del BIP-110.
+#
+# Bitcoin Knots 29.4.1rc4 fija `Blake2bHeight = 961640` en mainnet (rc3 no
+# lo hacia). El nodo propio corre v29.4.knots20260508, que es anterior y no
+# implementa BLAKE2b, asi que no puede validar ni un bloque desde esa altura.
+# Lo que pase ahi arriba no es que sea cero: es que no lo vemos.
+#
+# La altura va aqui y no escrita en un texto, por la regla de siempre: una
+# cifra que se imprime se sirve, no se clava.
+POW_FORK = {
+    "height": 961640,
+    "algo": "BLAKE2b",
+    "software": "Bitcoin Knots 29.4.1rc4",
+}
+
 VERSIONBITS_TOP_MASK = 0xE0000000
 VERSIONBITS_TOP_BITS = 0x20000000
 

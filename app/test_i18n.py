@@ -21,7 +21,8 @@ import sys
 # que no tenerla, porque da por revisado lo que nadie ha revisado.
 AQUI = os.path.dirname(os.path.abspath(__file__))
 DEFAULT = [os.path.join(AQUI, "static", "index.html"),
-           os.path.join(AQUI, "static", "methodology.html")]
+           os.path.join(AQUI, "static", "methodology.html"),
+           os.path.join(AQUI, "static", "timeline.html")]
 
 # Se permiten enlaces salientes a estas fuentes: son citas, no recursos que
 # el navegador cargue. Lo prohibido es src/href de recursos externos.

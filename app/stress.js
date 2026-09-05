@@ -562,6 +562,33 @@ const ESCENARIOS = {
                     avg_interval_sec: null, blocks_since_split: 1 } } }),
       nodes: nodes() },
 
+  /* EL CASO REAL DEL 2026-08-30, Y EL QUE MAS FACIL SE CUELA.
+     Esa cadena cambio de proof of work y nuestro nodo, que es anterior, no
+     valida ni uno de sus bloques. Su punta se queda clavada para siempre, y
+     entonces "ultimo bloque hace X" y el ritmo medio crecen solos contando
+     una parada que no hemos medido. Cierta la cifra, falsa la conclusion, y
+     empujando justo hacia donde a este panel le conviene. */
+  "esa cadena cambio de proof of work y ya no se puede medir":
+    { params, miners: miners(), history: history([0.35, 0.79, 0.45, 0.99, 1.29]),
+      pools: pools(),
+      chain: chain({ state: "split", extra: {
+        nodes: { core: { ok: true, subversion: "/Satoshi:31.1.0/", tip: 965613,
+                         hash: HASH_A, chainwork: "ff", via: "tor", enforces: false },
+                 knots: { ok: true, subversion: "/Satoshi:29.4.0/Knots:20260508/",
+                          tip: 961639, hash: HASH_B, chainwork: "01", via: "tor",
+                          enforces: true } },
+        majority: { node: "core", tip: 965613, hash: HASH_A, enforces: false,
+                    measurable: true, avg_interval_sec: 601,
+                    blocks_since_split: 3981, seconds_since_last_block: 300 },
+        minority: { node: "knots", tip: 961639, hash: HASH_B, enforces: true,
+                    measurable: false, horizon_height: 961640, horizon_algo: "BLAKE2b",
+                    avg_interval_sec: 245644, interval_blocks: 7,
+                    longest_gap_sec: 476000,
+                    // Un mes entero desde el ultimo bloque que vimos.
+                    seconds_since_last_block: 2600000,
+                    blocks_since_split: 7 } } }),
+      nodes: nodes() },
+
   "la cadena minoritaria acumula mas trabajo que la mayoritaria":
     { params, miners: miners({ scanned: 2016, sig: 1400 }),
       history: history([20, 35, 48, 56, 62]),
@@ -786,13 +813,39 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
        ejemplo. */
     const cg = datos.chain;
     if (cg && cg.ok && !cg.degraded && cg.state === "split" && vista === "split" &&
-        cg.minority && cg.minority.longest_gap_sec != null &&
+        cg.minority && cg.minority.measurable !== false &&
+        cg.minority.longest_gap_sec != null &&
         cg.minority.avg_interval_sec != null &&
         cg.minority.longest_gap_sec > cg.minority.avg_interval_sec) {
       const secCadena = (dom.els.chain && dom.els.chain._html) || "";
       // Con {t} vacio queda la parte fija de la frase, que es lo que se busca.
       if (!secCadena.includes(panel.t("paceGap", { t: "" }).replace(/[\s,]+$/, "")))
         err("la rama estuvo parada mas que su ritmo medio y la tarjeta no lo dice");
+    }
+
+    /* Y CUANDO NO PODEMOS MIRAR, NO SE PUBLICA UN PARON.
+       Esa cadena cambio de proof of work y nuestro nodo no valida ni uno de
+       sus bloques, asi que su punta esta congelada. "Ultimo bloque hace 30
+       dias" seria literalmente cierto y estaria contando un silencio que no
+       hemos medido, creciendo solo, y a favor de nuestra propia tesis.
+       Dos cosas: que se diga hasta donde llegamos, y que NO salga ninguna
+       de las dos frases que insinuan la parada. */
+    if (cg && cg.ok && !cg.degraded && cg.state === "split" && vista === "split" &&
+        cg.minority && cg.minority.measurable === false) {
+      /* Solo la tarjeta de ESA rama. La mayoritaria pinta su propio "ultimo
+         bloque hace 5 min" en la misma seccion, asi que mirar la seccion
+         entera encontraba la del vecino y acusaba sin motivo. */
+      const todo = (dom.els.chain && dom.els.chain._html) || "";
+      const iMin = todo.indexOf("chain-min");
+      const tarjeta = iMin >= 0 ? todo.slice(iMin) : "";
+      // Sin sustituir: asi queda la parte fija delante del primer marcador.
+      const prefijo = panel.t("paceHorizon").split("{")[0].trim();
+      if (!tarjeta.includes(prefijo))
+        err("no se puede medir esa cadena y la tarjeta no dice donde se acaba la vista");
+      if (tarjeta.includes(panel.t("lastBlock", { t: "" }).replace(/[\s,]+$/, "")))
+        err("se publica cuanto lleva parada una cadena que no estamos mirando");
+      if (tarjeta.includes(panel.t("paceGap", { t: "" }).replace(/[\s,]+$/, "")))
+        err("se publica el paron mayor de una cadena que no estamos mirando");
     }
 
     const c = datos.chain;
@@ -920,9 +973,16 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
   if (marc) err(`marcadores sin rellenar: ${[...new Set(marc)].join(", ")}`);
   // "1 años" y "1 years" salieron en el eje de los hitos. Es concordancia,
   // no logica, pero se lee mal y ninguna otra comprobacion la mira.
-  for (const basura of ["undefined", "NaN", "[object Object]", "Infinity", "null%",
-                        "1 años", "1 years", "1 días", "1 days"]) {
+  for (const basura of ["undefined", "NaN", "[object Object]", "Infinity", "null%"]) {
     if (salida.includes(basura)) err(`aparece "${basura}" en pantalla`);
+  }
+  /* La concordancia del singular. Se busca con frontera por delante: sin
+     ella, "30,1 dias" contenia "1 dias" y daba una falsa alarma en un
+     escenario perfectamente sano. Una comprobacion que grita sin motivo se
+     acaba apagando, y entonces deja de proteger igual que si no existiera. */
+  for (const unidad of ["años", "years", "días", "days"]) {
+    if (new RegExp("(^|[^0-9,.])1\\s" + unidad).test(salida))
+      err(`aparece "1 ${unidad}" en pantalla`);
   }
 
   // Coherencia texto/dato: no afirmar cosas que los datos desmienten.

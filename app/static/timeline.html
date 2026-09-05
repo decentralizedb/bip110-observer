@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Timeline · BIP-110 Observer</title>
+<meta name="description" content="A dated record of the BIP-110 split: what this panel measured with its own nodes, where its measurement ends, and what third parties claim beyond that point.">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="canonical" href="https://bip110.dinerosinreglas.com/timeline">
+<style>
+/* La paleta es la MISMA que la del panel, variable por variable.
+   Esta pagina estuvo con los colores escritos a mano y solo en oscuro: el
+   visitante que leia el panel en claro pulsaba "Metodologia" y se topaba
+   con una pagina negra. Justo la pagina que existe para dar confianza era
+   la que parecia de otro sitio.
+   El tema se guarda en la misma clave del navegador, asi que la eleccion
+   viaja entre las dos paginas sin que haya que repetirla. */
+:root{
+  --bg:#0d0f12;      --panel:#161a20;   --panel2:#1e232b;  --panel3:#12151a;
+  --line:#2b323d;
+  --txt:#eceef1;     --txt2:#d6dae0;    --dim:#a8b0bd;   --dim2:#9aa4b2;
+  --orange:#E7640F;  --orange-t:#FF8A3D; --orange-rgb:231,100,15;
+  --green:#4CC96A;   --green-rgb:76,201,106;
+  --blue:#5AA9E6;    --blue-rgb:90,169,230;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#f5f7fa;      --panel:#ffffff;   --panel2:#eef1f6;  --panel3:#e7ebf1;
+  --line:#d8dee7;
+  --txt:#11151c;     --txt2:#2b3340;    --dim:#4a5462;   --dim2:#545d6b;
+  --orange:#C4520C;  --orange-t:#A8440A; --orange-rgb:196,82,12;
+  --green:#0D5F2D;   --green-rgb:13,95,45;
+  --blue:#175FA8;    --blue-rgb:23,95,168;
+  color-scheme:light;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Helvetica,sans-serif;font-size:17px;line-height:1.65;font-weight:350;letter-spacing:-.003em}
+a{color:var(--orange-t);text-decoration:underline;text-underline-offset:2px}
+a:hover{color:var(--txt)}
+.wrap{max-width:52rem;margin:0 auto;padding:24px 16px 64px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--orange);padding-bottom:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{border-radius:50%;flex-shrink:0;display:block}
+h1{font-size:30px;font-weight:650;line-height:1.15;letter-spacing:-.02em}
+h1 span{color:var(--orange-t)}
+nav{display:flex;gap:4px;flex-shrink:0}
+.lang{min-height:44px;min-width:44px;padding:0 14px;background:var(--panel);color:var(--dim);border:1px solid var(--line);border-radius:8px;cursor:pointer;font:inherit;font-size:14px}
+.lang[aria-pressed="true"]{background:rgba(var(--orange-rgb),.14);border-color:var(--orange);color:var(--orange-t);font-weight:600}
+.back{font-size:14px;margin-top:10px;display:inline-block}
+section{margin-top:40px}
+h2{font-size:22px;font-weight:650;letter-spacing:-.015em;margin-bottom:10px}
+h3{font-size:17px;font-weight:600;margin:22px 0 6px}
+p{max-width:66ch;margin-top:10px;color:var(--txt2)}
+ul{margin:10px 0 0 20px;max-width:66ch;color:var(--txt2)}
+li{margin-top:6px}
+.pill{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;display:inline-block}
+.p-data{background:rgba(var(--green-rgb),.14);color:var(--green);border:1px solid rgba(var(--green-rgb),.35)}
+.p-est{background:rgba(var(--blue-rgb),.14);color:var(--blue);border:1px solid rgba(var(--blue-rgb),.35)}
+.p-sample{background:rgba(var(--orange-rgb),.14);color:var(--orange-t);border:1px solid rgba(var(--orange-rgb),.35)}
+pre{background:var(--panel3);border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:12px 14px;margin-top:12px;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.5;color:var(--dim)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;color:var(--orange-t)}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:15px;display:block;overflow-x:auto}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--dim2);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.caveat{border-left:2px solid var(--orange);padding-left:14px;margin-top:18px}
+.caveat-k{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--orange-t)}
+.caveat-b{font-size:15px;color:var(--dim);margin-top:4px;max-width:66ch}
+footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim2);font-size:13px;max-width:66ch}
+:focus-visible{outline:2px solid var(--orange-t);outline-offset:2px}
+
+/* EL CUARTO NIVEL, Y POR QUE NO ES NINGUNO DE LOS TRES COLORES.
+   Verde, azul y naranja ya significan algo en este proyecto. Lo que dice un
+   tercero que no podemos comprobar no es ninguna de esas tres cosas, asi que
+   pintarlo con su color seria ascenderlo de nivel por la puerta de atras.
+   Va en gris, sin color propio, que es exactamente lo que vale. */
+.p-ext{background:var(--panel2);color:var(--dim);border:1px dashed var(--line)}
+/* La frontera. Es el mensaje de la pagina, asi que se ve. */
+.horizon{margin:40px 0 8px;border-top:2px dashed var(--orange);padding-top:16px}
+.horizon h2{color:var(--orange-t)}
+.zone-ext{opacity:.92}
+.zone-ext table{border-left:2px dashed var(--line);padding-left:10px}
+.src{font-size:12px;color:var(--dim2);white-space:nowrap}
+.gap-big{color:var(--orange-t);font-weight:600}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.check{border:1px solid rgba(var(--green-rgb),.35);background:rgba(var(--green-rgb),.07);border-radius:10px;padding:14px 16px;margin-top:14px}
+.check .big{font-size:22px;font-weight:650;color:var(--green);font-variant-numeric:tabular-nums}
+.lead{font-size:19px;color:var(--txt);max-width:66ch;margin-top:12px}
+.closed{border:1px solid var(--orange);border-radius:10px;padding:14px 16px;margin-top:18px;background:rgba(var(--orange-rgb),.07)}
+.closed .k{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--orange-t)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <div class="brand"><img class="logo" src="/static/logo.png" width="44" height="44"
+       alt="Decentralized" loading="eager" decoding="async">
+    <h1>BIP-110 <span>Observer</span></h1></div>
+    <a class="back" href="/" data-k="back"></a>
+  </div>
+  <nav aria-label="Language">
+    <button type="button" class="lang" id="theme" onclick="toggleTema()"
+            aria-label="tema"><span id="theme-ico">&#9789;</span></button>
+    <button type="button" class="lang" id="l-en" onclick="setLang('en')">EN</button>
+    <button type="button" class="lang" id="l-es" onclick="setLang('es')">ES</button>
+  </nav>
+</header>
+
+<section>
+  <h1 style="margin-top:28px" data-k="t1"></h1>
+  <p class="lead" data-k="p1a"></p>
+  <p data-k="p1b"></p>
+  <div class="closed"><div class="k" data-k="closedK"></div>
+    <div class="caveat-b" data-k="closedB"></div></div>
+</section>
+
+<section>
+  <h2 data-k="t2"></h2>
+  <p data-k="p2"></p>
+  <table><tbody id="docrows"></tbody></table>
+</section>
+
+<section>
+  <h2 data-k="t3"></h2>
+  <span class="pill p-data" data-k="tagData"></span>
+  <p data-k="p3"></p>
+  <table>
+    <thead><tr><th data-k="thHeight"></th><th data-k="thWhen"></th>
+      <th data-k="thGap"></th><th data-k="thPool"></th></tr></thead>
+    <tbody id="blockrows"></tbody>
+  </table>
+  <p data-k="p3b"></p>
+</section>
+
+<section class="horizon">
+  <h2 data-k="t4"></h2>
+  <p data-k="p4a"></p>
+  <p data-k="p4b"></p>
+</section>
+
+<section class="zone-ext">
+  <h2 data-k="t5"></h2>
+  <span class="pill p-ext" data-k="tagExt"></span>
+  <p data-k="p5"></p>
+  <table>
+    <thead><tr><th data-k="thWhat"></th><th data-k="thValue"></th>
+      <th data-k="thAsOf"></th><th data-k="thSource"></th></tr></thead>
+    <tbody id="extrows"></tbody>
+  </table>
+  <div class="caveat"><div class="caveat-k" data-k="k5a"></div>
+    <div class="caveat-b" data-k="b5a"></div></div>
+  <div class="caveat"><div class="caveat-k" data-k="k5b"></div>
+    <div class="caveat-b" data-k="b5b"></div></div>
+</section>
+
+<section>
+  <h2 data-k="t6"></h2>
+  <p data-k="p6a"></p>
+  <div class="check" id="checkbox">
+    <div class="big" id="checkbig">&mdash;</div>
+    <div class="caveat-b" id="checktxt"></div>
+  </div>
+  <p data-k="p6b"></p>
+</section>
+
+<footer><p data-k="foot"></p>
+  <p style="margin-top:8px"><a href="/methodology" data-k="toMeth"></a></p></footer>
+
+</div>
+<script>
+/* Esta pagina cuenta una cosa sola: donde se acaba lo que este panel puede
+   medir. Arriba de esa linea, todo sale de los nodos propios. Debajo, todo
+   lleva nombre y fecha de quien lo dice. Las dos mitades no se mezclan ni
+   comparten color, y esa separacion es el contenido, no la decoracion. */
+const DICT = {
+en:{
+ back:"← Back to the panel",
+ t1:"Timeline of the split",
+ p1a:"A dated record of what happened, split in two halves: what this panel measured with its own nodes, and what it could no longer measure once the BIP-110 chain changed its proof of work.",
+ p1b:"Every figure above the line comes from two Bitcoin nodes run by this project. Every figure below it was published by somebody else, carries their name and the date they said it, and cannot be checked from here.",
+ closedK:"This observatory is closed",
+ closedB:"It was built to answer whether BIP-110 could split Bitcoin's economic consensus. It could not: it split the minority that chose other rules, and on {forkDate} that minority left for a different proof of work, which makes it a different coin. The question this panel existed to answer has an answer, so the measuring stops here and the record stays up.",
+
+ t2:"Before the split",
+ p2:"Dates of publication and the heights written in the BIP itself. These are documented, not measured here, and they do not go stale.",
+ evBipDraft:"The signalling window opens, per the deployment starttime",
+ evBipComplete:"BIP-110 reaches status Complete, version 1.0.0",
+ evMandatory:"Mandatory signalling begins at block {height}. This is where the chains separate, not where the data rules start",
+ evLockin:"Forced LOCKED_IN at block {height}",
+ evActive:"Data rules would take effect at block {height}",
+ evDraw:"Two public draws to pick the new hash algorithm. Both commitments held; neither rule closed",
+ evRc4:"Knots 29.4.1rc4 schedules the proof of work change at block {height}",
+
+ tagData:"Verifiable data",
+ t3:"The split, measured here",
+ p3:"Every block the BIP-110 chain produced, read from this project's own Knots node. The last block both chains shared was {common}.",
+ thHeight:"Block", thWhen:"When (UTC)", thGap:"Gap", thPool:"Pool",
+ p3b:"{n} blocks in {days} days, all of them mined by the same pool. The majority chain produced those same {n} blocks in {majTime}.",
+
+ t4:"Here is where the measuring ends",
+ p4a:"At block {fork} the BIP-110 chain switched its proof of work to {algo}. The node this project runs is older, does not implement it, and therefore cannot validate a single block from that height onward.",
+ p4b:"So the panel stops counting here instead of reporting a silence. A chain we cannot see is not a chain that stopped: those are two different claims, and only one of them is ours to make. The pace shown on the panel now ends at the last block above, and does not grow with the clock.",
+
+ tagExt:"External source",
+ t5:"What others report beyond the line",
+ p5:"None of this is measured by this project and none of it can be. It is copied by hand, dated, attributed and frozen. It is a citation, not a feed: nothing on this page is fetched from anyone.",
+ thWhat:"Claim", thValue:"Value", thAsOf:"As of", thSource:"Source",
+ xFirstBlock:"First {algo} block", xHeight:"Chain height", xHashrate:"Network hashrate",
+ xDiffStart:"Starting difficulty", xDiff1:"First retarget", xDiff2:"Second retarget",
+ xDiff3:"Third retarget", xReward:"Reward per block", xFees:"Fees per block",
+ xMarket:"Quoted price", xNodes:"Number of nodes",
+ notFound:"not published anywhere we could find",
+ derived:"our subtraction from their rounded figure, so treat it as an order of magnitude",
+ interestPromoter:"promotes this chain",
+ interestPress:"press",
+ k5a:"Their hashrate does not compare with Bitcoin's",
+ b5a:"It is a different hash function, so the two numbers are different units wearing the same name. Putting them in one sentence would be the exact mistake this panel exists to avoid, the same one that makes accumulated work uncomparable across the two chains.",
+ k5b:"Both sources have an interest",
+ b5b:"The two sites publishing figures are the fork's own promotion site and a site promoting mining it. They do not present themselves as neutral and they are not presented as neutral here.",
+
+ t6:"The one figure of theirs we could check",
+ p6a:"They report that the first difficulty retarget fell {claimed}%, which with blocks arriving fast is the opposite of what you would expect. The explanation comes from a measurement of ours: that retarget window opens at block {common2}, the block of the split, and we timed that block with our own node.",
+ checkTxt:"{days} days where the target is {target}. {target} divided by {days} gives a fall of {computed}%, against the {claimed}% they publish.",
+ p6b:"It matches. What that shows is not that they are reliable: it is that the first difficulty window of their new chain was filled with the twenty days their old chain spent almost stopped. It was born inheriting the difficulty of its own stall.",
+
+ foot:"This page is a record of something that finished. The figures above the line can be reproduced by anyone with a Bitcoin node; the ones below it cannot be reproduced from here at all, which is why they are kept apart.",
+ toMeth:"How every number on this site is measured →"
+},
+es:{
+ back:"← Volver al panel",
+ t1:"Cronograma de la separación",
+ p1a:"El registro fechado de lo que pasó, partido en dos mitades: lo que este panel midió con sus propios nodos, y lo que dejó de poder medir cuando la cadena del BIP-110 cambió de prueba de trabajo.",
+ p1b:"Cada cifra por encima de la línea sale de dos nodos de Bitcoin que lleva este proyecto. Cada cifra por debajo la publicó otro, lleva su nombre y la fecha en que lo dijo, y no se puede comprobar desde aquí.",
+ closedK:"Este observatorio está cerrado",
+ closedB:"Se hizo para contestar si el BIP-110 podía partir el consenso económico de Bitcoin. No pudo: partió a la minoría que eligió otras reglas, y el {forkDate} esa minoría se fue a otra prueba de trabajo, lo que la convierte en otra moneda. La pregunta que este panel existía para responder ya tiene respuesta, así que la medición se para aquí y el registro se queda.",
+
+ t2:"Antes de la separación",
+ p2:"Fechas de publicación y alturas escritas en el propio BIP. Están documentadas, no medidas aquí, y no envejecen.",
+ evBipDraft:"Se abre la ventana de señalización, según el starttime del despliegue",
+ evBipComplete:"El BIP-110 pasa a estado Complete, versión 1.0.0",
+ evMandatory:"Empieza la señalización obligatoria en el bloque {height}. Aquí se separan las cadenas, no donde entran las reglas de datos",
+ evLockin:"LOCKED_IN forzado en el bloque {height}",
+ evActive:"Las reglas de datos entrarían en vigor en el bloque {height}",
+ evDraw:"Dos sorteos públicos para elegir el algoritmo nuevo. Los dos compromisos encajaban; ninguna de las dos reglas cerraba",
+ evRc4:"Knots 29.4.1rc4 programa el cambio de prueba de trabajo en el bloque {height}",
+
+ tagData:"Dato verificable",
+ t3:"La separación, medida aquí",
+ p3:"Todos los bloques que produjo la cadena del BIP-110, leídos del nodo Knots de este proyecto. El último bloque que compartieron las dos cadenas fue el {common}.",
+ thHeight:"Bloque", thWhen:"Cuándo (UTC)", thGap:"Hueco", thPool:"Pool",
+ p3b:"{n} bloques en {days} días, todos del mismo pool. La cadena mayoritaria hizo esos mismos {n} bloques en {majTime}.",
+
+ t4:"Aquí se acaba lo que podemos medir",
+ p4a:"En el bloque {fork} la cadena del BIP-110 cambió su prueba de trabajo a {algo}. El nodo que lleva este proyecto es anterior, no lo implementa, y por tanto no puede validar ni un bloque a partir de esa altura.",
+ p4b:"Así que el panel deja de contar en vez de publicar un silencio. Una cadena que no podemos ver no es una cadena parada: son dos afirmaciones distintas, y solo una de las dos nos toca hacerla. El ritmo que enseña el panel termina ahora en el último bloque de arriba, y no crece con el reloj.",
+
+ tagExt:"Fuente externa",
+ t5:"Lo que cuentan otros al otro lado de la línea",
+ p5:"Nada de esto lo mide este proyecto ni lo puede medir. Está copiado a mano, fechado, atribuido y congelado. Es una cita, no una tubería: esta página no le pide nada a nadie por red.",
+ thWhat:"Afirmación", thValue:"Valor", thAsOf:"A fecha de", thSource:"Fuente",
+ xFirstBlock:"Primer bloque {algo}", xHeight:"Altura de la cadena", xHashrate:"Hashrate de la red",
+ xDiffStart:"Dificultad inicial", xDiff1:"Primer reajuste", xDiff2:"Segundo reajuste",
+ xDiff3:"Tercer reajuste", xReward:"Recompensa por bloque", xFees:"Comisiones por bloque",
+ xMarket:"Precio cotizado", xNodes:"Número de nodos",
+ notFound:"no lo publica nadie que hayamos encontrado",
+ derived:"resta nuestra sobre una cifra redondeada por ellos, así que vale como orden de magnitud",
+ interestPromoter:"promociona esta cadena",
+ interestPress:"prensa",
+ k5a:"Su hashrate no se compara con el de Bitcoin",
+ b5a:"Es otra función de hash, así que son dos unidades distintas con el mismo nombre. Ponerlas en la misma frase sería exactamente el error que este panel existe para no cometer, el mismo que hace que el trabajo acumulado no se pueda comparar entre las dos cadenas.",
+ k5b:"Las dos fuentes tienen interés",
+ b5b:"Los dos sitios que publican cifras son el de promoción del propio fork y uno que promueve minarlo. No se presentan como neutrales y aquí no se presentan como neutrales.",
+
+ t6:"La única cifra suya que sí hemos podido comprobar",
+ p6a:"Dicen que el primer reajuste de dificultad cayó un {claimed}%, que con bloques llegando rápido es al revés de lo que uno esperaría. La explicación la da una medida nuestra: esa ventana de reajuste empieza en el bloque {common2}, el de la separación, y ese bloque lo cronometramos con nuestro propio nodo.",
+ checkTxt:"{days} días donde el objetivo son {target}. {target} entre {days} da una caída del {computed}%, contra el {claimed}% que publican ellos.",
+ p6b:"Encaja. Lo que eso demuestra no es que sean de fiar: es que la primera ventana de dificultad de su cadena nueva estaba llena de los veinte días que su cadena vieja pasó casi parada. Nació heredando la dificultad de su propio parón.",
+
+ foot:"Esta página es el registro de algo que terminó. Las cifras de encima de la línea las puede reproducir cualquiera con un nodo de Bitcoin; las de debajo no se pueden reproducir desde aquí en absoluto, y por eso están apartadas.",
+ toMeth:"Cómo se mide cada número de este sitio →"
+}};
+
+let TEMA = (function(){
+  try{ const t = localStorage.getItem("bip110theme"); if(t === "light" || t === "dark") return t; }catch(e){}
+  return (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches)
+    ? "light" : "dark";
+})();
+function aplicarTema(){
+  document.documentElement.setAttribute("data-theme", TEMA);
+  const ico = document.getElementById("theme-ico");
+  if(ico) ico.innerHTML = TEMA === "dark" ? "&#9788;" : "&#9789;";
+}
+function toggleTema(){
+  TEMA = TEMA === "dark" ? "light" : "dark";
+  try{ localStorage.setItem("bip110theme", TEMA); }catch(e){}
+  aplicarTema();
+}
+aplicarTema();
+if(window.matchMedia){
+  const mq = window.matchMedia("(prefers-color-scheme: light)");
+  if(mq.addEventListener) mq.addEventListener("change", e => {
+    let guardado = null;
+    try{ guardado = localStorage.getItem("bip110lang"); }catch(err){}
+    let gt = null;
+    try{ gt = localStorage.getItem("bip110theme"); }catch(err){}
+    if(!gt){ TEMA = e.matches ? "light" : "dark"; aplicarTema(); }
+  });
+}
+
+let LANG = (function(){
+  try{ const s = localStorage.getItem("bip110lang"); if(s === "en" || s === "es") return s; }catch(e){}
+  return (navigator.language || "").toLowerCase().startsWith("es") ? "es" : "en";
+})();
+function setLang(l){
+  LANG = l;
+  try{ localStorage.setItem("bip110lang", l); }catch(e){}
+  document.documentElement.lang = l;
+  paint();
+}
+
+let TL = null;
+const loc = () => LANG === "es" ? "es-ES" : "en-US";
+const nf = (v,d) => (v==null||isNaN(v)) ? "—" :
+  Number(v).toLocaleString(loc(),{minimumFractionDigits:d||0,maximumFractionDigits:d||0});
+function esc(s){ return String(s==null?"":s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function t(k, vars){
+  const D = DICT[LANG] || DICT.en;
+  let v = D[k];
+  if(v === undefined) return "";
+  for(const [a,b] of Object.entries(vars || {})) v = v.split("{"+a+"}").join(b);
+  return v;
+}
+/* Fecha y hora en UTC siempre. Un cronograma que se pinta en la zona
+   horaria del lector cuenta una historia distinta a cada uno, y aqui lo
+   que importa es que dos personas puedan comparar la misma tabla. */
+function fechaUTC(seg, conHora){
+  if(!seg) return "—";
+  const d = new Date(seg * 1000);
+  const o = conHora
+    ? {day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"}
+    : {day:"2-digit", month:"short", year:"numeric"};
+  return new Intl.DateTimeFormat(loc(), Object.assign({timeZone:"UTC"}, o)).format(d);
+}
+function fechaISO(iso){
+  if(!iso) return "—";
+  const p = iso.split("-");
+  return fechaUTC(Date.UTC(+p[0], +p[1]-1, +p[2]) / 1000, false);
+}
+/* Una duracion se dice en la unidad que la hace legible, y el plural se
+   elige por la cifra QUE SE IMPRIME, no por la de dentro: 0,6 y 1,4 horas
+   se imprimen las dos como "1". */
+function dur(seg){
+  if(seg == null) return "—";
+  const h = seg / 3600;
+  if(h < 48) return nf(h, 1) + " h";
+  const d = Math.round(h / 24);
+  return nf(d, 0) + (LANG === "es" ? (d === 1 ? " día" : " días")
+                                   : (d === 1 ? " day" : " days"));
+}
+
+function pintarDocumentados(){
+  const tb = document.getElementById("docrows");
+  if(!tb) return;
+  tb.innerHTML = ((TL && TL.documented) || []).map(e => {
+    const cuando = e.date ? fechaISO(e.date)
+                 : (e.time ? fechaUTC(e.time, false) : "—");
+    return '<tr><td class="num">' + esc(cuando) + '</td><td>' +
+      esc(t(e.key, {height: nf(e.height, 0),
+                    starttime: e.time ? fechaUTC(e.time, false) : "—"})) +
+      '</td></tr>';
+  }).join("");
+}
+
+function pintarBloques(){
+  const tb = document.getElementById("blockrows");
+  if(!tb) return;
+  const bs = (TL && TL.blocks) || [];
+  /* El hueco grande se marca, y no solo con color: el numero ya lo dice y
+     el color solo lo subraya. Un paron de cinco dias en una cadena que
+     deberia hacer un bloque cada diez minutos es el dato de la tabla. */
+  const grande = 24 * 3600;
+  tb.innerHTML = bs.map(b => {
+    const g = b.gap_sec;
+    return '<tr><td class="num">' + esc(nf(b.height, 0)) + '</td>' +
+      '<td class="num">' + esc(fechaUTC(b.time, true)) + '</td>' +
+      '<td class="num' + (g && g >= grande ? ' gap-big' : '') + '">' +
+      esc(g == null ? "—" : nf(g / 3600, 1) + " h") + '</td>' +
+      '<td>' + esc(b.pool || "—") + '</td></tr>';
+  }).join("");
+}
+
+function valorClaim(c){
+  if(c.key === "xMarket")
+    return nf(c.bid, 0) + " / " + nf(c.ask, 0) + " $ (" + nf(c.spread_pct, 1) + "%)";
+  let v = c.unit === "BTC"
+        ? Number(c.value).toLocaleString(loc(), {maximumFractionDigits: 3})
+        : nf(c.value, c.key === "xHashrate" ? 1 : 0);
+  if(c.unit) v += " " + c.unit;
+  if(c.pct != null) v += " (" + nf(c.pct, 1) + "%)";
+  if(c.factor != null) v += " (x" + nf(c.factor, 0) + ")";
+  return v;
+}
+
+function pintarExternos(){
+  const tb = document.getElementById("extrows");
+  if(!tb) return;
+  const ex = (TL && TL.external) || {};
+  const fuentes = ex.sources || {};
+  const filas = (ex.claims || []).map(c => {
+    const f = fuentes[c.src] || {};
+    const interes = f.interest === "press" ? t("interestPress") : t("interestPromoter");
+    const nota = c.derived ? '<div class="src">' + esc(t("derived")) + '</div>' : "";
+    return '<tr><td>' + esc(t(c.key, {algo: (TL.horizon || {}).algo || ""})) + nota + '</td>' +
+      '<td class="num">' + esc(valorClaim(c)) + '</td>' +
+      '<td class="num">' + esc(fechaISO(c.as_of)) + '</td>' +
+      '<td><a href="' + esc(f.url || "#") + '" rel="noopener nofollow">' + esc(f.name || "") +
+      '</a><div class="src">' + esc(interes) + '</div></td></tr>';
+  });
+  /* LO QUE NO SE ENCONTRO VA EN LA TABLA, NO OMITIDO.
+     Un hueco callado parece un cero, y "no lo publica nadie" es informacion
+     distinta de "es cero". Es la misma regla que hace que /api/nodes diga
+     que redes NO sondea. */
+  (ex.not_found || []).forEach(k => {
+    filas.push('<tr><td>' + esc(t(k)) + '</td><td class="src" colspan="3">' +
+      esc(t("notFound")) + '</td></tr>');
+  });
+  tb.innerHTML = filas.join("");
+}
+
+function pintarComprobacion(){
+  const c = TL && TL.retarget_check;
+  const caja = document.getElementById("checkbox");
+  const big = document.getElementById("checkbig");
+  const txt = document.getElementById("checktxt");
+  if(!caja || !big || !txt) return;
+  if(!c){ caja.hidden = true; return; }
+  caja.hidden = false;
+  /* El signo lo lleva ya la palabra "caida", asi que la cifra va en valor
+     absoluto: "cayo un -41,3%" dice justo lo contrario de lo que paso. */
+  big.textContent = nf(Math.abs(c.computed_pct), 1) + "%  =  " +
+                    nf(Math.abs(c.claimed_pct), 1) + "%";
+  txt.textContent = t("checkTxt", {
+    days: nf(c.days, 2), target: nf(c.target_days, 0),
+    computed: nf(Math.abs(c.computed_pct), 1), claimed: nf(Math.abs(c.claimed_pct), 1)
+  });
+}
+
+function paint(){
+  const D = DICT[LANG] || DICT.en;
+  const bs = (TL && TL.blocks) || [];
+  const hz = (TL && TL.horizon) || {};
+  const primero = bs[0] || {};
+  const ultimo = bs[bs.length - 1] || {};
+  const dias = (primero.time && ultimo.time)
+    ? (ultimo.time - primero.time) / 86400 : null;
+  /* `majTime` es cuanto tardo la cadena mayoritaria en hacer ESOS MISMOS
+     bloques. Es la comparacion que hace entender la tabla de un vistazo, y
+     sale del objetivo de diez minutos por bloque, que es lo que la
+     mayoritaria cumple. Se calcula, no se escribe. */
+  const vars = {
+    forkDate: fechaISO(hz.date),
+    fork: nf(hz.height, 0),
+    algo: hz.algo || "—",
+    common: nf(TL && TL.last_common_height, 0),
+    common2: nf(TL && TL.split_height, 0),
+    n: nf(bs.length, 0),
+    days: dias == null ? "—" : nf(dias, 0),
+    majTime: (TL && TL.majority_same_span_sec != null)
+             ? dur(TL.majority_same_span_sec) : "—",
+    claimed: TL && TL.retarget_check
+             ? nf(Math.abs(TL.retarget_check.claimed_pct), 1) : "—"
+  };
+  document.querySelectorAll("[data-k]").forEach(el => {
+    const v = t(el.dataset.k, vars);
+    if(v !== "") el.textContent = v;
+  });
+  pintarDocumentados();
+  pintarBloques();
+  pintarExternos();
+  pintarComprobacion();
+  document.getElementById("l-en").setAttribute("aria-pressed", LANG === "en");
+  document.getElementById("l-es").setAttribute("aria-pressed", LANG === "es");
+  document.title = (LANG === "es" ? "Cronograma" : "Timeline") + " · BIP-110 Observer";
+}
+document.documentElement.lang = LANG;
+paint();
+fetch("/api/timeline").then(r => r.json()).then(d => { if(d && d.ok){ TL = d; paint(); } })
+  .catch(() => {});
+</script>
+</body>
+</html>

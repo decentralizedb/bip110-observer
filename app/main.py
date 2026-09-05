@@ -11,6 +11,7 @@ import os
 import re
 import json
 import time
+import calendar
 import threading
 from flask import Flask, jsonify, request, send_from_directory
 
@@ -18,6 +19,7 @@ from rpc import BitcoinRPC
 import signaling
 import pools as poolsmod
 import crawler as crawlermod
+import external
 
 app = Flask(__name__, static_folder="static")
 
@@ -53,6 +55,10 @@ TTL = {
     # Corto, porque es lo que se mira cuando algo va mal y ahi el dato
     # viejo estorba, pero por encima de lo que tarda una ronda por Tor.
     "health": int(os.environ.get("HEALTH_TTL", "45")),
+    # El cronograma describe una rama que ya no crece, asi que una vez
+    # calculado no cambia nunca. El TTL largo solo existe por si el disco
+    # esta vacio y hay que rehacerlo.
+    "timeline": int(os.environ.get("TIMELINE_TTL", "86400")),
 }
 POOLS_SAMPLE = int(os.environ.get("POOLS_SAMPLE", "500"))
 # Un endpoint de salud que tarda medio minuto no sirve como endpoint de
@@ -488,6 +494,13 @@ def methodology():
     return send_from_directory(app.static_folder, "methodology.html")
 
 
+@app.route("/timeline")
+@app.route("/cronologia")
+def timeline_page():
+    """El registro fechado de la separacion. Bilingue, como la metodologia."""
+    return send_from_directory(app.static_folder, "timeline.html")
+
+
 @app.route("/robots.txt")
 def robots():
     return send_from_directory(app.static_folder, "robots.txt",
@@ -496,13 +509,15 @@ def robots():
 
 @app.route("/sitemap.xml")
 def sitemap():
-    """Dos paginas. No hace falta generarlo con nada."""
+    """Tres paginas. No hace falta generarlo con nada."""
     base = request.url_root.rstrip("/")
     hoy = time.strftime("%Y-%m-%d", time.gmtime())
     urls = "".join(
         f"<url><loc>{base}{p}</loc><lastmod>{hoy}</lastmod>"
         f"<changefreq>{c}</changefreq></url>"
-        for p, c in (("/", "hourly"), ("/methodology", "weekly")))
+        for p, c in (("/", "hourly"), ("/methodology", "weekly"),
+                     # El cronograma describe algo cerrado: no cambia.
+                     ("/timeline", "yearly")))
     xml = ('<?xml version="1.0" encoding="UTF-8"?>'
            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
            + urls + "</urlset>")
@@ -1347,6 +1362,7 @@ def _build_chains():
     def side(name):
         tip = out["nodes"][name]["tip"]
         ritmo, ultima, medidos, hueco = None, None, 0, None
+        ciego = False
         if out["state"] == "split":
             # Cuatro viajes mas por Tor. Solo se enseña en la vista de dos
             # cadenas, asi que antes de la separacion no se calcula.
@@ -1373,13 +1389,40 @@ def _build_chains():
             # desde el corte entre los bloques hechos, una cadena sana no
             # cambia (97 bloques en 17 h siguen siendo 10,6 min) y una parada
             # se degrada sola, que es exactamente lo que hay que ver.
+            # ...PERO EL TIEMPO TRANSCURRIDO SOLO CUENTA MIENTRAS PODAMOS MIRAR.
+            #
+            # El 2026-08-30 la cadena del BIP-110 cambio de proof of work en
+            # el bloque `POW_FORK["height"]`. El nodo propio es anterior y no
+            # implementa BLAKE2b, asi que su punta se quedo clavada en el
+            # bloque de antes y no se va a mover nunca mas.
+            #
+            # Con el reloj corriendo contra un contador congelado, el ritmo se
+            # degrada solo hacia el infinito: el 5 de septiembre la tarjeta ya
+            # decia "un bloque cada 83,1 h" y subiendo. Esa cifra no mide la
+            # cadena, mide CUANTO LLEVAMOS SIN PODER VERLA, que es una
+            # propiedad de nuestro instrumento y encima empuja justo en la
+            # direccion de nuestra propia tesis. Es el fallo silencioso de
+            # siempre por una puerta nueva: el numero parece objetivo.
+            #
+            # Asi que la ventana se cierra en el ultimo bloque que SI pudimos
+            # medir, y el panel dice que a partir de ahi no mira. Un silencio
+            # que no podemos oir no es un silencio.
+            ciego = (out["nodes"][name]["enforces"]
+                     and tip == signaling.POW_FORK["height"] - 1)
             n_prop = (tip - out["split_height"]) if out.get("split_height") is not None else None
-            trans = out.get("split_seconds_ago")
+            fin = ultima if (ciego and ultima) else int(time.time())
+            trans = (fin - out["split_time"]) if out.get("split_time") else None
             if n_prop and trans and n_prop > 0:
                 ritmo = round(trans / float(n_prop), 1)
                 medidos = n_prop
             hueco = _hueco_mayor(rpcs[name], out.get("split_height"), tip)
         return {
+            # Hasta donde llega la vista de este panel, y por que se acaba.
+            # Va siempre, no solo cuando se acaba: un campo que solo existe
+            # en el caso malo es un campo que nadie sabe leer el dia que sale.
+            "measurable": not ciego,
+            "horizon_height": signaling.POW_FORK["height"] if ciego else None,
+            "horizon_algo": signaling.POW_FORK["algo"] if ciego else None,
             "node": name,
             "tip": tip,
             "hash": out["nodes"][name]["hash"],
@@ -1425,6 +1468,192 @@ def _build_chains():
             if e and (e[0] or {}).get("share_source") != "observed":
                 _cache.pop(ck, None)
     return out
+
+
+# La fecha del cambio de proof of work. Se sirve, no se escribe en la
+# pagina: era la unica fecha que quedaba clavada en el JavaScript.
+POW_FORK_DATE = "2026-08-30"
+
+_TIMELINE_FILE = os.path.join(CACHE_DIR, "timeline.json") if CACHE_DIR else None
+
+
+def _load_timeline():
+    if not _TIMELINE_FILE or not os.path.exists(_TIMELINE_FILE):
+        return None
+    try:
+        with open(_TIMELINE_FILE, encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return None
+
+
+def _save_timeline(data):
+    if not _TIMELINE_FILE:
+        return
+    try:
+        tmp = _TIMELINE_FILE + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as fh:
+            json.dump(data, fh)
+        os.replace(tmp, _TIMELINE_FILE)
+    except OSError:
+        pass
+
+
+def _rama_medida(rpc, desde, hasta):
+    """
+    Los bloques de la rama del BIP-110, uno a uno, con su hora y su pool.
+
+    Son pocos y no van a ser mas nunca: esa rama se quedo en el bloque
+    anterior al cambio de proof of work. Por eso se puede pedir la coinbase
+    de todos sin las precauciones de `/api/pools`, y por eso el resultado se
+    guarda y no se vuelve a calcular.
+    """
+    filas, previo = [], None
+    for h in range(desde, hasta + 1):
+        bh = rpc.call("getblockhash", h)
+        hd = rpc.call("getblockheader", bh)
+        pool = None
+        try:
+            blk = rpc.call("getblock", bh, 1)
+            raw = rpc.call("getrawtransaction", blk["tx"][0], True, bh)
+            pool = poolsmod.identify(raw["vin"][0]["coinbase"])[0]
+        except Exception:                                    # noqa: BLE001
+            pool = None
+        filas.append({
+            "height": h,
+            "time": hd["time"],
+            "gap_sec": (hd["time"] - previo) if previo is not None else None,
+            "pool": pool,
+            "signals": signaling.signals_bit(hd["version"]),
+        })
+        previo = hd["time"]
+    return filas
+
+
+def _build_timeline():
+    """
+    El cronograma de la separacion. Dos mitades, y la frontera es el mensaje.
+
+    Hasta el bloque anterior al cambio de proof of work, todo esta medido con
+    los nodos propios y es dato verificable. A partir de ahi no hay nada
+    medido, porque no se puede: lo que se sirve son afirmaciones de terceros
+    con su fecha y su fuente, en `external`, y jamas se mezclan con las de
+    arriba.
+
+    Se guarda en disco porque es inmutable: son bloques cerrados de una rama
+    que ya no crece.
+    """
+    guardado = _load_timeline()
+    if guardado and guardado.get("blocks"):
+        out = guardado
+    else:
+        # La rama la sirve el nodo que aplica el BIP-110. Se busca por lo que
+        # el nodo declara, no por su nombre en la configuracion.
+        elegido = None
+        for nombre in ("knots", "core"):
+            if not _node_configured(nombre):
+                continue
+            try:
+                ni = _rpc(nombre).call("getnetworkinfo")
+            except Exception:                                # noqa: BLE001
+                continue
+            if "REDUCED_DATA" in " ".join(ni.get("localservicesnames") or []):
+                elegido = nombre
+                break
+        if not elegido:
+            return {"ok": False,
+                    "error": "No hay ningun nodo que aplique el BIP-110, "
+                             "asi que su rama no se puede reconstruir."}
+        r = _rpc(elegido)
+        corte = signaling.BIP110["mandatory_start"]
+        tope = min(r.call("getblockcount"), signaling.POW_FORK["height"] - 1)
+        out = {
+            "ok": True,
+            "node": elegido,
+            "split_height": corte,
+            "last_common_height": corte - 1,
+            "horizon": dict(signaling.POW_FORK, date=POW_FORK_DATE),
+            "blocks": _rama_medida(r, corte, tope),
+        }
+        # CUANTO TARDO LA OTRA CADENA EN HACER ESOS MISMOS BLOQUES.
+        #
+        # Es la comparacion que hace entender la tabla de un vistazo, y por
+        # eso mismo hay que MEDIRLA. Estaba calculada multiplicando por el
+        # objetivo de diez minutos, que es un modelo, y salia impresa al lado
+        # de una columna de horas medidas uso por uso sin decir que era de
+        # otra clase. La cadena mayoritaria no cumple el objetivo clavado:
+        # esos ocho bloques tardaron 1 h 39 min, no 1 h 20 min.
+        otro = "core" if elegido != "core" else "knots"
+        if _node_configured(otro):
+            try:
+                r2 = _rpc(otro)
+                t0 = r2.call("getblockheader", r2.call("getblockhash", corte))["time"]
+                t1 = r2.call("getblockheader", r2.call("getblockhash", tope))["time"]
+                out["majority_same_span_sec"] = t1 - t0
+                out["majority_node"] = otro
+            except Exception:                                # noqa: BLE001
+                out["majority_same_span_sec"] = None
+        _save_timeline(out)
+
+    # LA COMPROBACION QUE SI PODEMOS HACER SOBRE UNA CIFRA SUYA.
+    # Se recalcula con la hora que midio el nodo, no con una constante.
+    primero = (out.get("blocks") or [{}])[0]
+    if primero.get("time"):
+        try:
+            fin = calendar.timegm(time.strptime(
+                external.CHECK["retarget_time_utc"], "%Y-%m-%dT%H:%M:%SZ"))
+            dias = (fin - primero["time"]) / 86400.0
+            factor = external.CHECK["target_days"] / dias
+            out["retarget_check"] = {
+                "from_height": primero["height"],
+                "from_time": primero["time"],
+                "to_height": external.CHECK["retarget_height"],
+                "days": round(dias, 2),
+                "target_days": external.CHECK["target_days"],
+                "computed_pct": round((factor - 1) * 100, 1),
+                "claimed_pct": external.CHECK["claimed_pct"],
+            }
+        except (ValueError, ZeroDivisionError):
+            pass
+
+    # HITOS DOCUMENTADOS: no los medimos nosotros, pero tampoco son
+    # afirmaciones de nadie interesado. Son fechas de publicacion, que no
+    # envejecen y se pueden comprobar en su repositorio. Van con su clave y
+    # su fecha, nunca escritas dentro de una frase: el dia que una cambie,
+    # cambia aqui y no hay que releer ningun texto buscandola.
+    out["documented"] = [
+        {"key": "evBipDraft", "date": "2025-12-01",
+         "time": signaling.BIP110["starttime"]},
+        {"key": "evBipComplete", "date": "2026-06-25"},
+        {"key": "evMandatory", "date": None,
+         "height": signaling.BIP110["mandatory_start"]},
+        {"key": "evLockin", "date": None,
+         "height": signaling.BIP110["forced_lockin"]},
+        {"key": "evActive", "date": None,
+         "height": signaling.BIP110["activation_height"]},
+        {"key": "evDraw", "date": "2026-08-11"},
+        {"key": "evRc4", "date": POW_FORK_DATE,
+         "height": signaling.POW_FORK["height"]},
+    ]
+    out["params"] = {
+        "starttime": signaling.BIP110["starttime"],
+        "mandatory_start": signaling.BIP110["mandatory_start"],
+        "forced_lockin": signaling.BIP110["forced_lockin"],
+        "activation_height": signaling.BIP110["activation_height"],
+        "period": signaling.BIP110["period"],
+    }
+    out["external"] = {
+        "sources": external.FUENTES,
+        "claims": external.CLAIMS,
+        "not_found": external.NOT_FOUND,
+    }
+    return out
+
+
+@app.route("/api/timeline")
+def timeline():
+    """Cronograma de la separacion. Cache como el resto: pide al nodo."""
+    return jsonify(_cached_bg("timeline", _build_timeline))
 
 
 @app.route("/api/chain")
@@ -1630,7 +1859,12 @@ def _calentar():
         # arranque y da el contenedor por enfermo estando sano.
         for nombre, ruta in (("chain", "/api/chain"), ("miners", "/api/miners"),
                              ("history", "/api/history"), ("pools", "/api/pools"),
-                             ("nodes", "/api/nodes"), ("health", "/api/health")):
+                             ("nodes", "/api/nodes"), ("health", "/api/health"),
+                         # El cronograma se calcula una vez y se guarda en
+                         # disco. Calentarlo evita que el primer visitante de
+                         # /timeline se encuentre el aviso de "calculando"
+                         # sobre una pagina que ya no va a cambiar nunca.
+                         ("timeline", "/api/timeline")):
             try:
                 app.test_client().get(ruta)
             except Exception:
