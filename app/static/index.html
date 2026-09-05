@@ -473,6 +473,8 @@ footer p+p{margin-top:8px}
          como apoyar la propuesta. -->
     <a class="donate-nav" href="#donate"><span aria-hidden="true">&#9889;</span>
       <span data-k="donateNav"></span></a>
+    <a class="donate-nav" href="/timeline"><span aria-hidden="true">&#128197;</span>
+      <span data-k="navTimeline"></span></a>
     <button type="button" class="lang" id="theme" onclick="toggleTema()"
             aria-label="tema"><span id="theme-ico">&#9789;</span></button>
     <button type="button" class="lang" id="l-en" onclick="setLang('en')">EN</button>
@@ -484,6 +486,19 @@ footer p+p{margin-top:8px}
   <p class="q" data-k="answerQ"></p>
   <p class="a" data-k="answerA"></p>
   <p class="lead" data-k="answerLead"></p>
+
+  <!-- QUE SE SEPA AL ENTRAR, NO AL FINAL.
+       Este aviso estaba al pie y habia que bajar la pagina entera, y luego
+       abrir el cronograma, para enterarse de que el panel ya no lee de los
+       nodos. Es lo segundo mas importante de la pagina despues del "No", asi
+       que va aqui.
+       Y PAGA SU SITIO: el heroe estaba lleno (656 px de los 778 visibles en
+       un movil real, con 55 de margen), asi que cuando este aviso sale, la
+       tarjeta de "¿avanza esa cadena?" deja de dibujarse arriba. Con el
+       observador cerrado esa pregunta ya no cambia cada rato, que era lo
+       unico que justificaba tenerla en el heroe. Sin este intercambio, el
+       aviso de estafas se iria por debajo del pliegue. -->
+  <div id="heroclosed"></div>
 
   <!-- Si ya ha pasado algo. Va pegado a la respuesta porque es la misma
        conversacion, y antes habia que bajar a buscarlo. -->
@@ -517,15 +532,6 @@ footer p+p{margin-top:8px}
   <div id="answer-more" hidden>
     <p data-k="answerP1"></p>
     <p data-k="answerP2"></p>
-  </div>
-</section>
-
-<section>
-  <div class="panel t-sample" style="padding:18px 20px">
-    <div class="caveat-k o" data-k="closedTitle"></div>
-    <div style="font-size:16px;color:var(--txt2);margin-top:8px;max-width:66ch"
-         data-k="closedBody"></div>
-    <p style="margin-top:10px"><a href="/timeline" data-k="closedLink"></a></p>
   </div>
 </section>
 
@@ -832,9 +838,11 @@ en: {
  paceHorizon:"Measured up to block {h}. From there this chain switched to {algo}, which this project's node does not implement, so it can no longer be measured here. The silence after that point is ours, not necessarily the chain's.",
  footerTime:"Timeline", footerTimeSub:"Every date, and where the measuring ends",
  vitHorizon:"counted up to block {h}, where this chain changed its mining rules and left what this panel can measure",
- closedTitle:"This observatory has stopped measuring",
- closedBody:"It was built to answer whether BIP-110 could split Bitcoin's economic consensus. It could not: it split the minority that chose other rules, and that minority has since moved to a different proof of work, which makes it a different coin. The figures below are the last ones this project could measure. Nothing here changes the answer at the top of this page.",
- closedLink:"Read the dated record of the split →",
+ heroClosedWhen:"The figures on this page are the ones measured on {d}.",
+ navTimeline:"Timeline",
+ heroClosedK:"This panel is no longer being updated",
+ heroClosedB:"It was built to measure whether BIP-110 could split Bitcoin into two chains. That question has an answer: it split the minority that chose other rules, and that minority later moved to a different proof of work, which makes it a different coin. There is nothing of theirs left to read from here, so the figures below are the last ones measured.",
+ heroClosedLink:"See the full timeline →",
  splitBlockShare:"Blocks since the split", blockPace:"A block every",
  lastBlock:"last block {t}",
  paceGap:"longest stall so far {t}",
@@ -1112,9 +1120,11 @@ es: {
  paceHorizon:"Medido hasta el bloque {h}. A partir de ahí esta cadena pasó a {algo}, que el nodo de este proyecto no implementa, así que ya no se puede medir desde aquí. El silencio de después es nuestro, no necesariamente de la cadena.",
  footerTime:"Cronograma", footerTimeSub:"Todas las fechas, y dónde se acaba la medición",
  vitHorizon:"contados hasta el bloque {h}, donde esta cadena cambió sus reglas de minado y salió de lo que este panel puede medir",
- closedTitle:"Este observatorio ha dejado de medir",
- closedBody:"Se hizo para contestar si el BIP-110 podía partir el consenso económico de Bitcoin. No pudo: partió a la minoría que eligió otras reglas, y esa minoría se ha ido después a otra prueba de trabajo, lo que la convierte en otra moneda. Las cifras de abajo son las últimas que este proyecto pudo medir. Nada de esto cambia la respuesta de arriba del todo.",
- closedLink:"Leer el registro fechado de la separación →",
+ heroClosedWhen:"Las cifras de esta página son las que se midieron el {d}.",
+ navTimeline:"Cronograma",
+ heroClosedK:"Este panel ya no se actualiza",
+ heroClosedB:"Se hizo para medir si el BIP-110 podía partir Bitcoin en dos cadenas. Esa pregunta ya tiene respuesta: partió a la minoría que eligió otras reglas, y esa minoría se fue después a otra prueba de trabajo, o sea a otra moneda. Ya no queda nada suyo que leer desde aquí, así que las cifras de abajo son las últimas medidas.",
+ heroClosedLink:"Ver el cronograma completo →",
  splitBlockShare:"Bloques desde el corte", blockPace:"Un bloque cada",
  lastBlock:"último bloque {t}",
  paceGap:"el parón más largo hasta ahora, {t}",
@@ -1380,6 +1390,13 @@ const fmt = n => (n === null || n === undefined || isNaN(n)) ? "—" :
 const num = (v, d) => (v === null || v === undefined || isNaN(v)) ? "—" :
   Number(v).toLocaleString(LANG === "es" ? "es-ES" : "en-US",
     {minimumFractionDigits:d, maximumFractionDigits:d});
+
+/* La fecha de la foto, en UTC y sin hora: la precision que tiene sentido
+   para algo que ya no se mueve. */
+const fechaCorta = seg => !seg ? "" : new Intl.DateTimeFormat(
+  LANG === "es" ? "es-ES" : "en-US",
+  {timeZone: "UTC", day: "numeric", month: "long", year: "numeric"}
+).format(new Date(seg * 1000));
 
 /* Estado real que dice el backend. Nunca lo decide el usuario. */
 const realState = () => (DATA.chain && DATA.chain.ok && DATA.chain.state) || "pre_split";
@@ -1889,6 +1906,29 @@ function renderHeroStatus(){
   const c = DATA.chain, mi = DATA.miners;
   const skel = h => `<div class="skel" style="height:${h}px"></div>`;
 
+  /* EL CIERRE, ARRIBA DEL TODO.
+     Dos motivos distintos y una sola conclusion para el lector: o la rama
+     que seguiamos cambio de reglas de minado, o este panel ya no tiene
+     ningun nodo que la siga. En los dos casos deja de leerse de los nodos,
+     y eso hay que saberlo al entrar, no al final de la pagina.
+     Se calcula aqui porque lo que decida gobierna tambien si la tarjeta de
+     vitalidad se queda en el heroe: el sitio hay que pagarlo. */
+  const cerr = $("heroclosed");
+  const cMin = (c && c.ok) ? (c.minority || null) : null;
+  const cerrado = !!(c && c.ok &&
+                     (c.watching === false || (cMin && cMin.measurable === false)));
+  if(cerr){
+    cerr.innerHTML = cerrado
+      ? `<div class="caveat caveat--sample" style="margin-top:14px">
+           <div class="caveat-k">${esc(t("heroClosedK"))}</div>
+           <div class="caveat-b" style="font-size:15px">${esc(t("heroClosedB"))}
+             ${(c.frozen && c.taken_at)
+               ? esc(t("heroClosedWhen", {d: fechaCorta(c.taken_at)})) + " " : ""}
+             <a href="/timeline">${esc(t("heroClosedLink"))}</a></div>
+         </div>`
+      : "";
+  }
+
   let f1;
   if(!c)          f1 = `<div class="hcard">${skel(56)}</div>`;
   else if(!c.ok)  f1 = `<div class="hcard"><div class="hlab">${esc(t("heroChainQ"))}</div>
@@ -1949,7 +1989,7 @@ function renderHeroStatus(){
         ? `<div class="cdfoot o">${esc(t("cdInWindow"))}</div>` : ""}
     </div>`;
     el.innerHTML   = `<div class="hgrid">${f1}</div>`;
-    elcd.innerHTML = `<div class="hgrid">${f2v}</div>`;
+    elcd.innerHTML = cerrado ? "" : `<div class="hgrid">${f2v}</div>`;
     return;
   }
 

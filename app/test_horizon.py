@@ -154,6 +154,63 @@ comprobar("y ahi un paron suyo si degrada el ritmo, como debe",
           m3 is not None and m4 is not None and m4 > m3,
           "%s -> %s" % (m3, m4))
 
+# --- 5. EL DIA QUE EL NODO KNOTS SE SUSTITUYE POR UN CORE.
+#        Los dos siguen la misma cadena, el hash coincide a la misma altura y
+#        hay un `split_height` guardado. De ahi salia "reunified", o sea el
+#        panel anunciando que las cadenas se han vuelto a unir. Falso, y con
+#        forma de buena noticia, que es lo que hace que nadie la discuta.
+def dos_cores(ahora):
+    nodos = {
+        "core": NodoFalso(965613, "maj", ahora - 300, aplica=False),
+        # Mismo rama que el otro: ya no sigue la del BIP-110.
+        "knots": NodoFalso(965613, "maj", ahora - 300, aplica=False),
+    }
+    main._rpc = lambda n: nodos[n]
+    main._node_configured = lambda n: True
+    main._load_state = lambda: {"split_height": CORTE, "split_time": T_CORTE,
+                                "split_hashes": {"core": "a", "knots": "b"}}
+    main._save_state = lambda s: None
+    main.transport_of = lambda u: "tor"
+    main._active_url = lambda n: ""
+    main.time = FakeTime(ahora)
+    return main._build_chains()
+
+
+d5 = dos_cores(AHORA)
+comprobar("sin nodo BIP-110 NO se anuncia una reunificacion",
+          d5.get("state") != "reunified", "state=%s" % d5.get("state"))
+comprobar("se dice que este panel ha dejado de mirar",
+          d5.get("watching") is False, "watching=%s" % d5.get("watching"))
+comprobar("y por que", d5.get("watch_reason") == "no_bip110_node",
+          d5.get("watch_reason"))
+comprobar("no se inventa una cadena minoritaria que ya nadie sigue",
+          d5.get("minority") is None)
+comprobar("y la prueba del corte que si se midio se conserva",
+          bool(d5.get("split_hashes")) and d5.get("split_height") == CORTE)
+
+# Y la otra mitad: con un nodo que SI aplica, una coincidencia real de hashes
+# sigue siendo una reunificacion de verdad. Sin esto, la guardia de arriba
+# podria estar apagando el estado entero y nadie se enteraria.
+def reunion_de_verdad(ahora):
+    nodos = {
+        "core": NodoFalso(965613, "maj", ahora - 300, aplica=False),
+        "knots": NodoFalso(965613, "maj", ahora - 300, aplica=True),
+    }
+    main._rpc = lambda n: nodos[n]
+    main._node_configured = lambda n: True
+    main._load_state = lambda: {"split_height": CORTE, "split_time": T_CORTE,
+                                "split_hashes": {"core": "a", "knots": "b"}}
+    main._save_state = lambda s: None
+    main.transport_of = lambda u: "tor"
+    main._active_url = lambda n: ""
+    main.time = FakeTime(ahora)
+    return main._build_chains()
+
+
+d6 = reunion_de_verdad(AHORA)
+comprobar("con un nodo que si aplica, una reunificacion real se reporta",
+          d6.get("state") == "reunified", "state=%s" % d6.get("state"))
+
 main.time = reloj_real
 print()
 if fallos:

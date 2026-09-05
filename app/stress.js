@@ -589,6 +589,25 @@ const ESCENARIOS = {
                     blocks_since_split: 7 } } }),
       nodes: nodes() },
 
+  /* LA FOTO FIJA, que es como se queda el sitio.
+     Sin nodos detras: todo sale de `snapshot.json`. Lo que hay que ver aqui
+     es que la pagina diga de cuando es la foto. Una foto sin fecha se lee
+     como si fuera de ahora, y entonces el cartel de "ya no se actualiza"
+     compite con unas cifras que parecen frescas. */
+  "el sitio congelado, sirviendo la foto final":
+    { params, miners: miners(), history: history([0.35, 0.79, 0.45, 0.99, 1.29]),
+      pools: pools(),
+      chain: chain({ state: "split", extra: {
+        frozen: true, taken_at: 1788700000, watching: false,
+        watch_reason: "no_bip110_node",
+        majority: undefined, minority: undefined,
+        nodes: { core: { ok: true, subversion: "/Satoshi:31.1.0/", tip: 965613,
+                         hash: HASH_A, chainwork: "ff", via: "tor", enforces: false },
+                 knots: { ok: true, subversion: "/Satoshi:31.1.0/", tip: 965613,
+                          hash: HASH_A, chainwork: "ff", via: "tor",
+                          enforces: false } } } }),
+      nodes: nodes() },
+
   "la cadena minoritaria acumula mas trabajo que la mayoritaria":
     { params, miners: miners({ scanned: 2016, sig: 1400 }),
       history: history([20, 35, 48, 56, 62]),
@@ -699,7 +718,12 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
      asi que se comprueba aparte y no basta con que el resto pase.
      Tres cosas: que exista siempre, que no contradiga al resto de la
      pagina, y que no promocione de nivel una estimacion. */
-  const hero = ((dom.els.herostat && dom.els.herostat._html) || "") +
+  /* El heroe son ahora TRES contenedores. El del cierre se añadio despues, y
+     dejarlo fuera de aqui habria hecho que las comprobaciones del heroe
+     mirasen media pieza sin decirlo, que es como se cuelan las que no
+     protegen de nada. */
+  const hero = ((dom.els.heroclosed && dom.els.heroclosed._html) || "") +
+               ((dom.els.herostat && dom.els.herostat._html) || "") +
                ((dom.els.herocd   && dom.els.herocd._html)   || "");
 
   /* Un nodo parado no puede pasar por "todo coincide".
@@ -848,6 +872,23 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
         err("se publica el paron mayor de una cadena que no estamos mirando");
     }
 
+    /* CERRADO SE DICE AL ENTRAR, NO AL FINAL.
+       El aviso estaba al pie y habia que bajar la pagina entera para saber
+       que esto ya no lee de los nodos. Ahora va en el heroe, y por eso se
+       comprueba en el heroe: en otro sitio no cumple su funcion. */
+    const cc = datos.chain;
+    if (cc && cc.ok &&
+        (cc.watching === false ||
+         ((cc.minority || {}).measurable === false && vista === "split"))) {
+      if (!hero.includes(panel.t("heroClosedK")))
+        err("el panel ha dejado de medir y el heroe no lo dice");
+      /* Y si ademas esta congelado, la fecha de la foto. Sin ella el lector
+         no tiene forma de saber si esas cifras son de hoy o de hace meses. */
+      if (cc.frozen && cc.taken_at &&
+          !hero.includes(panel.t("heroClosedWhen", { d: "" }).split("{")[0].trim().slice(0, 20)))
+        err("el sitio sirve una foto y no dice de cuando es");
+    }
+
     const c = datos.chain;
     if (c && c.ok && !c.single_node && !c.degraded) {
       const una = panel.t("oneChainKicker");
@@ -949,9 +990,15 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
            exige ninguna cifra. Este mismo `else` caia a `blocks_away` y
            obligaba al heroe a imprimir la cuenta de la cadena mayoritaria,
            o sea que la prueba defendia el fallo en vez de cazarlo. */
-        const n = (mn && mn.tip != null && hm.height != null)
+        /* Y si esa rama ya no se puede medir, tampoco se exige la cuenta:
+           el hito ocurre alli, y contarlo en la cadena de al lado es el
+           mismo error que se quito el 2026-08-22 por otra puerta. Lo que si
+           se exige, mas abajo, es que el panel diga que ha dejado de medir. */
+        const ciega = !!(mn && mn.measurable === false) ||
+                      !!(datos.chain && datos.chain.watching === false);
+        const n = (mn && mn.tip != null && hm.height != null && !ciega)
                 ? Math.max(0, hm.height - mn.tip)
-                : partido ? null : hm.blocks_away;
+                : (partido || ciega) ? null : hm.blocks_away;
         /* Sin separadores de millar: el panel escribe 1.733 en castellano y
            1,733 en ingles, asi que comparar el numero crudo fallaba siempre.
            Se comparan digitos con digitos. */

@@ -423,8 +423,49 @@ def _cuota_observada():
     return b / float(a + b)
 
 
+# LA FOTO FIJA.
+#
+# El observador se termino el 2026-09-05. Con el panel siguiendo vivo contra
+# los nodos pasaba algo incoherente: la pagina decia "esto ya no se actualiza"
+# mientras la altura de bloque subia sola delante del lector. Un cartel que la
+# propia pagina desmiente no lo cree nadie, y con razon.
+#
+# Con FROZEN, ningun endpoint habla ya con un nodo: se sirve lo que hay en
+# `snapshot.json`, tal cual se midio, con la fecha de la foto dentro. Es lo
+# que convierte el sitio en un registro en vez de en un panel averiado.
+#
+# Se deshace quitando la variable. La foto se hace con `snapshot.py`.
+FROZEN = os.environ.get("FROZEN", "false").lower() in ("1", "true", "yes")
+_SNAPSHOT_FILE = os.path.join(CACHE_DIR, "snapshot.json") if CACHE_DIR else None
+
+
+def _load_snapshot():
+    if not _SNAPSHOT_FILE or not os.path.exists(_SNAPSHOT_FILE):
+        return {}
+    try:
+        with open(_SNAPSHOT_FILE, encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return {}
+
+
+SNAPSHOT = _load_snapshot() if FROZEN else {}
+
+
 def _cached_bg(key, builder, node=DEFAULT_NODE):
     """Como _cached, pero sin hacer esperar nunca a quien pregunta."""
+    # Congelado: se devuelve la foto y no se toca el nodo. `frozen` y
+    # `taken_at` van dentro para que la interfaz pueda decir de cuando es;
+    # una foto que no dice su fecha se lee como si fuera de ahora.
+    if FROZEN:
+        guardado = (SNAPSHOT.get("endpoints") or {}).get(key)
+        if guardado is not None:
+            out = dict(guardado)
+            out["frozen"] = True
+            out["taken_at"] = SNAPSHOT.get("taken_at")
+            return out
+        return {"ok": False, "frozen": True, "taken_at": SNAPSHOT.get("taken_at"),
+                "error": "este dato no entro en la foto final"}
     ck = f"{key}:{node}"
     with _lock:
         e = _cache.get(ck)
@@ -1281,6 +1322,38 @@ def _build_chains():
         out["detalle"] = _detalle(e)
         return out
 
+    # DEJAR DE MIRAR NO ES QUE SE HAYAN JUNTADO.
+    #
+    # Este panel compara dos cadenas porque uno de sus nodos aplica el
+    # BIP-110 y por tanto sigue la otra rama. El dia que ese nodo se
+    # sustituye por uno normal, los dos coinciden en el hash a la misma
+    # altura, `same` es True, hay un `split_height` guardado, y de ahi salia
+    # "reunified": el panel habria anunciado que las cadenas se han vuelto a
+    # unir. Es rotundamente falso, y es la peor forma de fallar que tiene
+    # este proyecto, porque suena a buena noticia y nadie la discute.
+    #
+    # No hay reunificacion: hay un observador menos. Se conserva el ultimo
+    # estado medido y se dice que la comparacion se acabo, igual que con el
+    # cambio de proof of work. Un hash que coincide entre dos nodos que
+    # siguen las MISMAS reglas no prueba nada sobre una tercera cadena.
+    vigila = any((out["nodes"].get(n) or {}).get("enforces") for n in rpcs)
+    if same and saved.get("split_height") and not vigila:
+        out["state"] = "split"
+        out["watching"] = False
+        out["watch_reason"] = "no_bip110_node"
+        out["common_height"] = common
+        out["split_height"] = saved.get("split_height")
+        out["split_hashes"] = saved.get("split_hashes")
+        if saved.get("split_time"):
+            out["split_time"] = saved["split_time"]
+            out["split_seconds_ago"] = int(time.time()) - saved["split_time"]
+        out["majority"] = None
+        out["minority"] = None
+        out["same_chain"] = False
+        out["note"] = ("Ningun nodo de este panel aplica ya el BIP-110, asi que "
+                       "su cadena no se puede comparar desde aqui.")
+        return out
+
     if same:
         out["state"] = "reunified" if saved.get("split_height") else "pre_split"
         out["common_height"] = common
@@ -1857,6 +1930,9 @@ def _calentar():
         # /api/health entra aqui desde que se sirve de cache: sin calentarla,
         # el healthcheck de Docker se encuentra el "calculando" del primer
         # arranque y da el contenedor por enfermo estando sano.
+        # Congelado no hay nada que calentar: no se va a preguntar al nodo.
+        if FROZEN:
+            return
         for nombre, ruta in (("chain", "/api/chain"), ("miners", "/api/miners"),
                              ("history", "/api/history"), ("pools", "/api/pools"),
                              ("nodes", "/api/nodes"), ("health", "/api/health"),
