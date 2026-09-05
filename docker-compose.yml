@@ -61,8 +61,17 @@ services:
       CHAIN_TIMEOUT: "${CHAIN_TIMEOUT:-240}"
       HISTORY_TTL: "${HISTORY_TTL:-3600}"
 
-      # Explicito a proposito. Aqui viven los periodos cerrados y la altura
-      # de separacion, que NO se puede perder: es un hecho historico.
+      # LA FOTO FIJA. Con esto en true no se habla con ningun nodo: se
+      # sirve /data/snapshot.json, que hace `snapshot.py`. Se declara aqui
+      # porque este fichero enumera las variables una a una, y sin la linea
+      # la de `.env` no llega al contenedor y el sitio seguiria vivo
+      # creyendose congelado.
+      FROZEN: "${FROZEN:-false}"
+      TIMELINE_TTL: "${TIMELINE_TTL:-86400}"
+
+      # Explicito a proposito. Aqui viven los periodos cerrados, la altura
+      # de separacion, el cronograma y la foto final, que NO se pueden
+      # perder: son hechos historicos y ya no se pueden volver a medir.
       CACHE_DIR: "/data"
 
     volumes:
