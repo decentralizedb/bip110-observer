@@ -39,7 +39,7 @@ import main                                                  # noqa: E402
 # mismos que usa la aplicacion: la foto no puede salir de un camino distinto
 # del que se esta fotografiando.
 PIEZAS = [
-    ("chain",    lambda: main._build_chains()),
+    ("chains",   lambda: main._build_chains()),
     ("miners",   lambda: main._build_miners(main.DEFAULT_NODE)),
     ("pools",    lambda: main._build_pools(main.DEFAULT_NODE)),
     ("history",  lambda: main._build_history(main.DEFAULT_NODE)),
@@ -49,6 +49,21 @@ PIEZAS = [
 
 
 def main_():
+    # LA CLAVE TIENE QUE SER LA QUE LEE LA APLICACION, Y ESTO YA FALLO.
+    #
+    # La primera version guardaba "chain" y `/api/chain` lee "chains". La
+    # foto se escribia entera y sin quejarse, y el endpoint caia al respaldo
+    # como si ese dato no se hubiera medido nunca. Un fallo mudo, con el
+    # sitio ya congelado, o sea en el peor momento para descubrirlo.
+    #
+    # `TTL` es la lista de claves reales, asi que se comprueba contra ella y
+    # no contra una copia de esta lista, que es lo que se salio de sitio.
+    desconocidas = [n for n, _ in PIEZAS if n not in main.TTL]
+    if desconocidas:
+        print("Estas claves no las lee nadie: %s" % ", ".join(desconocidas))
+        print("Las que existen son: %s" % ", ".join(sorted(main.TTL)))
+        return 1
+
     salida = {"taken_at": int(time.time()), "endpoints": {}}
     fallos = []
     for nombre, hacer in PIEZAS:
