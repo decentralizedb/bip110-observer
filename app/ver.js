@@ -112,9 +112,15 @@ const texto = h => String(h || "")
   console.log("=".repeat(70));
 
   const secciones = [
+    /* `fresh` y `heroclosed` se añadieron despues y no estaban aqui, asi
+       que esta herramienta enseñaba la pagina sin su sello de frescura y
+       sin el cartel de cierre: justo las dos piezas que discutian entre
+       si. Una herramienta que enseña media pagina da por revisado lo que
+       nadie ha visto. */
     ["CABECERA", ["fresh-txt"]],
-    ["HEROE", ["dk-answerQ", "dk-answerA", "dk-answerLead", "herostat",
-               "dk-riskKicker", "dk-riskShort", "herocd", "dk-boundary"]],
+    ["HEROE", ["dk-answerQ", "dk-answerA", "dk-answerLead", "heroclosed",
+               "herostat", "dk-riskKicker", "dk-riskShort", "herocd",
+               "dk-boundary"]],
     ["LA CADENA", ["dk-chainTitle", "dk-chainMethod", "chain"]],
     ["LAS TRES FECHAS", ["dk-tlTitle", "tl"]],
     ["EL RECORRIDO", ["dk-strTitle", "strlead", "strrails", "strrows"]],

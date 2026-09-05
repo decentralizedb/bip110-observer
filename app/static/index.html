@@ -131,6 +131,23 @@ h3{font-size:20px;font-weight:550}
 /* Aviso anclado. Nunca se colapsa, nunca se esconde. */
 .caveat{border-left:2px solid var(--line2);padding-left:14px;margin-top:16px}
 .caveat--sample{border-left-color:var(--orange)}
+/* EL CARTEL DE CIERRE.
+   Estaba puesto como un `caveat`, o sea con la misma forma que las notas al
+   pie de cada seccion, y Nobody entraba en la pagina y no lo veia. Tenia
+   razon: si algo tiene forma de nota al pie se lee como nota al pie, por
+   mucho que este arriba. Esto no es el matiz de un dato, es el estado de
+   todo el sitio, asi que se pinta como lo que es.
+   El naranja ya significa "muestra sesgada" en este panel, asi que aqui es
+   solo el borde de un aviso: no lleva pastilla de nivel al lado que se
+   pudiera confundir con una. */
+.closedbar{margin-top:16px;border:1px solid var(--orange);border-left-width:4px;
+  border-radius:10px;background:rgba(var(--orange-rgb),.09);padding:14px 16px}
+.closedbar .k{font-size:13px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--orange-t)}
+.closedbar .b{font-size:15px;color:var(--txt2);margin-top:6px;max-width:64ch}
+.closedbar a{color:var(--orange-t);font-weight:600;white-space:nowrap}
+/* Y el sello de la cabecera deja de latir cuando no hay latido. */
+.fresh.frozen .dot{animation:none}
 .caveat--est{border-left-color:var(--blue)}
 .caveat--ok{border-left-color:var(--green)}
 .caveat-k{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim2)}
@@ -839,9 +856,12 @@ en: {
  footerTime:"Timeline", footerTimeSub:"Every date, and where the measuring ends",
  vitHorizon:"counted up to block {h}, where this chain changed its mining rules and left what this panel can measure",
  heroClosedWhen:"The figures on this page are the ones measured on {d}.",
+ freshFrozen:"Fixed snapshot. This panel is no longer updated.",
+ freshFrozenAt:"Snapshot of {d}. This panel is no longer updated.",
+ forkHorizon:"measured up to block {h}",
  navTimeline:"Timeline",
- heroClosedK:"This panel is no longer being updated",
- heroClosedB:"It was built to measure whether BIP-110 could split Bitcoin into two chains. That question has an answer: it split the minority that chose other rules, and that minority later moved to a different proof of work, which makes it a different coin. There is nothing of theirs left to read from here, so the figures below are the last ones measured.",
+ heroClosedK:"This observatory has finished its work",
+ heroClosedB:"It was built to measure whether BIP-110 could split Bitcoin into two chains. That question has an answer: it split the minority that chose other rules, and that minority later moved to a different proof of work, which makes it a different coin. There is nothing of theirs left to read from here, so this panel is being retired and kept as a record.",
  heroClosedLink:"See the full timeline →",
  splitBlockShare:"Blocks since the split", blockPace:"A block every",
  lastBlock:"last block {t}",
@@ -1121,9 +1141,12 @@ es: {
  footerTime:"Cronograma", footerTimeSub:"Todas las fechas, y dónde se acaba la medición",
  vitHorizon:"contados hasta el bloque {h}, donde esta cadena cambió sus reglas de minado y salió de lo que este panel puede medir",
  heroClosedWhen:"Las cifras de esta página son las que se midieron el {d}.",
+ freshFrozen:"Foto fija. Este panel ya no se actualiza.",
+ freshFrozenAt:"Foto del {d}. Este panel ya no se actualiza.",
+ forkHorizon:"medido hasta el bloque {h}",
  navTimeline:"Cronograma",
- heroClosedK:"Este panel ya no se actualiza",
- heroClosedB:"Se hizo para medir si el BIP-110 podía partir Bitcoin en dos cadenas. Esa pregunta ya tiene respuesta: partió a la minoría que eligió otras reglas, y esa minoría se fue después a otra prueba de trabajo, o sea a otra moneda. Ya no queda nada suyo que leer desde aquí, así que las cifras de abajo son las últimas medidas.",
+ heroClosedK:"Este observatorio ha terminado",
+ heroClosedB:"Se hizo para medir si el BIP-110 podía partir Bitcoin en dos cadenas. Esa pregunta ya tiene respuesta: partió a la minoría que eligió otras reglas, y esa minoría se fue después a otra prueba de trabajo, o sea a otra moneda. Ya no queda nada suyo que leer desde aquí, así que este panel se retira y se queda como registro.",
  heroClosedLink:"Ver el cronograma completo →",
  splitBlockShare:"Bloques desde el corte", blockPace:"Un bloque cada",
  lastBlock:"último bloque {t}",
@@ -1498,6 +1521,22 @@ function coalitionVars(){
    no. */
 let ULTIMA_ALTURA = null;
 
+/* ESTA PAGINA YA NO SE ACTUALIZA: UNA SOLA DECISION, EN UN SOLO SITIO.
+   Se consulta desde la cabecera, el heroe y el diagrama de la bifurcacion.
+   Repartida, cada uno la tomaba a su manera y la pagina decia a la vez
+   "leido hace 1 min" y "esto ya no se actualiza". Es el mismo patron que
+   ya paso con "se esta calculando", que siete renderizadores decidian por
+   su cuenta y cinco lo hacian mal.
+   Dos motivos, misma conclusion para el lector: o la rama que seguiamos se
+   fue de donde podemos medir, o el sitio sirve ya una foto fija. */
+function cierre(){
+  const c = DATA.chain;
+  if(!(c && c.ok)) return null;
+  const min = c.minority || null;
+  if(!(c.watching === false || (min && min.measurable === false))) return null;
+  return {frozen: !!c.frozen, taken_at: c.taken_at || null};
+}
+
 function paintFresh(){
   const el = $("fresh"), dot = $("fresh-dot"), txt = $("fresh-txt");
   if(!el) return;
@@ -1509,6 +1548,22 @@ function paintFresh(){
   el.removeAttribute("hidden");
 
   const seg = upd ? Math.max(0, Math.round(Date.now()/1000 - upd)) : null;
+  const cerr = cierre();
+  if(cerr && cerr.frozen){
+    /* Un sello de frescura en una pagina que ya no se refresca es una
+       mentira pequeña y muy visible: va arriba del todo y es lo primero
+       que mira quien quiere saber si esto esta vivo. */
+    txt.textContent = cerr.taken_at
+      ? t("freshFrozenAt", {d: fechaCorta(cerr.taken_at)})
+      : t("freshFrozen");
+    // Y mientras no este congelado, el sello sigue diciendo la verdad: ese
+    // dato ES fresco, porque la cadena mayoritaria se sigue leyendo.
+    dot.classList.remove("live");
+    dot.classList.add("old");
+    el.classList.add("frozen");
+    return;
+  }
+  el.classList.remove("frozen");
   txt.textContent = t("freshAt", {h: fmt(tip), ago: hace(seg)});
 
   // Naranja si lleva mas de tres veces su propio TTL sin moverse.
@@ -1698,8 +1753,14 @@ function forkDiagram(d){
   if(maj.tip == null || min.tip == null) return "";
   const rama = (s, clave, naranja) => {
     const n = s.blocks_since_split;
-    const desde = hace(s.seconds_since_last_block);
-    const pie = [t(clave)].concat(desde ? [t("lastBlock", {t: desde})] : []).join(" · ");
+    /* Y aqui tambien: si esa rama ya no se puede medir, no se publica
+       cuanto lleva sin bloques. Este era el tercer sitio con el mismo
+       fallo, y el que quedaba vivo despues de arreglar los otros dos. */
+    const desde = s.measurable === false ? null : hace(s.seconds_since_last_block);
+    const pie = [t(clave)]
+      .concat(desde ? [t("lastBlock", {t: desde})] : [])
+      .concat(s.measurable === false ? [t("forkHorizon", {h: fmt(s.horizon_height)})] : [])
+      .join(" · ");
     return `<div class="fk-row">
       <div class="fk-n">${n == null ? "—" : fmt(n) + " " + esc(unidad(n, "block", "blocks"))}</div>
       <div class="fk-t${naranja ? " o" : ""}">${fmt(s.tip)}</div>
@@ -1914,16 +1975,15 @@ function renderHeroStatus(){
      Se calcula aqui porque lo que decida gobierna tambien si la tarjeta de
      vitalidad se queda en el heroe: el sitio hay que pagarlo. */
   const cerr = $("heroclosed");
-  const cMin = (c && c.ok) ? (c.minority || null) : null;
-  const cerrado = !!(c && c.ok &&
-                     (c.watching === false || (cMin && cMin.measurable === false)));
+  const info = cierre();
+  const cerrado = !!info;
   if(cerr){
     cerr.innerHTML = cerrado
-      ? `<div class="caveat caveat--sample" style="margin-top:14px">
-           <div class="caveat-k">${esc(t("heroClosedK"))}</div>
-           <div class="caveat-b" style="font-size:15px">${esc(t("heroClosedB"))}
-             ${(c.frozen && c.taken_at)
-               ? esc(t("heroClosedWhen", {d: fechaCorta(c.taken_at)})) + " " : ""}
+      ? `<div class="closedbar">
+           <div class="k">${esc(t("heroClosedK"))}</div>
+           <div class="b">${esc(t("heroClosedB"))}
+             ${(info && info.taken_at)
+               ? esc(t("heroClosedWhen", {d: fechaCorta(info.taken_at)})) + " " : ""}
              <a href="/timeline">${esc(t("heroClosedLink"))}</a></div>
          </div>`
       : "";
