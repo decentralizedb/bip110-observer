@@ -9,6 +9,30 @@ step, and not one external resource.
 
 ---
 
+## Status: this observatory has finished its work
+
+It was built to measure whether BIP-110 could split Bitcoin's economic
+consensus. It could not. What it split was the minority that chose other
+rules, and on **30 August 2026, at block 961,640**, that minority changed its
+proof of work to BLAKE2b, which makes it a different coin.
+
+That branch produced **eight blocks in twenty days**, all of them from a
+single pool, and stopped one block short of its own hard fork. The majority
+chain produced those same eight in 2.3 hours. Every one of those figures was
+read from this project's own nodes and is on the `/timeline` page, block by
+block, with the moment the measuring ends and why.
+
+From that height onward this project can measure nothing: its node predates
+BLAKE2b and cannot validate a single block there. **A silence we cannot hear
+is not a silence**, so the panel stops counting rather than reporting a stall
+it never observed. What third parties report beyond that line is kept
+separate, dated, attributed, and never mixed with what was measured here.
+
+Run with `FROZEN=true` the site serves a fixed snapshot and talks to no node
+at all. The code still works against live nodes if you point it at your own.
+
+---
+
 ## Why another one
 
 Other BIP-110 dashboards already exist and they are good. They all answer the
@@ -127,6 +151,7 @@ everything green, and never detect a split.
 |---|---|---|---|
 | `/` | | | The dashboard |
 | `/methodology`, `/metodologia` | | | Methodology, sources and limits |
+| `/timeline`, `/cronologia` | | | Dated record of the split, and where the measuring ends |
 | `/api/miners` | Data | 300s | Signalling in the current period |
 | `/api/history` | Data | 3600s | Closed periods, with pool attribution |
 | `/api/chain` | Data | 60s | State of the two chains |
@@ -135,9 +160,17 @@ everything green, and never detect a split.
 | `/api/simulate?share=0.02` | Estimate | | One off calculation |
 | `/api/params` | | | Parameters in use |
 | `/api/health` | | | Both nodes, and warnings |
+| `/api/timeline` | Data + external | 86400s | The split block by block, then what others report |
 
 `/api/miners`, `/api/pools` and `/api/nodes` accept `?node=core|knots` and
 default to `core`.
+
+With `FROZEN=true` every one of these is served from `CACHE_DIR/snapshot.json`
+and no node is contacted. Each response then carries `frozen` and `taken_at`,
+and the page shows the date: a photograph that does not say when it was taken
+reads as if it were now. Take the snapshot with `python3 app/snapshot.py`
+**while both nodes are still running**; afterwards the BIP-110 branch cannot
+be measured again by anyone who did not record it.
 
 ---
 
