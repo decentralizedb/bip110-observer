@@ -81,7 +81,7 @@ footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);color:v
 .horizon h2{color:var(--orange-t)}
 .zone-ext{opacity:.92}
 .zone-ext table{border-left:2px dashed var(--line);padding-left:10px}
-.src{font-size:12px;color:var(--dim2);white-space:nowrap}
+.src{font-size:12px;color:var(--dim2)}
 .gap-big{color:var(--orange-t);font-weight:600}
 td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 .check{border:1px solid rgba(var(--green-rgb),.35);background:rgba(var(--green-rgb),.07);border-radius:10px;padding:14px 16px;margin-top:14px}
@@ -90,6 +90,36 @@ td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 .closed{border:1px solid var(--orange);border-radius:10px;padding:14px 16px;margin-top:18px;background:rgba(var(--orange-rgb),.07)}
 .closed .k{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--orange-t)}
 [hidden]{display:none!important}
+
+/* EN MOVIL CADA FILA ES UNA FICHA.
+   Cuatro columnas no caben en un telefono, y el scroll lateral esconde justo
+   la fuente de cada cifra. Sin cabecera de tabla, lo que no se explica solo
+   lleva su rotulo en `data-l`. */
+@media (max-width:40rem){
+  table,tbody,tr,td{display:block;width:100%}
+  table{overflow:visible}
+  thead{display:none}
+  tr{padding:11px 0;border-bottom:1px solid var(--line)}
+  th,td{padding:0;border:0}
+  td.num{white-space:normal}
+  td[data-l]::before{content:attr(data-l) " ";color:var(--dim2);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+
+  .t-doc td:first-child{font-size:13px;font-weight:650;color:var(--orange-t);margin-bottom:2px}
+
+  .t-blocks tr{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:baseline}
+  .t-blocks td{width:auto}
+  .t-blocks td:nth-child(1){grid-area:1/1;font-size:17px;font-weight:650}
+  .t-blocks td:nth-child(4){grid-area:1/2;text-align:right}
+  .t-blocks td:nth-child(2){grid-area:2/1;color:var(--dim)}
+  .t-blocks td:nth-child(3){grid-area:2/2;text-align:right}
+
+  .zone-ext table{padding-left:12px}
+  .t-ext td:nth-child(1){color:var(--dim);font-size:14px}
+  .t-ext td:nth-child(2){font-size:18px;font-weight:650;color:var(--txt);overflow-wrap:anywhere}
+  .t-ext td.src:nth-child(2){font-size:14px;font-weight:400;color:var(--dim)}
+  .t-ext td:nth-child(3),.t-ext td:nth-child(4){font-size:13px;margin-top:3px}
+  .t-ext .src{display:inline;margin-left:6px}
+}
 </style>
 </head>
 <body>
@@ -121,14 +151,14 @@ td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 <section>
   <h2 data-k="t2"></h2>
   <p data-k="p2"></p>
-  <table><tbody id="docrows"></tbody></table>
+  <table class="t-doc"><tbody id="docrows"></tbody></table>
 </section>
 
 <section>
   <h2 data-k="t3"></h2>
   <span class="pill p-data" data-k="tagData"></span>
   <p data-k="p3"></p>
-  <table>
+  <table class="t-blocks">
     <thead><tr><th data-k="thHeight"></th><th data-k="thWhen"></th>
       <th data-k="thGap"></th><th data-k="thPool"></th></tr></thead>
     <tbody id="blockrows"></tbody>
@@ -148,7 +178,7 @@ td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
   <h2 data-k="t5"></h2>
   <span class="pill p-ext" data-k="tagExt"></span>
   <p data-k="p5"></p>
-  <table>
+  <table class="t-ext">
     <thead><tr><th data-k="thWhat"></th><th data-k="thValue"></th>
       <th data-k="thAsOf"></th><th data-k="thSource"></th></tr></thead>
     <tbody id="extrows"></tbody>
@@ -411,7 +441,7 @@ function pintarBloques(){
     const g = b.gap_sec;
     return '<tr><td class="num">' + esc(nf(b.height, 0)) + '</td>' +
       '<td class="num">' + esc(fechaUTC(b.time, true)) + '</td>' +
-      '<td class="num' + (g && g >= grande ? ' gap-big' : '') + '">' +
+      '<td class="num' + (g && g >= grande ? ' gap-big' : '') + '" data-l="' + esc(t("thGap")) + '">' +
       esc(g == null ? "—" : nf(g / 3600, 1) + " h") + '</td>' +
       '<td>' + esc(b.pool || "—") + '</td></tr>';
   }).join("");
@@ -440,8 +470,8 @@ function pintarExternos(){
     const nota = c.derived ? '<div class="src">' + esc(t("derived")) + '</div>' : "";
     return '<tr><td>' + esc(t(c.key, {algo: (TL.horizon || {}).algo || ""})) + nota + '</td>' +
       '<td class="num">' + esc(valorClaim(c)) + '</td>' +
-      '<td class="num">' + esc(fechaISO(c.as_of)) + '</td>' +
-      '<td><a href="' + esc(f.url || "#") + '" rel="noopener nofollow">' + esc(f.name || "") +
+      '<td class="num" data-l="' + esc(t("thAsOf")) + '">' + esc(fechaISO(c.as_of)) + '</td>' +
+      '<td data-l="' + esc(t("thSource")) + '"><a href="'+ esc(f.url || "#") + '" rel="noopener nofollow">' + esc(f.name || "") +
       '</a><div class="src">' + esc(interes) + '</div></td></tr>';
   });
   /* LO QUE NO SE ENCONTRO VA EN LA TABLA, NO OMITIDO.

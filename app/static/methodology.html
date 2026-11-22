@@ -70,6 +70,16 @@ th{color:var(--dim2);font-weight:600;font-size:13px;text-transform:uppercase;let
 footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim2);font-size:13px;max-width:66ch}
 :focus-visible{outline:2px solid var(--orange-t);outline-offset:2px}
 [hidden]{display:none!important}
+/* En movil cada nivel es una ficha, sin scroll lateral. */
+@media (max-width:40rem){
+  table,tbody,tr,td{display:block;width:100%}
+  table{overflow:visible}
+  tr:first-child{display:none}
+  tr{padding:12px 0;border-bottom:1px solid var(--line)}
+  td{padding:0;border:0;margin-top:5px}
+  td:first-child{margin-top:0}
+  td[data-l]::before{content:attr(data-l) ": ";color:var(--dim2);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+}
 </style>
 </head>
 <body>
@@ -526,6 +536,7 @@ function paint(){
     for(const [a,b] of Object.entries(vars)) v = v.split("{"+a+"}").join(b);
     el.textContent = v;
   });
+  document.querySelectorAll('td[data-k$="w"]').forEach(el => { el.dataset.l = D.thWhere; });
   document.getElementById("l-en").setAttribute("aria-pressed", LANG === "en");
   document.getElementById("l-es").setAttribute("aria-pressed", LANG === "es");
   document.title = (LANG === "es" ? "Metodología" : "Methodology") + " · BIP-110 Observer";

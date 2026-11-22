@@ -78,6 +78,17 @@ header{position:sticky;top:0;z-index:20;background:rgba(var(--bg-rgb), .92);back
 .donate-nav{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;
   border:1px solid var(--line);border-radius:8px;color:var(--dim);font-size:14px;text-decoration:none}
 .donate-nav:hover{border-color:var(--orange);color:var(--orange-t)}
+/* Con texto, esta fila mide unos 470 px y ensanchaba la pagina entera en un
+   telefono. Se queda en iconos y una sola fila, para no quitarle alto al
+   heroe. El texto sigue ahi para lectores de pantalla. */
+@media (max-width:36rem){
+  /* Fija, esta cabecera se comia 170 de los 778 px visibles al leer. */
+  header{position:static}
+  nav{width:100%;justify-content:space-between}
+  .lang{padding:0}
+  .donate-nav{position:relative;justify-content:center;min-width:44px;padding:0}
+  .donate-nav span[data-k]{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+}
 
 .donate{margin-top:56px;background:linear-gradient(180deg,rgba(var(--orange-rgb), .08),rgba(var(--orange-rgb), .02));
   border:1px solid rgba(var(--orange-rgb), .28);border-radius:12px;padding:24px;scroll-margin-top:96px}
@@ -504,6 +515,14 @@ footer p+p{margin-top:8px}
   <p class="a" data-k="answerA"></p>
   <p class="lead" data-k="answerLead"></p>
 
+  <!-- EL AVISO DE ESTAFAS VA PRIMERO. Detras del cartel de cierre quedaba a
+       1.168 px en un movil de 778 visibles. Es lo unico de la pagina que
+       puede costarle dinero al lector, asi que no puede caer del pliegue. -->
+  <div class="caveat caveat--sample">
+    <div class="caveat-k" data-k="riskKicker"></div>
+    <div class="caveat-b" style="font-size:15px" data-k="riskShort"></div>
+  </div>
+
   <!-- QUE SE SEPA AL ENTRAR, NO AL FINAL.
        Este aviso estaba al pie y habia que bajar la pagina entera, y luego
        abrir el cronograma, para enterarse de que el panel ya no lee de los
@@ -530,11 +549,6 @@ footer p+p{margin-top:8px}
        caber, lo que cae es lo ultimo, asi que lo que no puede caer se
        pone antes. Saber cuanto falta puede esperar un scroll; saber que
        nadie te va a pedir la frase semilla, no. -->
-  <div class="caveat caveat--sample">
-    <div class="caveat-k" data-k="riskKicker"></div>
-    <div class="caveat-b" style="font-size:15px" data-k="riskShort"></div>
-  </div>
-
   <!-- Y cuando es lo siguiente. -->
   <div id="herocd"><div class="skel" style="margin-top:16px;height:150px"></div></div>
 
