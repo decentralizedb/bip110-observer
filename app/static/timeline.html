@@ -140,6 +140,8 @@ td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
   <h2 data-k="t4"></h2>
   <p data-k="p4a"></p>
   <p data-k="p4b"></p>
+  <div class="caveat"><div class="caveat-k" data-k="k4c"></div>
+    <div class="caveat-b" data-k="b4c"></div></div>
 </section>
 
 <section class="zone-ext">
@@ -168,6 +170,7 @@ td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 </section>
 
 <footer><p data-k="foot"></p>
+  <p data-k="cutoff"></p>
   <p style="margin-top:8px"><a href="/methodology" data-k="toMeth"></a></p></footer>
 
 </div>
@@ -181,19 +184,23 @@ en:{
  back:"← Back to the panel",
  t1:"Timeline of the split",
  p1a:"A dated record of what happened, split in two halves: what this panel measured with its own nodes, and what it could no longer measure once the BIP-110 chain changed its proof of work.",
- p1b:"Every figure above the line comes from two Bitcoin nodes run by this project. Every figure below it was published by somebody else, carries their name and the date they said it, and cannot be checked from here.",
+ p1b:"Every measured figure above the line comes from two Bitcoin nodes run by this project, and the documented dates can be checked in public repositories. Every figure below it was published by somebody else, carries their name and the date they said it, and cannot be checked from here.",
  closedK:"This observatory is closed",
  closedB:"It was built to answer whether BIP-110 could split Bitcoin's economic consensus. It could not: it split the minority that chose other rules, and on {forkDate} that minority left for a different proof of work, which makes it a different coin. The question this panel existed to answer has an answer, so the measuring stops here and the record stays up.",
 
- t2:"Before the split",
- p2:"Dates of publication and the heights written in the BIP itself. These are documented, not measured here, and they do not go stale.",
+ t2:"The documented dates",
+ p2:"Publication dates, the heights written in the BIP, and the Knots releases that changed the rules. They can be checked in their repositories and are not measured here.",
  evBipDraft:"The signalling window opens, per the deployment starttime",
  evBipComplete:"BIP-110 reaches status Complete, version 1.0.0",
  evMandatory:"Mandatory signalling begins at block {height}. This is where the chains separate, not where the data rules start",
- evLockin:"Forced LOCKED_IN at block {height}",
- evActive:"Data rules would take effect at block {height}",
+ evLockin:"Original plan: forced LOCKED_IN at block {height}. It never applied, because that deployment was removed",
+ evActive:"Original plan: data rules from block {height}. It never applied, because they moved to the proof of work change",
+ evBipClosed:"The BIP repository marks BIP-110 as Closed, following a chain split with stalled mining",
  evDraw:"Two public draws to pick the new hash algorithm. Both commitments held; neither rule closed",
- evRc4:"Knots 29.4.1rc4 schedules the proof of work change at block {height}",
+ evRc4:"Knots 29.4.1rc4 schedules the proof of work change at block {height}, and the data rules start applying at that same block",
+ evKnots2941:"Knots 29.4.1 final: blocks of up to {weight} weight units, data rules until {until}, and optional replay protection in signatures",
+ evKnots2942:"Knots 29.4.2: rewards mined from block {height} wait {blocks} blocks, about {days} days, before they can be spent",
+ evKnots2943:"Knots 29.4.3: rewards mined from block {height} wait {blocks} blocks, about {days} days",
 
  tagData:"Verifiable data",
  t3:"The split, measured here",
@@ -202,8 +209,11 @@ en:{
  p3b:"{n} blocks in {days} days, all of them mined by the same pool. The majority chain produced those same {n} blocks in {majTime}.",
 
  t4:"Here is where the measuring ends",
- p4a:"At block {fork} the BIP-110 chain switched its proof of work to {algo}. The node this project runs is older, does not implement it, and therefore cannot validate a single block from that height onward.",
+ p4a:"At block {fork} the BIP-110 chain switched its proof of work to {algo}. This project's Knots node was older, did not implement it, and could not validate a single block from that height onward. It was later reinstalled with Bitcoin Core.",
  p4b:"So the panel stops counting here instead of reporting a silence. A chain we cannot see is not a chain that stopped: those are two different claims, and only one of them is ours to make. The pace shown on the panel now ends at the last block above, and does not grow with the clock.",
+
+ k4c:"If you spend on that chain",
+ b4c:"A normal signature on coins older than the split can be valid on both chains. That chain's software offers replay protection, but it is optional, so spending there without it can also move your bitcoin. If you do nothing, this does not affect you.",
 
  tagExt:"External source",
  t5:"What others report beyond the line",
@@ -213,12 +223,13 @@ en:{
  xDiffStart:"Starting difficulty", xDiff1:"First retarget", xDiff2:"Second retarget",
  xDiff3:"Third retarget", xReward:"Reward per block", xFees:"Fees per block",
  xMarket:"Quoted price", xNodes:"Number of nodes",
+ xHashrateWindow:"Network hashrate, implied over two weeks", xDiffLatest:"Latest retarget they publish",
  notFound:"not published anywhere we could find",
  derived:"our subtraction from their rounded figure, so treat it as an order of magnitude",
  interestPromoter:"promotes this chain",
  interestPress:"press",
  k5a:"Their hashrate does not compare with Bitcoin's",
- b5a:"It is a different hash function, so the two numbers are different units wearing the same name. Putting them in one sentence would be the exact mistake this panel exists to avoid, the same one that makes accumulated work uncomparable across the two chains.",
+ b5a:"It is a different hash function, so the two numbers are different units wearing the same name. Putting them in one sentence would be the exact mistake this panel exists to avoid, the same one that makes accumulated work uncomparable across the two chains. The same goes for difficulty, and block height says nothing about work either.",
  k5b:"Both sources have an interest",
  b5b:"The two sites publishing figures are the fork's own promotion site and a site promoting mining it. They do not present themselves as neutral and they are not presented as neutral here.",
 
@@ -227,26 +238,31 @@ en:{
  checkTxt:"{days} days where the target is {target}. {target} divided by {days} gives a fall of {computed}%, against the {claimed}% they publish.",
  p6b:"It matches. What that shows is not that they are reliable: it is that the first difficulty window of their new chain was filled with the twenty days their old chain spent almost stopped. It was born inheriting the difficulty of its own stall.",
 
- foot:"This page is a record of something that finished. The figures above the line can be reproduced by anyone with a Bitcoin node; the ones below it cannot be reproduced from here at all, which is why they are kept apart.",
+ foot:"This page is a record of something that finished. The blocks measured above the line can be checked by anyone with a node that follows that branch; the figures below it cannot be reproduced from here at all, which is why they are kept apart.",
+ cutoff:"Sources reviewed up to {cutoff}. Nothing later is included.",
  toMeth:"How every number on this site is measured →"
 },
 es:{
  back:"← Volver al panel",
  t1:"Cronograma de la separación",
  p1a:"El registro fechado de lo que pasó, partido en dos mitades: lo que este panel midió con sus propios nodos, y lo que dejó de poder medir cuando la cadena del BIP-110 cambió de prueba de trabajo.",
- p1b:"Cada cifra por encima de la línea sale de dos nodos de Bitcoin que lleva este proyecto. Cada cifra por debajo la publicó otro, lleva su nombre y la fecha en que lo dijo, y no se puede comprobar desde aquí.",
+ p1b:"Cada cifra medida por encima de la línea sale de dos nodos de Bitcoin que lleva este proyecto, y las fechas documentadas se pueden comprobar en repositorios públicos. Cada cifra por debajo la publicó otro, lleva su nombre y la fecha en que lo dijo, y no se puede comprobar desde aquí.",
  closedK:"Este observatorio está cerrado",
  closedB:"Se hizo para contestar si el BIP-110 podía partir el consenso económico de Bitcoin. No pudo: partió a la minoría que eligió otras reglas, y el {forkDate} esa minoría se fue a otra prueba de trabajo, lo que la convierte en otra moneda. La pregunta que este panel existía para responder ya tiene respuesta, así que la medición se para aquí y el registro se queda.",
 
- t2:"Antes de la separación",
- p2:"Fechas de publicación y alturas escritas en el propio BIP. Están documentadas, no medidas aquí, y no envejecen.",
+ t2:"Las fechas documentadas",
+ p2:"Fechas de publicación, alturas escritas en el BIP y las versiones de Knots que cambiaron las reglas. Se pueden comprobar en sus repositorios y no están medidas aquí.",
  evBipDraft:"Se abre la ventana de señalización, según el starttime del despliegue",
  evBipComplete:"El BIP-110 pasa a estado Complete, versión 1.0.0",
  evMandatory:"Empieza la señalización obligatoria en el bloque {height}. Aquí se separan las cadenas, no donde entran las reglas de datos",
- evLockin:"LOCKED_IN forzado en el bloque {height}",
- evActive:"Las reglas de datos entrarían en vigor en el bloque {height}",
+ evLockin:"Plan original: LOCKED_IN forzado en el bloque {height}. No llegó a aplicarse, porque ese despliegue se retiró",
+ evActive:"Plan original: reglas de datos desde el bloque {height}. No llegó a aplicarse, porque pasaron al cambio de prueba de trabajo",
+ evBipClosed:"El repositorio de BIPs marca el BIP-110 como Closed, tras una separación de cadenas con el minado parado",
  evDraw:"Dos sorteos públicos para elegir el algoritmo nuevo. Los dos compromisos encajaban; ninguna de las dos reglas cerraba",
- evRc4:"Knots 29.4.1rc4 programa el cambio de prueba de trabajo en el bloque {height}",
+ evRc4:"Knots 29.4.1rc4 programa el cambio de prueba de trabajo en el bloque {height}, y las reglas de datos empiezan a aplicarse en ese mismo bloque",
+ evKnots2941:"Knots 29.4.1 final: bloques de hasta {weight} unidades de peso, reglas de datos hasta el {until} y protección opcional contra la repetición en las firmas",
+ evKnots2942:"Knots 29.4.2: las recompensas minadas desde el bloque {height} esperan {blocks} bloques, unos {days} días, antes de poder gastarse",
+ evKnots2943:"Knots 29.4.3: las recompensas minadas desde el bloque {height} esperan {blocks} bloques, unos {days} días",
 
  tagData:"Dato verificable",
  t3:"La separación, medida aquí",
@@ -255,8 +271,11 @@ es:{
  p3b:"{n} bloques en {days} días, todos del mismo pool. La cadena mayoritaria hizo esos mismos {n} bloques en {majTime}.",
 
  t4:"Aquí se acaba lo que podemos medir",
- p4a:"En el bloque {fork} la cadena del BIP-110 cambió su prueba de trabajo a {algo}. El nodo que lleva este proyecto es anterior, no lo implementa, y por tanto no puede validar ni un bloque a partir de esa altura.",
+ p4a:"En el bloque {fork} la cadena del BIP-110 cambió su prueba de trabajo a {algo}. El nodo Knots de este proyecto era anterior, no lo implementaba y no pudo validar ni un bloque a partir de esa altura. Después se reinstaló con Bitcoin Core.",
  p4b:"Así que el panel deja de contar en vez de publicar un silencio. Una cadena que no podemos ver no es una cadena parada: son dos afirmaciones distintas, y solo una de las dos nos toca hacerla. El ritmo que enseña el panel termina ahora en el último bloque de arriba, y no crece con el reloj.",
+
+ k4c:"Si gastas en esa cadena",
+ b4c:"Una firma normal sobre monedas anteriores a la separación puede ser válida en las dos cadenas. El software de esa cadena ofrece protección contra la repetición, pero es opcional, así que gastar allí sin usarla puede mover también tus bitcoin. Si no haces nada, esto no te afecta.",
 
  tagExt:"Fuente externa",
  t5:"Lo que cuentan otros al otro lado de la línea",
@@ -266,12 +285,13 @@ es:{
  xDiffStart:"Dificultad inicial", xDiff1:"Primer reajuste", xDiff2:"Segundo reajuste",
  xDiff3:"Tercer reajuste", xReward:"Recompensa por bloque", xFees:"Comisiones por bloque",
  xMarket:"Precio cotizado", xNodes:"Número de nodos",
+ xHashrateWindow:"Hashrate de la red, implícito en dos semanas", xDiffLatest:"Último reajuste que publican",
  notFound:"no lo publica nadie que hayamos encontrado",
  derived:"resta nuestra sobre una cifra redondeada por ellos, así que vale como orden de magnitud",
  interestPromoter:"promociona esta cadena",
  interestPress:"prensa",
  k5a:"Su hashrate no se compara con el de Bitcoin",
- b5a:"Es otra función de hash, así que son dos unidades distintas con el mismo nombre. Ponerlas en la misma frase sería exactamente el error que este panel existe para no cometer, el mismo que hace que el trabajo acumulado no se pueda comparar entre las dos cadenas.",
+ b5a:"Es otra función de hash, así que son dos unidades distintas con el mismo nombre. Ponerlas en la misma frase sería exactamente el error que este panel existe para no cometer, el mismo que hace que el trabajo acumulado no se pueda comparar entre las dos cadenas. Lo mismo vale para la dificultad, y la altura de bloque tampoco dice nada sobre el trabajo.",
  k5b:"Las dos fuentes tienen interés",
  b5b:"Los dos sitios que publican cifras son el de promoción del propio fork y uno que promueve minarlo. No se presentan como neutrales y aquí no se presentan como neutrales.",
 
@@ -280,7 +300,8 @@ es:{
  checkTxt:"{days} días donde el objetivo son {target}. {target} entre {days} da una caída del {computed}%, contra el {claimed}% que publican ellos.",
  p6b:"Encaja. Lo que eso demuestra no es que sean de fiar: es que la primera ventana de dificultad de su cadena nueva estaba llena de los veinte días que su cadena vieja pasó casi parada. Nació heredando la dificultad de su propio parón.",
 
- foot:"Esta página es el registro de algo que terminó. Las cifras de encima de la línea las puede reproducir cualquiera con un nodo de Bitcoin; las de debajo no se pueden reproducir desde aquí en absoluto, y por eso están apartadas.",
+ foot:"Esta página es el registro de algo que terminó. Los bloques medidos encima de la línea los puede comprobar cualquiera con un nodo que siga esa rama; las cifras de debajo no se pueden reproducir desde aquí en absoluto, y por eso están apartadas.",
+ cutoff:"Fuentes revisadas hasta el {cutoff}. Lo posterior no está incluido.",
  toMeth:"Cómo se mide cada número de este sitio →"
 }};
 
@@ -370,7 +391,9 @@ function pintarDocumentados(){
     const cuando = e.date ? fechaISO(e.date)
                  : (e.time ? fechaUTC(e.time, false) : "—");
     return '<tr><td class="num">' + esc(cuando) + '</td><td>' +
-      esc(t(e.key, {height: nf(e.height, 0),
+      esc(t(e.key, {height: nf(e.height, 0), weight: nf(e.weight, 0),
+                    blocks: nf(e.blocks, 0), days: nf(e.days, 0),
+                    until: fechaISO(e.until),
                     starttime: e.time ? fechaUTC(e.time, false) : "—"})) +
       '</td></tr>';
   }).join("");
@@ -399,7 +422,7 @@ function valorClaim(c){
     return nf(c.bid, 0) + " / " + nf(c.ask, 0) + " $ (" + nf(c.spread_pct, 1) + "%)";
   let v = c.unit === "BTC"
         ? Number(c.value).toLocaleString(loc(), {maximumFractionDigits: 3})
-        : nf(c.value, c.key === "xHashrate" ? 1 : 0);
+        : nf(c.value, c.unit === "PH/s" ? 1 : 0);
   if(c.unit) v += " " + c.unit;
   if(c.pct != null) v += " (" + nf(c.pct, 1) + "%)";
   if(c.factor != null) v += " (x" + nf(c.factor, 0) + ")";
@@ -464,6 +487,7 @@ function paint(){
      mayoritaria cumple. Se calcula, no se escribe. */
   const vars = {
     forkDate: fechaISO(hz.date),
+    cutoff: fechaISO(TL && TL.record_cutoff),
     fork: nf(hz.height, 0),
     algo: hz.algo || "—",
     common: nf(TL && TL.last_common_height, 0),

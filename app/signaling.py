@@ -55,6 +55,10 @@ POW_FORK = {
     "height": 961640,
     "algo": "BLAKE2b",
     "software": "Bitcoin Knots 29.4.1rc4",
+    # Knots 29.4.1 retira el despliegue por versionbits: las reglas de datos
+    # rigen desde `height` hasta esta fecha (chainparams.cpp, RdtsExpiryTime,
+    # leido en v29.5.1.knots20260508).
+    "rules_until": "2027-09-01",
 }
 
 VERSIONBITS_TOP_MASK = 0xE0000000

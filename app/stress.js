@@ -109,6 +109,7 @@ const params = {
          mandatory_start: 961632, mandatory_end: 963647, forced_lockin: 963648,
          activation_height: 965664, starttime: 1764547200 },
   target_spacing: 600, threshold_pct: 55.01, blocks_per_day: 144, history_periods: 5,
+  pow_fork: { height: 961640, algo: "BLAKE2b", date: "2026-08-30", rules_until: "2027-09-01" },
 };
 
 function miners(o = {}) {
@@ -650,6 +651,47 @@ let fallos = 0;
    como este redactado. Se coge la plantilla de la clave, se parte por los
    marcadores y se busca el trozo literal mas largo. Asi reescribir un
    texto no rompe la prueba, pero cambiar la logica si. */
+/* Ningun nodo sigue ya la rama del BIP-110: la pagina es un registro y las
+   comprobaciones del panel en vivo se sustituyen por las de `comprobarRegistro`.
+   No se quedan sin mirar: se exige lo contrario de lo que exigian. */
+function enRegistro(datos) {
+  return !!(datos.chain && datos.chain.ok && datos.chain.watching === false);
+}
+
+function comprobarRegistro(panel, salida, datos, vista, hero, err, dom) {
+  const usa = k => usaClave(panel, salida, k);
+  const m = datos.miners, p = datos.pools, c = datos.chain;
+  if (!usa("strRecord")) err("en el registro, el recorrido no dice que ya no aplica");
+  if (usa("strRecalc")) err("en el registro se promete una proyeccion que nunca va a llegar");
+  if (!usa("simRecord")) err("en el registro, el simulador no dice que es hipotetico");
+  if (m && m.ok) {
+    if (!usa("mRecordB")) err("en el registro no se dice que el umbral ya no decide nada");
+    for (const k of ["mSplitBody", "gapKicker", "reachMet", "reachYes", "reachNo"])
+      if (usa(k)) err(`en el registro se sigue contando hacia el umbral (${k})`);
+    if (!usa("cdRecordPlan")) err("en el registro no se dice donde pasaron las reglas de datos");
+    // Se cuenta la casilla de estado: la explicacion de al lado repite la frase.
+    const tl = (dom.els.tl && dom.els.tl._html) || "";
+    if (tl.split("<b>" + panel.t("tlNotApplied") + "</b>").length - 1 !== 2)
+      err("en el registro, las dos alturas del plan original no salen como no aplicadas");
+  }
+  if (p && p.ok) {
+    if (!usa("coalRecord")) err("en el registro, los pools se siguen sumando hacia un umbral");
+    if (usa("coalSplitNote")) err("en el registro sigue la nota de pools del panel en vivo");
+  }
+  if (vista === "split") {
+    if (!hero.includes(panel.t("splitRecord", { h: "", last: "" }).split(",")[0].slice(0, 12)))
+      err("en el registro, el heroe no habla en pasado de la separacion");
+    const vivo = panel.t("splitYesFor", { t: "" }).slice(0, 24);
+    if (hero.includes(vivo)) err("en el registro, el heroe dice que las dos siguen avanzando");
+    if (hero.includes(panel.t("cdAllPassed"))) err("en el registro queda una cuenta atras");
+    if (c.split_hashes && !usa("proofBodyRecord"))
+      err("en el registro, la prueba del corte no dice de cuando son las huellas");
+    const sec = (dom.els.chain && dom.els.chain._html) || "";
+    if (sec.includes(panel.t("blockPace")))
+      err("en el registro se dibujan tarjetas vacias de las dos cadenas");
+  }
+}
+
 function usaClave(panel, salida, clave) {
   const plantilla = panel.t(clave);
   const trozos = plantilla.split(/\{[a-zA-Z][a-zA-Z0-9_]*\}/)
@@ -787,7 +829,7 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
        Dos cosas, y la segunda es la que importa: que se diga por que no hay
        cifra, y que NO aparezca la nota del ritmo de diez minutos, que es
        justo la que delata que se ha contado en la cadena de al lado. */
-    if (cd && cd.ok && cd.state === "split" && vista === "split" &&
+    if (cd && cd.ok && cd.state === "split" && vista === "split" && !enRegistro(datos) &&
         !(cd.minority && cd.minority.tip != null) &&
         datos.miners && datos.miners.ok) {
       if (!usaClave(panel, salida, "cdNoBipNode"))
@@ -800,7 +842,7 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
        significado: se mide sobre la cadena de hoy, y quien señaliza mina en
        la otra, asi que tiende a cero sola. Sin decirlo se lee como "ya no
        señaliza nadie", que es falso. */
-    if (datos.chain && datos.chain.ok && datos.chain.state === "split" &&
+    if (datos.chain && datos.chain.ok && datos.chain.state === "split" && !enRegistro(datos) &&
         datos.miners && datos.miners.ok &&
         !usaClave(panel, salida, "mSplitBody"))
       err("cadenas separadas y la cuenta de señalizacion no dice sobre cual se mide");
@@ -911,7 +953,7 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
          grande de al lado sigue diciendo "en teoria, si", y sola es
          justamente la frase que este proyecto ya tuvo que corregir una vez. */
       const mi2 = datos.miners;
-      if (cd.state === "split" && mi2 && mi2.ok && mi2.threshold_reachable &&
+      if (cd.state === "split" && !enRegistro(datos) && mi2 && mi2.ok && mi2.threshold_reachable &&
           mi2.signalling_blocks < mi2.threshold_blocks) {
         if (!usaClave(panel, salida, "mReachNoteSplit"))
           err("cadenas separadas y el umbral se explica como si nada hubiera cambiado");
@@ -946,7 +988,7 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
          corte quien señaliza mina en la otra. Sin decirlo, el dia que la
          ventana deje atras la separacion seguira diciendo "solo señaliza X"
          con X minando en otra parte. */
-      if (cd.state === "split" && datos.pools && datos.pools.ok &&
+      if (cd.state === "split" && !enRegistro(datos) && datos.pools && datos.pools.ok &&
           !usaClave(panel, salida, "coalSplitNote"))
         err("cadenas separadas y la lista de pools no dice sobre cual se mide");
 
@@ -1034,6 +1076,12 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
 
   // Coherencia texto/dato: no afirmar cosas que los datos desmienten.
   const m = datos.miners, h = datos.history, p = datos.pools;
+  const registro = enRegistro(datos);
+  if (registro) {
+    const heroReg = ["heroclosed", "herostat", "herocd"]
+      .map(id => (dom.els[id] && dom.els[id]._html) || "").join(" ");
+    comprobarRegistro(panel, salida, datos, vista, heroReg, err, dom);
+  }
 
   /* El ritmo de cada cadena, y su base.
      Un intervalo medio no distingue "va despacio" de "esta parada": una rama
@@ -1077,7 +1125,7 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
      cadenas separadas ese sitio lo ocupa la vitalidad de la rama BIP-110, y
      la cuenta atras sigue existiendo mas abajo con sus propias claves. Estas
      comprobaciones son de esa tarjeta, asi que no aplican en ese caso. */
-  const heroConContador = !(datos.chain && datos.chain.ok &&
+  const heroConContador = !registro && !(datos.chain && datos.chain.ok &&
                             datos.chain.state === "split" &&
                             (datos.chain.minority || {}).blocks_since_split != null);
   if (m && m.ok && m.milestones && heroConContador) {
@@ -1113,7 +1161,7 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
   if (m && m.ok) {
     const cumplido = m.signalling_blocks >= m.threshold_blocks;
     const esperada = cumplido ? "reachMet" : (m.threshold_reachable ? "reachYes" : "reachNo");
-    for (const k of ["reachMet", "reachYes", "reachNo"]) {
+    for (const k of (registro ? [] : ["reachMet", "reachYes", "reachNo"])) {
       const esta = salida.includes(panel.t(k));
       if (k === esperada && !esta) err(`el umbral esta en '${esperada}' y no lo dice`);
       if (k !== esperada && esta) err(`el umbral esta en '${esperada}' y ademas dice '${k}'`);
@@ -1121,7 +1169,7 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
     // Los hitos estirados: el texto tiene que decir el escenario correcto,
     // y con cuota 0 no puede imprimirse un plazo, tiene que decir "nunca".
     const pr = m.milestone_projection;
-    if (pr) {
+    if (pr && !registro) {
       const sh = pr.share_pct, thr = m.threshold_pct;
       // Con la cuota MEDIDA (ya hay separacion) el texto es otro: no se
       // supone la cuota, se cuenta, y decirlo cambia lo que la frase afirma.
@@ -1174,7 +1222,7 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
     const esperada = Math.abs(d) < 0.5 ? "trendFlat"
                    : (!monotona ? "trendBumpy" : (d > 0 ? "trendUp" : "trendDown"));
     if (!(m && m.ok)) return;
-    if (!usaClave(panel, salida, esperada)) {
+    if (!registro && !usaClave(panel, salida, esperada)) {
       err(`la tendencia es ${d.toFixed(2)} y no se usa ${esperada}`);
     }
     for (const otra of ["trendFlat", "trendUp", "trendDown", "trendBumpy"]) {
@@ -1209,7 +1257,7 @@ function revisar(nombre, lang, vista, salida, datos, panel, dom) {
       err(`${cuentas.length} pools en el historico y el remate no cuadra`);
     }
   }
-  if (p && p.ok) {
+  if (p && p.ok && !registro) {
     const firman = p.pools.filter(r => r.signalling_blocks > 0);
     if (firman.length > 1 && usaClave(panel, salida, "coalitionBody")) {
       err(`firman ${firman.length} pools y dice que solo uno`);

@@ -581,8 +581,10 @@ def params():
         "threshold_pct": round(bip["threshold_num"] / bip["period"] * 100, 2),
         "blocks_per_day": round(86400 / signaling.TARGET_SPACING),
         "history_periods": HISTORY_PERIODS,
+        "pow_fork": dict(signaling.POW_FORK, date=POW_FORK_DATE),
         "source": ("Parametros tomados de la seccion Deployment de "
-                   "bip-0110.mediawiki en bitcoin/bips, v1.0.0 (Complete)."),
+                   "bip-0110.mediawiki en bitcoin/bips, v1.0.0, hoy en estado "
+                   "Closed."),
     })
 
 
@@ -1547,6 +1549,9 @@ def _build_chains():
 # pagina: era la unica fecha que quedaba clavada en el JavaScript.
 POW_FORK_DATE = "2026-08-30"
 
+# Hasta cuando se revisaron las fuentes del cronograma. Lo posterior no entra.
+RECORD_CUTOFF = "2026-11-22"
+
 _TIMELINE_FILE = os.path.join(CACHE_DIR, "timeline.json") if CACHE_DIR else None
 
 
@@ -1694,20 +1699,33 @@ def _build_timeline():
     # envejecen y se pueden comprobar en su repositorio. Van con su clave y
     # su fecha, nunca escritas dentro de una frase: el dia que una cambie,
     # cambia aqui y no hay que releer ningun texto buscandola.
+    #
+    # Las versiones de Knots van con la fecha de su publicacion en GitHub y
+    # sus cifras salen de las notas de cada version y de chainparams.cpp.
+    # Las dos alturas del plan original se quedan, marcadas como no aplicadas.
+    hasta = signaling.POW_FORK["rules_until"]
     out["documented"] = [
         {"key": "evBipDraft", "date": "2025-12-01",
          "time": signaling.BIP110["starttime"]},
         {"key": "evBipComplete", "date": "2026-06-25"},
-        {"key": "evMandatory", "date": None,
+        {"key": "evMandatory", "date": "2026-08-08",
          "height": signaling.BIP110["mandatory_start"]},
+        {"key": "evBipClosed", "date": "2026-08-10"},
+        {"key": "evDraw", "date": "2026-08-11"},
+        {"key": "evRc4", "date": POW_FORK_DATE,
+         "height": signaling.POW_FORK["height"]},
+        {"key": "evKnots2941", "date": "2026-09-02",
+         "weight": 800000, "until": hasta},
+        {"key": "evKnots2942", "date": "2026-09-21",
+         "height": 973440, "blocks": 6480, "days": 45},
+        {"key": "evKnots2943", "date": "2026-10-28",
+         "height": 979919, "blocks": 25920, "days": 180},
         {"key": "evLockin", "date": None,
          "height": signaling.BIP110["forced_lockin"]},
         {"key": "evActive", "date": None,
          "height": signaling.BIP110["activation_height"]},
-        {"key": "evDraw", "date": "2026-08-11"},
-        {"key": "evRc4", "date": POW_FORK_DATE,
-         "height": signaling.POW_FORK["height"]},
     ]
+    out["record_cutoff"] = RECORD_CUTOFF
     out["params"] = {
         "starttime": signaling.BIP110["starttime"],
         "mandatory_start": signaling.BIP110["mandatory_start"],
@@ -1757,6 +1775,12 @@ def health():
 
     El 503 se conserva: sale del contenido, no de haber esperado.
     """
+    # Congelado no hay nodos que vigilar, y la salud no entra en la foto a
+    # proposito. Lo unico que se afirma es que el sitio tiene su foto y la
+    # sirve; sin foto sigue siendo un 503, porque entonces si esta roto.
+    if FROZEN and (SNAPSHOT.get("endpoints") or {}):
+        return jsonify({"ok": True, "frozen": True, "serving": "snapshot",
+                        "taken_at": SNAPSHOT.get("taken_at")})
     out = _cached_bg("health", _build_health)
     return jsonify(out), (200 if out.get("ok") else 503)
 
@@ -1874,7 +1898,9 @@ def _build_health():
             "El nodo canonico aplica BIP-110. Tras el bloque 961.632 puede "
             "irse a la cadena minoritaria y el panel la contaria como si "
             "fuese la cadena. Pon aqui un nodo sin reduced_data.")
-    if k.get("ok") and not k.get("enforces_bip110"):
+    # Con una separacion ya registrada, que el secundario no aplique el BIP-110
+    # es el estado final del observatorio y no una mala configuracion.
+    if k.get("ok") and not k.get("enforces_bip110") and not _load_state().get("split_height"):
         out["warnings"].append(
             "El nodo secundario NO aplica BIP-110, asi que la comparacion no "
             "puede detectar una separacion. Comprueba que no apunta al mismo "

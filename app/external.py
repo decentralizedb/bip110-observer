@@ -26,7 +26,7 @@ Las dos fuentes que publican cifras son el sitio de promocion del fork y un
 sitio que promueve minarlo. No se presentan como neutrales y no se van a
 presentar aqui como neutrales.
 
-Comprobado el 2026-09-05. Si alguien actualiza esto, que actualice `as_of`.
+Comprobado por ultima vez el 2026-11-22. Cada cifra lleva su propio `as_of`.
 """
 
 # Quien lo dice. Se enseña en pantalla junto a cada cifra, no en un pie.
@@ -71,6 +71,11 @@ CLAIMS = [
      "src": "minero", "derived": True},
     {"key": "xMarket", "bid": 82, "ask": 190, "spread_pct": 131.7,
      "as_of": "2026-09-03", "src": "prensa"},
+    {"key": "xHeight", "value": 981986, "as_of": "2026-11-14", "src": "minero"},
+    {"key": "xHashrateWindow", "value": 47.1, "unit": "PH/s", "as_of": "2026-11-13",
+     "src": "minero"},
+    {"key": "xDiffLatest", "value": 6575188790, "height": 981792,
+     "as_of": "2026-11-13", "src": "minero"},
 ]
 
 # Lo que se busco y NO se encontro. Va en la respuesta a proposito: un hueco

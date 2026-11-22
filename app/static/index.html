@@ -623,7 +623,7 @@ footer p+p{margin-top:8px}
     <p class="str-lead" id="strlead"></p>
     <div id="strrails"><div class="skel" style="margin-top:20px;height:150px"></div></div>
     <div id="strrows" style="margin-top:22px"></div>
-    <div class="caveat caveat--est">
+    <div class="caveat caveat--est" id="strassumebox">
       <div class="caveat-k" data-k="strAssumeKicker"></div>
       <ul class="str-assume">
         <li id="strAssume1"></li>
@@ -788,6 +788,22 @@ en: {
  proofCheck:"Check it on your own node: bitcoin-cli getblockhash {hraw}. Whichever of the two you get back tells you which chain your node is on.",
  splitYes:"Yes. There are now two versions of Bitcoin moving on separately",
  splitYesFor:"Yes. Two versions of Bitcoin are moving on separately, starting {t}",
+ splitRecord:"Yes. They separated at block {h}, and this panel measured that branch up to block {last}",
+ proofBodyRecord:"At height {h} there are two different blocks, one on each chain. They are the same chain up to block {n}, and not after it. These fingerprints were saved while one of our nodes was still following each chain.",
+ nodeKnotsRecord:"Our Knots node, while it followed that branch",
+ tlNotApplied:"never applied",
+ mTipRecord:"Last block read",
+ ms2Record:"Forced lock-in, in the original plan",
+ ms2dRecord:"It never applied: the branch stalled first, and the software removed this deployment when it changed proof of work.",
+ ms3Record:"Data rules, in the original plan",
+ ms3dRecord:"They did not start here. They moved to the proof of work change.",
+ cdRecordPlan:"The last two heights were the original BIP plan. On that chain the data rules apply from block {fork} until {until}, and coins created before that height are exempt.",
+ mRecordK:"This count no longer decides anything",
+ mRecordB:"The {thr}% threshold belonged to a deployment that Knots removed when it changed proof of work. What remains below is a record of how many blocks on the chain with today's rules carry the mark.",
+ coalRecord:"Mining share over the latest blocks of the chain with today's rules. There is no threshold left to add up to, so this says nothing about support.",
+ simRecord:"A hypothetical exercise on a SHA-256 chain starting a new period. It does not describe the BLAKE2b chain, which reset its difficulty when it changed algorithm.",
+ simModelledRecord:"Modelled on a target of {normal}, not measured on any chain.",
+ strRecord:"This projection modelled how long a SHA-256 minority chain would take to reach each height. That chain moved to {algo} at block {fork}, so the projection no longer applies.",
  splitStillYours:"Your bitcoin are still where they were, on both of them. You do not have to do anything.",
  mSplitKicker:"Read this count knowing the chains have separated",
  mSplitBody:"It is counted on the chain with today's rules, block by block on our own node. Since the split, a miner that signals builds on the other chain, so its blocks are not here and this figure heads towards zero on its own. It is still exact and still verifiable, but it now answers how much of THIS chain signals, not how many miners are signalling.",
@@ -1073,6 +1089,22 @@ es: {
  proofCheck:"Compruébalo en tu propio nodo: bitcoin-cli getblockhash {hraw}. La que te devuelva de las dos te dice en qué cadena estás.",
  splitYes:"Sí. Ahora hay dos versiones de Bitcoin avanzando por separado",
  splitYesFor:"Sí. Hay dos versiones de Bitcoin avanzando por separado, desde {t}",
+ splitRecord:"Sí. Se separaron en el bloque {h}, y este panel midió esa rama hasta el bloque {last}",
+ proofBodyRecord:"A la altura {h} hay dos bloques distintos, uno en cada cadena. Son la misma cadena hasta el bloque {n}, y a partir de ahí no. Estas huellas se guardaron cuando uno de nuestros nodos todavía seguía cada cadena.",
+ nodeKnotsRecord:"Nuestro nodo Knots, mientras siguió esa rama",
+ tlNotApplied:"no se aplicó",
+ mTipRecord:"Último bloque leído",
+ ms2Record:"Bloqueo forzado, en el plan original",
+ ms2dRecord:"No llegó a aplicarse: la rama se paró antes, y el software retiró este despliegue al cambiar de prueba de trabajo.",
+ ms3Record:"Reglas de datos, en el plan original",
+ ms3dRecord:"No empezaron aquí. Pasaron al cambio de prueba de trabajo.",
+ cdRecordPlan:"Las dos últimas alturas eran el plan original del BIP. En esa cadena las reglas de datos rigen desde el bloque {fork} hasta el {until}, y quedan exentas las monedas creadas antes de esa altura.",
+ mRecordK:"Esta cuenta ya no decide nada",
+ mRecordB:"El umbral del {thr}% era parte de un despliegue que Knots retiró al cambiar de prueba de trabajo. Lo que queda abajo es un registro de cuántos bloques de la cadena con las reglas de hoy llevan la marca.",
+ coalRecord:"Cuota de minado sobre los últimos bloques de la cadena con las reglas de hoy. Ya no queda ningún umbral al que sumar, así que esto no dice nada sobre apoyos.",
+ simRecord:"Ejercicio hipotético sobre una cadena SHA-256 que empieza un periodo nuevo. No describe la cadena BLAKE2b, que reajustó su dificultad al cambiar de algoritmo.",
+ simModelledRecord:"Modelado sobre el objetivo de {normal}, no medido en ninguna cadena.",
+ strRecord:"Esta proyección modelaba cuánto tardaría una cadena minoritaria SHA-256 en llegar a cada altura. Esa cadena pasó a {algo} en el bloque {fork}, así que la proyección ya no aplica.",
  splitStillYours:"Tus bitcoin siguen donde estaban, en las dos. No tienes que hacer nada.",
  mSplitKicker:"Lee esta cuenta sabiendo que las cadenas se han separado",
  mSplitBody:"Se cuenta sobre la cadena con las reglas de hoy, bloque a bloque en nuestro propio nodo. Desde la separación, un minero que señaliza construye en la otra cadena, así que sus bloques no están aquí y esta cifra tiende a cero por sí sola. Sigue siendo exacta y verificable, pero ahora contesta cuánto señaliza ESTA cadena, no cuántos mineros están señalizando.",
@@ -1537,6 +1569,24 @@ function cierre(){
   return {frozen: !!c.frozen, taken_at: c.taken_at || null};
 }
 
+/* Ningun nodo sigue ya la rama del BIP-110, asi que la pagina habla de ella
+   en pasado y hasta donde llego la medida. Es mas estrecho que `cierre()`:
+   con la rama solo fuera del horizonte, el nodo aun enseña lo que midio. */
+function enRegistro(){
+  const c = DATA.chain;
+  return !!(c && c.ok && c.watching === false);
+}
+function powFork(){
+  const f = (DATA.params && DATA.params.pow_fork) || {};
+  const seg = f.rules_until ? Date.parse(f.rules_until + "T00:00:00Z") / 1000 : null;
+  return {
+    fork: f.height != null ? fmt(f.height) : "…",
+    last: f.height != null ? fmt(f.height - 1) : "…",
+    algo: f.algo || "…",
+    until: seg ? fechaCorta(seg) : "…",
+  };
+}
+
 function paintFresh(){
   const el = $("fresh"), dot = $("fresh-dot"), txt = $("fresh-txt");
   if(!el) return;
@@ -1782,17 +1832,21 @@ function forkDiagram(d){
 function forkProofOnly(d){
   const hc = d.split_hashes;
   if(!hc) return "";
+  const reg = enRegistro();
   const corta = h => (h && h.length > 24) ? h.slice(0, 12) + "…" + h.slice(-10) : (h || "—");
   return `<div class="panel" style="margin-top:18px">
     <div class="caveat-k">${esc(t("proofKicker"))}</div>
     <div style="font-size:15px;color:var(--dim);margin-top:6px;max-width:66ch">${
-      esc(t("proofBody", {h: fmt(d.split_height + 1), n: fmt(d.split_height)}))}</div>
+      esc(t(reg ? "proofBodyRecord" : "proofBody", {h: fmt(d.split_height + 1), n: fmt(d.split_height)}))}</div>
     <div class="proof">
       <div><div class="lbl">${esc(t("nodeCore"))}</div>
         <div class="mono proofh">${esc(corta(hc.core))}</div></div>
-      <div><div class="lbl">${esc(t("nodeKnots"))}</div>
+      <div><div class="lbl">${esc(t(reg ? "nodeKnotsRecord" : "nodeKnots"))}</div>
         <div class="mono proofh o">${esc(corta(hc.knots))}</div></div>
-    </div></div>`;
+    </div>
+    ${reg ? `<div style="font-size:14px;color:var(--dim2);margin-top:12px;max-width:66ch">${
+      esc(t("proofCheck", {hraw: String(d.split_height + 1)}))}</div>` : ""}
+    </div>`;
 }
 
 function chainPanelSplit(d, preview){
@@ -1948,6 +2002,9 @@ function heroStateLine(){
   /* Se pregunta si o no, asi que se contesta si o no. La altura del corte
      es la prueba, no la respuesta, y vive en la seccion de mas abajo para
      quien quiera comprobarla. */
+  if(shown === "split" && enRegistro()){
+    return t("splitRecord", {h: constVars().splitHeight, last: powFork().last});
+  }
   if(shown === "split"){
     const desde = hace(d.split_seconds_ago);
     return desde ? t("splitYesFor", {t: desde}) : t("splitYes");
@@ -2153,7 +2210,8 @@ function renderHeroStatus(){
 
   // Dos contenedores, no uno, porque el aviso de estafas va entre medias.
   el.innerHTML   = `<div class="hgrid">${f1}</div>`;
-  elcd.innerHTML = `<div class="hgrid">${f2}</div>`;
+  // En el registro no queda nada a lo que contar atras.
+  elcd.innerHTML = enRegistro() ? "" : `<div class="hgrid">${f2}</div>`;
 }
 
 /* Compartir sin terceros y sin botones de red social, que son justo los
@@ -2204,7 +2262,7 @@ function renderChain(){
      el que explica por que no hay datos.
      La prueba del corte SI se queda: son hashes guardados, no dependen de
      que el nodo conteste hoy. */
-  const sinComparar = d.degraded && !(d.majority && d.majority.tip != null);
+  const sinComparar = (d.degraded || enRegistro()) && !(d.majority && d.majority.tip != null);
   if(shown === "split" && sinComparar && !preview){
     html += (d.split_hashes ? forkProofOnly(d) : "");
   }
@@ -2252,17 +2310,21 @@ function renderTimeline(){
     const proyM  = cadMin ? ((d.milestone_projection || {}).milestones || [])
                               .find(z => z.key === k) : null;
     const dias   = cadMin ? (proyM ? proyM.minority_days : null) : m.approx_days;
-    const away = m.passed ? t("reached") : fmt(faltan) + " " + t("blocks");
+    /* En el registro, las dos ultimas alturas son un plan que no se aplico.
+       Que la cadena de hoy las haya pasado no dice que ocurrieran. */
+    const noAplicado = enRegistro() && i > 0;
+    const away = noAplicado ? t("tlNotApplied")
+               : m.passed ? t("reached") : fmt(faltan) + " " + t("blocks");
     // Sin plazo fiable no se escribe uno. "nunca" era lo que salia cuando la
     // proyeccion venia con la cuota señalizada, que tras el corte es cero.
     /* La MISMA unidad que el recorrido, que usa strDur y pasa a años por
        encima del año. El mismo hito salia como "770,0 dias" aqui y "2,11
        años" alli: el mismo numero, y el lector teniendo que dividir para
        saber que hablan de lo mismo. */
-    const eta  = m.passed ? "" : (dias == null ? "" : t("etaAprox", {v: strDur(dias)}));
+    const eta  = (m.passed || enRegistro()) ? "" : (dias == null ? "" : t("etaAprox", {v: strDur(dias)}));
     const n = i + 1;
     const v = Object.assign(constVars(), {h: fmt(m.height), prev: fmt(m.height - 1)});
-    const qa = [1, 2, 3].map(j => {
+    const qa = noAplicado ? "" : [1, 2, 3].map(j => {
       const q = t(`ms${n}q${j}`, v), a = t(`ms${n}a${j}`, v);
       return q.startsWith("ms") ? "" :
         `<div class="qa"><div class="q">${esc(q)}</div><div class="a">${esc(a)}</div></div>`;
@@ -2275,7 +2337,7 @@ function renderTimeline(){
     // Con la separacion ya ocurrida, la cifra de arriba YA es la de la
     // cadena BIP-110, asi que repetirla como "si se separan" sobra y
     // ademas contradice: eso ya no es un escenario.
-    if(cadMin){ alt = ""; }
+    if(cadMin || enRegistro()){ alt = ""; }
     else if(pr && !m.passed){
       if(k === "mandatory_signalling_start"){
         alt = `<span class="tl-est same">${esc(t("tlSameBoth"))}</span>`;
@@ -2286,7 +2348,7 @@ function renderTimeline(){
     }
     return `<div class="tlrow" style="border-left-color:${c}">
       <div class="h" style="color:${c}">${fmt(m.height)}</div>
-      <div class="m"><strong>${esc(t(tk))}</strong><span>${esc(t(bk))}</span>
+      <div class="m"><strong>${esc(t(noAplicado ? tk + "Record" : tk))}</strong><span>${esc(t(noAplicado ? bk + "Record" : bk))}</span>
         ${qa ? `<button type="button" class="more small" id="tl-b${n}" aria-expanded="false"
                   aria-controls="tl-x${n}" onclick="toggleBox('tl-x${n}','tl-b${n}')">${esc(t("answerMore"))}</button>
                 <div id="tl-x${n}" class="qabox" hidden>${qa}</div>` : ""}</div>
@@ -2296,6 +2358,7 @@ function renderTimeline(){
      nota para quien viene a comprobar, no una respuesta para quien llega
      asustado. Aqui, al pie de las alturas, es donde se pregunta. */
   (() => {
+    if(enRegistro()) return `<div class="cdfoot">${esc(t("cdRecordPlan", powFork()))}</div>`;
     const min = (DATA.chain && DATA.chain.ok && realState() === "split")
               ? (DATA.chain.minority || null) : null;
     const alt = fmt((ms[(rows.find(r => !(ms[r[0]] || {}).passed) || rows[2])[0]] || {}).height);
@@ -2472,13 +2535,14 @@ function renderMiners(){
      pero contesta a otra pregunta que antes del corte, y sin decirlo se lee
      como "ya no señaliza nadie", que es falso. */
   const partido = (DATA.chain && DATA.chain.ok && realState() === "split");
+  const registro = enRegistro();
   const avisoPartido = partido ? `<div class="caveat caveat--sample" style="margin-top:20px">
-      <div class="caveat-k">${esc(t("mSplitKicker"))}</div>
-      <div class="caveat-b" style="font-size:15px;max-width:68ch">${esc(t("mSplitBody"))}</div>
+      <div class="caveat-k">${esc(t(registro ? "mRecordK" : "mSplitKicker"))}</div>
+      <div class="caveat-b" style="font-size:15px;max-width:68ch">${esc(t(registro ? "mRecordB" : "mSplitBody", constVars()))}</div>
     </div>` : "";
 
   el.innerHTML = avisoPartido + `<div class="panel t-data" style="margin-top:20px">
-    <div class="caveat-k">${esc(t("gapKicker", constVars()))}</div>
+    ${registro ? "" : `<div class="caveat-k">${esc(t("gapKicker", constVars()))}</div>
     <div class="gapnum"><span class="n">${/* Con la MISMA precision que el
         umbral que hay en la misma frase. Salia "55,01 puntos por debajo
         del 55%", dos precisiones en una linea, y eso hace dudar de las
@@ -2486,7 +2550,7 @@ function renderMiners(){
     <div style="font-size:15px;color:var(--dim);margin-top:10px;max-width:64ch">${
       esc(t("gapBody", Object.assign({n: num(pct, 2)}, constVars())))} ${esc(trendText())}</div>
     <div class="bar"><div style="width:${barPct}%"></div></div>
-    <div class="barlg"><span class="mono">${num(pct, 2)}%</span><span>${esc(t("barLegend", constVars()))}</span><span class="mono">${constVars().thr}%</span></div>
+    <div class="barlg"><span class="mono">${num(pct, 2)}%</span><span>${esc(t("barLegend", constVars()))}</span><span class="mono">${constVars().thr}%</span></div>`}
     <div class="grid" style="margin-top:22px">
       <div class="card"><div class="lbl">${esc(t("mSig"))}</div>
         <div class="val o">${fmt(d.signalling_blocks)}</div>
@@ -2495,7 +2559,7 @@ function renderMiners(){
              saltaba un bloque de diferencia y parecia un error de cuenta.
              Se dice hasta donde llego el escaneo, que es la verdad. */""}
         <div class="note">${esc(t("mSigOf", {n: fmt(p.scanned), h: fmt(d.tip)}))}</div></div>
-      <div class="card"><div class="lbl">${esc(t("mTip"))}</div>
+      <div class="card"><div class="lbl">${esc(t(registro ? "mTipRecord" : "mTip"))}</div>
         ${/* La altura MAS reciente de las dos que tiene la pagina. Las dos
              secciones salen de caches distintas y con edades distintas, asi
              que la cabecera decia 961.659 y esta 961.658. No es falso, pero
@@ -2504,6 +2568,7 @@ function renderMiners(){
         <div class="val">${fmt(alturaActual(d.tip))}</div>
         <div class="note">${esc(t("mTipNote", {p: fmt(p.index), a: fmt(p.start), b: fmt(p.end)}))}</div></div>
       ${(() => {
+        if(registro) return "";
         // Tres estados. Con solo "alcanzable si/no", un periodo que YA ha
         // cumplido el umbral se contaba como posibilidad, y ese es el dia
         // en que la propuesta sale adelante.
@@ -2590,7 +2655,7 @@ function renderPools(){
      la desmienta. Se dice de donde sale, igual que en la seccion de
      mineros, que ya lo avisa. */
   if(co){
-    co.textContent = coalitionText() +
+    co.textContent = enRegistro() ? t("coalRecord") : coalitionText() +
       (realState() === "split" ? " " + t("coalSplitNote") : "");
   }
   el.innerHTML = rows.map(p => {
@@ -2694,6 +2759,8 @@ function setShare(pct){ $("share").value = Math.round(Math.min(60, Math.max(0.01
    de los hitos ya cuenta asi, y el mismo plazo calculado de dos maneras en
    la misma pagina se lee como un error aunque las dos cuentas sean buenas. */
 function bloquesHastaReajuste(period){
+  // Sin rama que seguir, la punta del nodo es la de la cadena mayoritaria.
+  if(enRegistro()) return period;
   const c = DATA.chain;
   const h = (realState() === "split" && c && c.ok && c.nodes && c.nodes.knots)
           ? c.nodes.knots.tip : null;
@@ -2730,7 +2797,7 @@ function renderSim(){
            y 53,8 h modeladas, la misma frase con dos cifras. El aviso
            existia, pero colgando de la tarjeta de la mayoritaria, o sea
            lejos de la cifra que matiza. Va donde se lee. */""}
-      <div class="note">${esc(t("simModelled", {normal: normalSpacing()}))}</div></div>
+      <div class="note">${esc(t(enRegistro() ? "simModelledRecord" : "simModelled", {normal: normalSpacing()}))}</div></div>
     <div class="card"><div class="lbl">${esc(t("simPerDay"))}</div>
       <div class="val">${num(perDay, 2)}</div>
       <div class="note">${esc(t("simPerDayNote", constVars()))}</div></div>
@@ -2744,7 +2811,9 @@ function renderSim(){
            para lo mismo. Ninguno es falso, asi que no se toca el calculo:
            se dice de donde sale cada uno. */""}
       <div class="note">${esc(t("simMajNote"))}</div></div>`;
-  $("simviable").innerHTML = share >= 0.5 ? `<div class="viable">${esc(t("simViable"))}</div>` : "";
+  $("simviable").innerHTML = (enRegistro()
+      ? `<div class="caveat caveat--est"><div class="caveat-b">${esc(t("simRecord"))}</div></div>` : "") +
+    (share >= 0.5 ? `<div class="viable">${esc(t("simViable"))}</div>` : "");
 }
 
 /* Las fechas del BIP son alturas, y en una cadena lenta llegan tarde.
@@ -2798,6 +2867,15 @@ function normalSpacing(){
 function strNeverCls(dias){ return (dias === null || dias === undefined) ? " is-never" : ""; }
 function renderStretch(){
   const d = DATA.miners, lead = $("strlead"), rails = $("strrails"), rows = $("strrows");
+  /* Antes de mirar los mineros: sin rama que seguir no hay proyeccion que
+     esperar, y "se esta rehaciendo" seria una promesa que nunca se cumple. */
+  const cajaSup = $("strassumebox");
+  if(cajaSup) cajaSup.hidden = enRegistro();
+  if(enRegistro()){
+    lead.textContent = t("strRecord", powFork());
+    rails.innerHTML = ""; rows.innerHTML = "";
+    return;
+  }
   if(!d){ return; }
   if(!d.ok || !d.milestone_projection){
     lead.textContent = ""; rows.innerHTML = "";
