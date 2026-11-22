@@ -13,6 +13,14 @@ for u in "$BTC_RPC_URL" "$BTC_RPC_TOR_URL" "$BTC_RPC_URL_KNOTS" "$BTC_RPC_TOR_UR
 done
 [ "$CRAWL_VIA_TOR" = "true" ] && NEEDS_TOR=1
 
+# Congelado no se habla con ningun nodo, asi que tampoco hace falta Tor. Sin
+# esto, cada arranque esperaba a unos servicios ocultos que ya no se usan, y
+# mientras tanto la web daba 502: hasta 12 minutos si un nodo no contesta.
+# Acepta los mismos valores que main.py.
+case "$(printf %s "$FROZEN" | tr '[:upper:]' '[:lower:]')" in
+  1|true|yes) NEEDS_TOR=0 ;;
+esac
+
 # Primera .onion de las que se le pasen, o nada. Sirve para quedarse con la
 # direccion de cada nodo sin repetir el case en cuatro sitios.
 primera_onion() {
